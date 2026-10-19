@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Hệ thống chuyển đổi LaTeX sang Word (.docx) độ chính xác cao với 5 tầng kiểm thử tự động">
+  <title>LaTeX → Word Converter | Hybrid Engine</title>
+  <link rel="stylesheet" href="/static/styles.css?v=2.0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📄</text></svg>">
+</head>
+<body>
+  <!-- Animated Background Orbs -->
+  <div class="bg-decoration">
+    <div class="bg-orb bg-orb--1"></div>
+    <div class="bg-orb bg-orb--2"></div>
+    <div class="bg-orb bg-orb--3"></div>
+  </div>
+
+  <div class="app-container">
+    <!-- ═══════════════ HEADER ═══════════════ -->
+    <header class="header" id="app-header">
+      <div class="header__brand">
+        <div class="header__icon">📄</div>
+        <div>
+          <div class="header__title">LaTeX → Word Converter</div>
+          <div class="header__subtitle">Hybrid Engine • Pandoc + OMML + TikZ Renderer</div>
+        </div>
+      </div>
+      <div class="header__actions">
+        <div class="status-badge" id="status-badge" onclick="showSystemStatus()" title="Kiểm tra hệ thống">
+          <span class="status-dot status-dot--loading" id="status-dot"></span>
+          <span id="status-text">Đang kiểm tra...</span>
+        </div>
+        <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Chuyển đổi Dark/Light mode">
+          <div class="theme-toggle__icons">
+            <span>☀️</span>
+            <span>🌙</span>
+          </div>
+        </button>
+      </div>
+    </header>
+
+    <!-- ═══════════════ MAIN GRID ═══════════════ -->
+    <div class="main-grid">
+      <!-- ─── Sidebar ─── -->
+      <aside class="sidebar">
+        <!-- Mode Selection -->
+        <div class="card">
+          <div class="card__title">
+            <span class="card__title-icon">⚙️</span>
+            Chế độ chuyển đổi
+          </div>
+
+          <div class="radio-cards">
+            <label class="radio-card radio-card--active" id="mode1-card" onclick="selectMode(1)">
+              <input type="radio" name="mode" value="1" checked>
+              <span class="radio-card__dot"></span>
+              <div>
+                <div class="radio-card__label">Mode 1 — Visual Accuracy</div>
+                <div class="radio-card__desc">Ưu tiên giữ nguyên bố cục, hình vẽ sắc nét như bản in PDF gốc</div>
+              </div>
+            </label>
+            <label class="radio-card" id="mode2-card" onclick="selectMode(2)">
+              <input type="radio" name="mode" value="2">
+              <span class="radio-card__dot"></span>
+              <div>
+                <div class="radio-card__label">Mode 2 — Max Editability</div>
+                <div class="radio-card__desc">Tối ưu bảng & công thức để chỉnh sửa trực tiếp trong Word</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- DPI & Options -->
+        <div class="card">
+          <div class="card__title">
+            <span class="card__title-icon">🎛️</span>
+            Tùy chọn nâng cao
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              Độ phân giải TikZ/PGFPlots
+              <span class="form-label__hint">(DPI)</span>
+            </label>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <input type="range" class="range-slider" id="dpi-slider" min="200" max="600" step="100" value="400" oninput="updateDPI(this.value)">
+              <span class="range-value" id="dpi-value">400 DPI</span>
+            </div>
+          </div>
+
+          <div class="toggle-row">
+            <span class="toggle-row__label">Kiểm tra nghiêm ngặt (--strict)</span>
+            <button class="toggle toggle--active" id="toggle-strict" onclick="toggleOption('strict')"></button>
+          </div>
+
+          <div class="toggle-row">
+            <span class="toggle-row__label">Đối chiếu PDF (--qa-pdf / Layer 5)</span>
+            <button class="toggle toggle--active" id="toggle-qa" onclick="toggleOption('qa')"></button>
+          </div>
+        </div>
+
+        <!-- System Info -->
+        <div class="card" id="env-card" style="display: none;">
+          <div class="card__title">
+            <span class="card__title-icon">🔧</span>
+            Môi trường hệ thống
+          </div>
+          <div id="env-tools"></div>
+        </div>
+      </aside>
+
+      <!-- ─── Main Content ─── -->
+      <main>
+        <!-- Input Tabs -->
+        <div class="card" id="input-card">
+          <div class="tabs">
+            <button class="tab-btn tab-btn--active" id="tab-paste-btn" onclick="switchTab('paste')">
+              ✍️ Dán mã LaTeX
+            </button>
+            <button class="tab-btn" id="tab-upload-btn" onclick="switchTab('upload')">
+              📂 Tải lên file
+            </button>
+          </div>
+
+          <!-- Tab: Paste LaTeX -->
+          <div class="tab-panel tab-panel--active" id="tab-paste">
+            <textarea class="latex-editor" id="latex-editor" placeholder="Nhập hoặc dán mã LaTeX tại đây...\n\n\\documentclass{article}\n\\begin{document}\n...\n\\end{document}"></textarea>
+            <div style="margin-top: 16px;">
+              <button class="btn-primary" id="btn-convert-paste" onclick="convertPaste()">
+                🚀 Chuyển đổi LaTeX → Word
+              </button>
+            </div>
+          </div>
+
+          <!-- Tab: Upload File -->
+          <div class="tab-panel" id="tab-upload">
+            <div class="dropzone" id="dropzone">
+              <div class="dropzone__icon">📁</div>
+              <div class="dropzone__text">Kéo thả file <strong>.tex</strong> hoặc <strong>.zip</strong> vào đây</div>
+              <div class="dropzone__hint">hoặc nhấp để chọn file từ máy tính</div>
+              <input type="file" id="file-input" accept=".tex,.zip" onchange="handleFileSelect(this)">
+              <div class="dropzone__filename" id="filename-display" style="display: none;"></div>
+            </div>
+            <div class="form-group" style="margin-top: 14px;">
+              <label class="form-label">
+                Tên file .tex chính
+                <span class="form-label__hint">(nếu .zip chứa nhiều file)</span>
+              </label>
+              <input type="text" class="latex-editor" id="main-tex-input"
+                     style="min-height: auto; padding: 10px 14px; font-family: var(--font-mono); font-size: 0.84rem;"
+                     placeholder="example.tex" value="">
+            </div>
+            <div style="margin-top: 16px;">
+              <button class="btn-primary" id="btn-convert-upload" onclick="convertUpload()" disabled>
+                🚀 Chuyển đổi File → Word
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results" id="results-section">
+          <!-- Overall Status -->
+          <div class="result-header" id="result-header">
+            <span class="result-header__icon" id="result-icon">✅</span>
+            <div>
+              <div class="result-header__title" id="result-title">Hoàn tất chuyển đổi</div>
+              <div class="result-header__desc" id="result-desc"></div>
+            </div>
+          </div>
+
+          <!-- OOXML Stats (Mode 2) -->
+          <div class="ooxml-banner" id="ooxml-banner">
+            <span>✨</span>
+            <span id="ooxml-text"></span>
+          </div>
+
+          <!-- Download Row -->
+          <div class="download-row" id="download-row">
+            <a class="btn-secondary btn-download" id="dl-docx" href="#" target="_blank">
+              📥 Tải Word (.docx)
+            </a>
+            <a class="btn-secondary btn-download" id="dl-report" href="#" target="_blank">
+              📊 Tải báo cáo JSON
+            </a>
+            <a class="btn-secondary btn-download" id="dl-pdf" href="#" target="_blank" style="display: none;">
+              📑 Tải PDF xem trước
+            </a>
+          </div>
+
+          <!-- 5-Layer Validation -->
+          <div class="card" style="margin-bottom: 20px;">
+            <div class="card__title">
+              <span class="card__title-icon">🛡️</span>
+              Báo cáo 5 tầng kiểm thử tự động (5 Validation Layers)
+            </div>
+            <div class="layers-grid" id="layers-grid"></div>
+          </div>
+
+          <!-- Engine Report Stats -->
+          <div class="card" id="stats-card" style="display: none;">
+            <div class="card__title">
+              <span class="card__title-icon">📊</span>
+              Thống kê Engine Report
+            </div>
+            <div class="report-grid" id="report-grid"></div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- ═══════════════ PROGRESS OVERLAY ═══════════════ -->
+  <div class="progress-overlay" id="progress-overlay">
+    <div class="progress-card">
+      <div class="progress-spinner"></div>
+      <div class="progress-title" id="progress-title">Đang chuyển đổi...</div>
+      <div class="progress-step" id="progress-step">Phân tích cú pháp LaTeX & render TikZ</div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progress-bar"></div>
+      </div>
+      <button type="button" class="progress-cancel-btn" onclick="hideProgress()">Đóng cửa sổ chờ</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ SYSTEM STATUS MODAL ═══════════════ -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal__title">🔍 Kiểm tra Môi trường Hệ thống</div>
+      <div id="modal-tools"></div>
+      <button class="modal__close" onclick="closeModal()">Đóng</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ TOAST ═══════════════ -->
+  <div class="toast" id="toast">
+    <span id="toast-icon"></span>
+    <div class="toast__content">
+      <span id="toast-text"></span>
+    </div>
+    <button type="button" class="toast__close" onclick="dismissToast()" title="Đóng thông báo">✕</button>
+  </div>
+
+  <script src="/static/app.js?v=2.0"></script>
+</body>
+</html>

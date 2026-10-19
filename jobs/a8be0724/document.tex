@@ -1,0 +1,26 @@
+\documentclass{article}
+\usepackage{amsmath,amssymb}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\begin{document}
+\section{Kiem thu Chuyen doi}
+Day la van ban kem cong thuc:
+ = mc^2$ va phuong trinh:
+\begin{equation}
+\int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}
+\end{equation}
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}
+  \begin{axis}[width=6cm,height=4cm,xlabel={$},ylabel={$}]
+    \addplot[blue,domain=-2:2]{x^2};
+  \end{axis}
+\end{tikzpicture}
+\caption{Do thi Parabol PGFPlots}
+\end{figure}
+\begin{tabular}{|c|c|}
+\hline Cot 1 & Cot 2 \\ \hline
+Du lieu A & 100 \\ \hline
+\end{tabular}
+\end{document}

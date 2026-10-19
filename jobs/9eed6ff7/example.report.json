@@ -1,0 +1,15 @@
+{
+  "input": "E:\\gomchung\\latex2word_starter\\jobs\\9eed6ff7\\example.tex",
+  "output": "E:\\gomchung\\latex2word_starter\\jobs\\9eed6ff7\\example.docx",
+  "rendered_figures": 1,
+  "expanded_tex_includes": 0,
+  "warnings": [],
+  "status": "automated_checks_passed",
+  "word_tables": 2,
+  "equation_nodes": 2,
+  "drawing_references": 1,
+  "embedded_media_files": 1,
+  "input_table_environments": 1,
+  "input_includegraphics": 0,
+  "expected_total_image_commands": 1
+}

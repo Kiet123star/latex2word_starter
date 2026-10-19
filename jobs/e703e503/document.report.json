@@ -1,0 +1,15 @@
+{
+  "input": "E:\\gomchung\\latex2word_starter\\jobs\\e703e503\\document.tex",
+  "output": "E:\\gomchung\\latex2word_starter\\jobs\\e703e503\\document.docx",
+  "rendered_figures": 14,
+  "expanded_tex_includes": 0,
+  "warnings": [],
+  "status": "automated_checks_passed",
+  "word_tables": 51,
+  "equation_nodes": 313,
+  "drawing_references": 14,
+  "embedded_media_files": 14,
+  "input_table_environments": 4,
+  "input_includegraphics": 0,
+  "expected_total_image_commands": 14
+}
