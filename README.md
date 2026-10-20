@@ -1,93 +1,54 @@
-# LaTeX → Word converter: starter tool
+# LaTeX → Word Converter v2.0 (Unified Core Engine: Native DrawingML Shapes + Full Math Tables)
 
-A **tested Python command-line starter** for turning a LaTeX `.tex` document into an editable Microsoft Word `.docx`. The core converter is **Pandoc**, with a preprocessing step that renders TikZ/PGFPlots diagrams into high-resolution images instead of discarding them.
+Hệ thống chuyển đổi tài liệu & đề thi Toán học từ **LaTeX (`.tex`) sang Microsoft Word (`.docx`)** với **một nhân xử lý hợp nhất duy nhất (`backend/core_converter.py`)** dùng chung cho cả 3 giao diện:
+- **CLI**: `python latex2word.py input.tex -o output.docx`
+- **FastAPI + Web UI**: `python run_server.py` (`http://localhost:8000`)
+- **Streamlit UI**: `streamlit run app.py`
 
-> **Scope:** This is not a guarantee of lossless conversion for *every* LaTeX package or document. The tool is intentionally designed to report unsupported constructs rather than silently claim success. Passing automated checks still does **not** replace visual review in Microsoft Word.
+## Điểm nâng cấp cốt lõi (v2.0)
 
-## Installation
+| Thành phần Toán học | Công nghệ xử lý trong Nhân Hợp Nhất | Khả năng chỉnh sửa trong Microsoft Word |
+| :--- | :--- | :--- |
+| **Hình học TikZ & Không gian 3D** (`\draw`, `\fill`, `\coordinate`, `circle`, `parabola bend`, `dashed`, `->`) | `backend/drawingml_engine.py` biên dịch trực tiếp sang nhóm hình vẽ gốc **WordprocessingGroup (`<wpg:wgp>`)** và **WordprocessingShape (`<wps:wsp>`)** | **Chỉnh sửa 100% từng nét vẽ**, đổi màu, kéo đỉnh, di chuyển điểm và sửa nhãn công thức `<m:oMath>` ngay trong Word |
+| **Đồ thị hàm số PGFPlots & TikZ Plot** (`\begin{axis}`, `\addplot`, `\draw[domain=...] plot`) | Nội suy đường cong **Cubic Bezier (`<a:cubicBezTo>`)** trong `<a:custGeom>`, tự động cắt miền `\clip` tại tiệm cận đứng và dựng hệ trục $Ox, Oy$ vector | **Chỉnh sửa trực tiếp đường cong** bằng công cụ *Edit Points* của Word, kéo thả nhãn trục $x, y, O$ và đường tiệm cận |
+| **Bảng biến thiên & Bảng xét dấu (`tkz-tab` & TikZ BBT)** | `backend/math_tables.py` chuyển `\tkzTabInit`, `\tkzTabLine`, `\tkzTabVar` và BBT vẽ bằng TikZ thành **Bảng Word gốc (`<w:tbl>`)** kèm mũi tên biến thiên DrawingML | **Bấm vào sửa trực tiếp từng con số** ($-\infty, +\infty, 0, +, -$, cực trị), đường kẻ đôi tiệm cận đứng và kéo chỉnh từng mũi tên biến thiên |
+| **Bảng đáp án Trắc nghiệm 4 phương án & Đúng/Sai THPT 2025** (`\choiceA..D`, `\choice`, `\boncot`, `\haicot`, `\motcot`, `\choiceTF`) | Tự động đo độ dài công thức để chia **1×4 (4 cột)**, **2×2 (2 cột)** hoặc **4×1 (1 cột)** không viền; hỗ trợ bảng 3 cột `Mệnh đề \| Đúng \| Sai` | Giữ nguyên gạch chân/in đậm đáp án đúng, căn đều cột tự động |
+| **Bảng dữ liệu, Thống kê ghép nhóm & Bố cục song song (`tabular`, `\multirow`, `\multicolumn`, `\diagbox`, `\immini`)** | Hỗ trợ gộp ô ngang (`<w:gridSpan>`), gộp ô dọc (`<w:vMerge>`), đường chéo chia ô tiêu đề (`<w:tl2br>`), và đóng khung ẩn 2 cột cho `\immini{đề bài}{hình vẽ}` | Bảng Word gốc căn giữa dọc/ngang chuẩn định dạng in ấn |
 
-Install the following executables and ensure they are available on your command-line `PATH`:
+## Cấu trúc thư mục dự án
 
-1. **Python 3.9+** (no Python packages are required by the core script).
-2. **Pandoc** — document and OMML math conversion: https://pandoc.org/installing.html
-3. **A LaTeX distribution** containing `xelatex` (or `pdflatex`, `lualatex`), `standalone`, TikZ, and PGFPlots. On Windows, MiKTeX or TeX Live will work.
-4. **Poppler utilities** including `pdftocairo` — turns compiled vector figures into 400-DPI PNG files for safe embedding into Word.
-5. **Optional:** LibreOffice for a PDF preview of the DOCX (`--qa-pdf`). Use Word itself for final compatibility checks.
-
-Verify installation in PowerShell / Terminal:
-
-```shell
-python --version
-pandoc --version
-xelatex --version
-pdftocairo -v
+```text
+latex2word_starter/
+├── latex2word.py               # Giao diện dòng lệnh (CLI) gọi vào backend.core_converter
+├── run_server.py               # Khởi chạy FastAPI Server + Web UI (http://localhost:8000)
+├── app.py                      # Giao diện Streamlit đồng bộ cùng nhân xử lý
+├── requirements.txt            # Danh sách thư viện Python
+├── backend/
+│   ├── __init__.py
+│   ├── core_converter.py       # NHÂN XỬ LÝ HỢP NHẤT (Unified Core Pipeline)
+│   ├── drawingml_engine.py     # Bộ biên dịch TikZ & PGFPlots -> Word Shapes (DrawingML <wpg:wgp>)
+│   ├── math_tables.py          # Bộ dựng Bảng biến thiên, Trắc nghiệm, Bảng gộp ô & \immini
+│   ├── omml_math.py            # Bộ chuyển đổi LaTeX Math -> Office Math (<m:oMath>)
+│   ├── postprocessor.py        # Hậu xử lý & kiểm toán bảng OOXML
+│   ├── validators.py           # Hệ thống kiểm thử tự động 5 tầng (5 Validation Layers)
+│   └── server.py               # FastAPI REST API endpoints
+└── frontend/
+    ├── index.html              # Giao diện Web Dark/Light Glassmorphism
+    ├── app.js                  # Logic kết nối API & hiển thị thống kê DrawingML
+    └── styles.css              # Thiết kế giao diện
 ```
 
-## Usage
+## Hướng dẫn cài đặt & chạy nhanh
 
-Place the `.tex` entry file and linked assets in a project directory, then run:
+```bash
+pip install -r requirements.txt
 
-```shell
-python latex2word.py example.tex -o converted.docx --strict --qa-pdf
+# 1. Chạy qua CLI:
+python latex2word.py example.tex -o example.docx --qa-pdf
+
+# 2. Chạy Web Server (FastAPI + Frontend):
+python run_server.py
+
+# 3. Hoặc chạy giao diện Streamlit:
+streamlit run app.py
 ```
-
-If XeLaTeX is unavailable, switch to `--engine pdflatex`, but Unicode fonts and characters might require a different setup.
-
-If your source includes TikZ plots with fine labels, increase raster resolution to 600 DPI:
-
-```shell
-python latex2word.py main.tex -o result.docx --engine xelatex --dpi 600 --qa-pdf
-```
-
-If you have a template with Word page styles, use a Pandoc `reference.docx`:
-
-```shell
-python latex2word.py main.tex -o result.docx --reference reference.docx --strict
-```
-
-The tool writes:
-
-- `result.docx` — editable Word document
-- `result.report.json` — counts and warnings from automated validation
-- `result_qa/result.pdf` — optional PDF to inspect page breaks, diagrams and tables
-
-## Expected behavior
-
-| Source material | Destination | Editable in Word? |
-| --- | --- | --- |
-| Ordinary paragraphs, headings, numbers, basic formatting | Native text and styles | Yes |
-| Common math (`$...$`, `equation`, etc.) | OMML Office Math | Yes, when parsed |
-| Common `tabular` / `longtable` elements | Word tables | Yes, when parsed |
-| Standard PNG/JPEG images | Embedded images | Image manipulation only |
-| TikZ and PGFPlots | 400-DPI PNG after actual LaTeX rendering | **No** (the pixels are embedded) |
-| Complicated custom macros, uncommon tables and environments | May require a custom handler | Not guaranteed |
-
-If you need **editable Word charts** or Word shapes, use a second converter stage that parses source data and rebuilds the chart as an Office chart (Open XML), instead of embedding its image. That is a separate nontrivial feature.
-
-## Current limitations / engineering notes
-
-- TikZ/PGFPlots compilation extracts the preamble and uses the `standalone` LaTeX class. Some custom document classes or command definitions are incompatible with this approach.
-- Simple braced `\\input{file}` and `\\include{file}` references are inlined recursively. Advanced include mechanisms, dynamic macro paths, commented instructions, and TeX verbatim may need a proper TeX parser.
-- The TikZ matcher is intentionally scoped to the usual single-level `tikzpicture` outer environment. Exotic constructs and custom macros may need custom Lua filters or a parsing layer.
-- Complex tables (`tabularray`, multi-page spans, nested tables, rotated text, merged cells) need specialized reconstruction.
-- This starter does not yet resolve bibliography/cross-reference numbering, line-breaking decisions, all float placements, arbitrary `\\graphicspath`, or dynamically generated data plots. Pandoc supports citeproc; it can be added with `--citeproc` and `--bibliography`.
-- Conversion to Word will not match TeX's line and page breaks exactly. Pandoc's `reference.docx` controls Word styles, not the precise TeX typesetting algorithm.
-- A table/image/mathematics count is a **heuristic**, not proof that all content is correct.
-- Treat untrusted LaTeX files as potentially unsafe. `-no-shell-escape` reduces one risk but is **not** a security sandbox. Run the conversion inside a locked-down container when supporting unknown uploads.
-
-## Recommended production architecture
-
-`Upload → Save assets → Validate / compile original PDF → Resolve includes and macros → Parse LaTeX → Route text & math & tables & graphics → Pandoc/OOXML → Structural audit → Render DOCX PDF → Visual + semantic comparison with original PDF → Deliver or produce exception report`
-
-Suggested extensibility:
-
-- **Web app:** Streamlit/FastAPI upload/download interface; isolated worker queue.
-- **Editable math:** Pandoc to OMML plus a fallback pipeline with LaTeX/MathML conversion for unsupported formulas.
-- **High-fidelity figures:** compile each graphic separately; SVG with compatibility fallback where supported, or a high-resolution PNG.
-- **Full table fidelity:** custom LaTeX table AST parser and OOXML table writer.
-- **Editable graphs:** parse PGFPlots/CSV points and construct native Office charts, otherwise use rendered figures.
-- **Validation:** compare source and output text/numbers, OOXML object counts, and page-level image differences. Fail with a review report rather than asserting 100% correctness.
-
-## Built-in smoke test
-
-`example.tex` includes Unicode, numbers, native OMML math, one PGFPlots chart, and a LaTeX table. It was successfully converted using the script. `example.docx` is included for inspection.

@@ -1,3 +1,13 @@
+"""OOXML Table Post-Processor (`backend/postprocessor.py`).
+
+Inspects and refines Word tables without clobbering specialized math tables:
+- Preserves Variation / Sign tables (`tkz-tab`) with custom double asymptote borders
+- Preserves Side-by-Side layout tables (`\immini`)
+- Ensures Multiple-Choice tables (exact 4 options A., B., C., D.) remain borderless
+- Ensures Data / Statistical tables have clean borders and vertical centering
+"""
+from __future__ import annotations
+
 import re
 from pathlib import Path
 
@@ -5,20 +15,50 @@ try:
     import docx
     from docx.oxml import OxmlElement
     from docx.oxml.ns import qn
+
     HAS_DOCX = True
 except ImportError:
     HAS_DOCX = False
 
 
+def _is_variation_table(table) -> bool:
+    """Detect if a Word table is a tkz-tab variation/sign table."""
+    if len(table.rows) < 2 or len(table.rows[0].cells) < 3:
+        return False
+    col0_texts = [r.cells[0].text.strip() for r in table.rows if r.cells]
+    # Variation tables have x in row 0 col 0, and y', f'(x), y, or f(x) below
+    if col0_texts and col0_texts[0] in ("x", "$x$"):
+        return True
+    # Also check if any cell contains a VarArrow_ DrawingML shape
+    xml_str = table._tbl.xml
+    return "VarArrow_" in xml_str
+
+
+def _is_immini_table(table) -> bool:
+    """Detect if a Word table is a 1x2 side-by-side \immini layout table."""
+    if len(table.rows) == 1 and len(table.rows[0].cells) == 2:
+        right_xml = table.rows[0].cells[1]._tc.xml
+        if "EditableMathShapeGroup_" in right_xml:
+            return True
+    return False
+
+
+def _is_multiple_choice_table(table) -> bool:
+    """Strictly detect a 4-option multiple-choice table (every non-empty cell starts with A., B., C., or D.)."""
+    non_empty = [c.text.strip() for r in table.rows for c in r.cells if c.text.strip()]
+    if len(non_empty) != 4:
+        return False
+    expected = ("A.", "B.", "C.", "D.")
+    return all(non_empty[i].startswith(expected[i]) for i in range(4))
+
+
 def postprocess_docx_tables(docx_path: Path, is_mode2: bool = True) -> dict[str, int]:
-    """Chuẩn hóa bảng trong Word:
-    1. Bảng lựa chọn trắc nghiệm (A, B, C, D): gỡ bỏ hoàn toàn đường viền (w:val="none"),
-       căn đều 100% độ rộng cột, loại bỏ viền ô để hiển thị thoáng đẹp như PDF gốc.
-    2. Bảng dữ liệu thông thường: tạo đường viền thanh lịch và phát hiện ô gộp.
-    """
+    """Audit and normalize all tables in a generated .docx document."""
     stats = {
         "tables_processed": 0,
+        "variation_tables": 0,
         "choice_tables": 0,
+        "immini_tables": 0,
         "data_tables": 0,
         "cells_formatted": 0,
         "merged_cells_detected": 0,
@@ -33,79 +73,31 @@ def postprocess_docx_tables(docx_path: Path, is_mode2: bool = True) -> dict[str,
         if tbl_pr is None:
             continue
 
-        # Check if table contains multiple-choice options (e.g. A. ..., B. ...)
-        all_text = " ".join(c.text.strip() for row in table.rows for c in row.cells)
-        is_choice = bool(
-            re.search(r"\b[A-D]\.\s", all_text) or
-            re.search(r"^[A-D]\.", all_text)
-        )
+        if _is_variation_table(table):
+            stats["variation_tables"] += 1
+            for row in table.rows:
+                stats["cells_formatted"] += len(row.cells)
+            continue
 
-        # Remove existing borders to prevent Word grid inheritance
-        existing_borders = tbl_pr.find(qn("w:tblBorders"))
-        if existing_borders is not None:
-            tbl_pr.remove(existing_borders)
+        if _is_immini_table(table):
+            stats["immini_tables"] += 1
+            for row in table.rows:
+                stats["cells_formatted"] += len(row.cells)
+            continue
 
-        new_borders = OxmlElement("w:tblBorders")
-
-        if is_choice:
+        if _is_multiple_choice_table(table):
             stats["choice_tables"] += 1
-            # Multiple-choice layout: strictly NO borders
-            for name in ("top", "left", "bottom", "right", "insideH", "insideV"):
-                border = OxmlElement(f"w:{name}")
-                border.set(qn("w:val"), "none")
-                border.set(qn("w:sz"), "0")
-                border.set(qn("w:space"), "0")
-                border.set(qn("w:color"), "auto")
-                new_borders.append(border)
-            tbl_pr.append(new_borders)
+            for row in table.rows:
+                stats["cells_formatted"] += len(row.cells)
+            continue
 
-            # Set table width to 100% (5000 pct)
-            tbl_w = tbl_pr.find(qn("w:tblW"))
-            if tbl_w is None:
-                tbl_w = OxmlElement("w:tblW")
-                tbl_pr.append(tbl_w)
-            tbl_w.set(qn("w:w"), "5000")
-            tbl_w.set(qn("w:type"), "pct")
-
-            # Equalize column widths across rows
-            num_cols = max(len(row.cells) for row in table.rows) if table.rows else 0
-            if num_cols > 0:
-                col_pct = str(5000 // num_cols)
-                for row in table.rows:
-                    for cell in row.cells:
-                        tc_pr = cell._tc.get_or_add_tcPr()
-                        # Remove cell-level borders if any
-                        tc_borders = tc_pr.find(qn("w:tcBorders"))
-                        if tc_borders is not None:
-                            tc_pr.remove(tc_borders)
-                        # Set cell width
-                        tc_w = tc_pr.find(qn("w:tcW"))
-                        if tc_w is None:
-                            tc_w = OxmlElement("w:tcW")
-                            tc_pr.append(tc_w)
-                        tc_w.set(qn("w:w"), col_pct)
-                        tc_w.set(qn("w:type"), "pct")
-                        stats["cells_formatted"] += 1
-        else:
-            stats["data_tables"] += 1
-            if is_mode2:
-                # Genuine data table: apply clean modern borders
-                for name in ("top", "left", "bottom", "right", "insideH", "insideV"):
-                    border = OxmlElement(f"w:{name}")
-                    border.set(qn("w:val"), "single")
-                    border.set(qn("w:sz"), "4")
-                    border.set(qn("w:space"), "0")
-                    border.set(qn("w:color"), "D0D5DD")
-                    new_borders.append(border)
-                tbl_pr.append(new_borders)
-
-                for row in table.rows:
-                    for cell in row.cells:
-                        stats["cells_formatted"] += 1
-                        tc_pr = cell._tc.get_or_add_tcPr()
-                        if (tc_pr.find(qn("w:gridSpan")) is not None
-                                or tc_pr.find(qn("w:vMerge")) is not None):
-                            stats["merged_cells_detected"] += 1
+        stats["data_tables"] += 1
+        for row in table.rows:
+            for cell in row.cells:
+                stats["cells_formatted"] += 1
+                tc_pr = cell._tc.get_or_add_tcPr()
+                if tc_pr.find(qn("w:gridSpan")) is not None or tc_pr.find(qn("w:vMerge")) is not None:
+                    stats["merged_cells_detected"] += 1
 
     doc.save(str(docx_path))
     return stats

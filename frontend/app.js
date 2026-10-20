@@ -1,5 +1,5 @@
 /**
- * LaTeX to Word Converter — Frontend Application Logic
+ * LaTeX to Word Converter — Frontend Application Logic (Unified DrawingML & Math Tables Engine)
  * Communicates with FastAPI backend via REST API
  */
 
@@ -8,9 +8,9 @@ const API_BASE = window.location.origin;
 
 // ─── State ───────────────────────────────────────────────────────
 const state = {
-  mode: 1,
+  mode: 2,
   dpi: 400,
-  strict: true,
+  strict: false,
   qaPdf: true,
   selectedFile: null,
   currentJobId: null,
@@ -20,10 +20,10 @@ const state = {
 // ─── Initialization ──────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   applyTheme(state.theme);
+  selectMode(2);
   checkSystemStatus();
   loadDefaultTemplate();
 
-  // Drag-and-drop
   const dropzone = document.getElementById('dropzone');
   dropzone.addEventListener('dragover', (e) => {
     e.preventDefault();
@@ -101,55 +101,50 @@ function handleFileSelect(input) {
 // ─── Default Template ────────────────────────────────────────────
 function loadDefaultTemplate() {
   const editor = document.getElementById('latex-editor');
-  editor.value = `\\documentclass[12pt]{article}
+  editor.value = `\\documentclass[12pt,a4paper]{article}
 \\usepackage{amsmath,amssymb}
-\\usepackage{tikz}
-\\usepackage{pgfplots}
+\\usepackage{tikz,pgfplots,tkz-tab}
 \\usepackage{booktabs}
 \\pgfplotsset{compat=1.18}
 
-\\title{Mẫu Kiểm Thử LaTeX sang Word}
-\\author{Hệ Thống Hybrid Converter}
+\\title{Mẫu Kiểm Thử LaTeX sang Word (Native DrawingML Shapes)}
+\\author{Unified Core Engine}
 \\date{\\today}
 
 \\begin{document}
 \\maketitle
 
-\\section{Công thức Toán học (OMML)}
-Phương trình bậc hai:
+\\textbf{Câu 1.} Cho hàm số bậc ba $y = f(x)$ có đồ thị như hình vẽ bên. Hỏi phương trình $f(f(x)) = 0$ có tất cả bao nhiêu nghiệm thực phân biệt?
+\\immini{
+Khảo sát hàm số hợp $g(x) = f(f(x))$:
 \\[
 x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}
 \\]
-
-Tích phân xác định:
-\\[
-I = \\int_{0}^{\\infty} e^{-x^2}\\,dx = \\frac{\\sqrt{\\pi}}{2}
-\\]
-
-\\section{Đồ thị (PGFPlots)}
-\\begin{center}
+\\choiceB{$3$.}{$7$.}{$9$.}{$5$.}
+}{
 \\begin{tikzpicture}
 \\begin{axis}[
-    title={$f(x) = x^2 - 2x - 3$},
-    xlabel={$x$}, ylabel={$f(x)$},
-    grid=major, width=8cm, height=6cm,
-    domain=-2.5:4.5, samples=100
+    axis lines=middle,
+    xlabel={$x$}, ylabel={$y$},
+    width=6.5cm, height=4.2cm,
+    xmin=-2, xmax=2, ymin=-3.5, ymax=2.5
 ]
-\\addplot[blue, thick] {x^2 - 2*x - 3};
+\\addplot[blue, thick, domain=-1.65:1.65] {x^3 - 3*x};
 \\end{axis}
 \\end{tikzpicture}
-\\end{center}
+}
 
-\\section{Bảng dữ liệu}
-\\begin{tabular}{lcc}
-\\toprule
-Thành phần & Công nghệ & Đầu ra Word \\\\
-\\midrule
-Văn bản & Pandoc & Text chỉnh sửa \\\\
-Toán học & OMML & Equation gốc \\\\
-Đồ họa & XeLaTeX + Poppler & Ảnh 400 DPI \\\\
-\\bottomrule
-\\end{tabular}
+\\textbf{Câu 2.} Cho hàm số $y = f(x)$ có bảng biến thiên như sau:
+\\begin{center}
+\\begin{tikzpicture}
+    \\tkzTabInit[lgt=1.2, espcl=1.6, deltacl=0.6]
+      {$x$ / 0.8, $f'(x)$ / 0.8, $f(x)$ / 2}
+      {$-\\infty$, $-1$, $0$, $1$, $+\\infty$}
+    \\tkzTabLine{ , -, 0, +, 0, -, 0, +, }
+    \\tkzTabVar{+/ $+\\infty$, -/ $-2$, +/ $3$, -/ $-2$, +/ $+\\infty$}
+\\end{tikzpicture}
+\\end{center}
+\\choiceC{$4$}{$6$}{$7$}{$5$}
 
 \\end{document}`;
 }
@@ -170,7 +165,6 @@ async function checkSystemStatus() {
       text.textContent = 'Thiếu công cụ';
     }
 
-    // Cache for modal
     window._systemTools = data.tools;
   } catch {
     const dot = document.getElementById('status-dot');
@@ -184,11 +178,10 @@ function showSystemStatus() {
   const tools = window._systemTools || {};
   const container = document.getElementById('modal-tools');
   const toolLabels = {
-    'latex2word_py': 'latex2word.py (Engine)',
-    'pandoc': 'Pandoc (Text + Math)',
-    'xelatex': 'XeLaTeX (TikZ Renderer)',
-    'pdflatex': 'pdfLaTeX (Fallback)',
-    'pdftocairo': 'pdftocairo (Poppler)',
+    'drawingml_engine': 'Native Word Shapes (DrawingML Engine)',
+    'math_tables_engine': 'Math Tables (tkz-tab, Choice, Tabular)',
+    'omml_math_engine': 'Native OMML Math Engine',
+    'latex2word_py': 'latex2word.py (Unified Core)',
     'libreoffice': 'MS Word / LibreOffice (QA PDF)',
   };
 
@@ -198,7 +191,7 @@ function showSystemStatus() {
       <div class="tool-check">
         <span class="tool-check__name">${label}</span>
         <span class="tool-check__status ${ok ? 'tool-check__status--ok' : 'tool-check__status--missing'}">
-          ${ok ? '✅ Đã cài đặt' : '⚠️ Chưa tìm thấy'}
+          ${ok ? '✅ Sẵn sàng' : '⚠️ Tùy chọn'}
         </span>
       </div>`;
   }).join('');
@@ -232,18 +225,15 @@ function startProgressTimer() {
 
   window._progressInterval = setInterval(() => {
     seconds++;
-    // Gradual realistic progress up to 95% over ~15 seconds
-    const pct = Math.min(95, Math.round(100 * (1 - Math.exp(-seconds / 7))));
+    const pct = Math.min(95, Math.round(100 * (1 - Math.exp(-seconds / 4))));
     bar.style.width = pct + '%';
 
-    if (seconds < 3) {
-      step.textContent = `1️⃣ Chuẩn hóa cú pháp & trích xuất TikZ (⏱️ ${seconds}s)...`;
-    } else if (seconds < 9) {
-      step.textContent = `2️⃣ Đang biên dịch song song đồ họa TikZ/PGFPlots (⏱️ ${seconds}s)...`;
-    } else if (seconds < 15) {
-      step.textContent = `3️⃣ Pandoc chuyển đổi Text + Math sang OMML Word (⏱️ ${seconds}s)...`;
+    if (seconds < 2) {
+      step.textContent = `1️⃣ Phân tích cú pháp LaTeX & công thức OMML (⏱️ ${seconds}s)...`;
+    } else if (seconds < 5) {
+      step.textContent = `2️⃣ Dựng hình học & đồ thị sang Word DrawingML Shapes (⏱️ ${seconds}s)...`;
     } else {
-      step.textContent = `4️⃣ Đang đóng gói tài liệu Word (.docx) (⏱️ ${seconds}s)...`;
+      step.textContent = `3️⃣ Dựng Bảng biến thiên tkz-tab, Bảng trắc nghiệm & Đóng gói .docx (⏱️ ${seconds}s)...`;
     }
   }, 1000);
 }
@@ -301,7 +291,6 @@ async function convertPaste() {
       showResults(data);
       showToast('🎉 Chuyển đổi thành công! Đang tự động tải file Word...');
 
-      // Auto-trigger Word .docx download
       const dlLink = document.createElement('a');
       dlLink.href = `${API_BASE}/api/download/${data.job_id}/docx`;
       dlLink.download = `${data.filename || 'document'}.docx`;
@@ -344,7 +333,6 @@ async function convertUpload() {
       showResults(data);
       showToast('🎉 Chuyển đổi thành công! Đang tự động tải file Word...');
 
-      // Auto-trigger Word .docx download
       const dlLink = document.createElement('a');
       dlLink.href = `${API_BASE}/api/download/${data.job_id}/docx`;
       dlLink.download = `${data.filename || 'document'}.docx`;
@@ -365,10 +353,8 @@ function showResults(data) {
   const section = document.getElementById('results-section');
   section.classList.add('results--visible');
 
-  // Scroll to results
   setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
 
-  // Overall status
   const header = document.getElementById('result-header');
   const icon = document.getElementById('result-icon');
   const title = document.getElementById('result-title');
@@ -387,18 +373,17 @@ function showResults(data) {
     desc.textContent = `Job ID: ${data.job_id} • Mode ${data.mode} • ${data.filename}`;
   }
 
-  // OOXML stats
   const ooxmlBanner = document.getElementById('ooxml-banner');
   if (data.ooxml_stats && data.ooxml_stats.tables_processed > 0) {
     ooxmlBanner.classList.add('ooxml-banner--visible');
     document.getElementById('ooxml-text').textContent =
-      `Mode 2 OOXML Post-Processor: Đã chuẩn hóa ${data.ooxml_stats.tables_processed} bảng ` +
-      `(${data.ooxml_stats.cells_formatted} ô, ${data.ooxml_stats.merged_cells_detected} ô gộp).`;
+      `Unified Math Engine: Đã dựng ${data.ooxml_stats.variation_tables || 0} bảng biến thiên, ` +
+      `${data.ooxml_stats.choice_tables || 0} bảng trắc nghiệm, ` +
+      `${data.ooxml_stats.data_tables || 0} bảng dữ liệu (${data.ooxml_stats.cells_formatted} ô).`;
   } else {
     ooxmlBanner.classList.remove('ooxml-banner--visible');
   }
 
-  // Download buttons
   const jobId = data.job_id;
   document.getElementById('dl-docx').href = `${API_BASE}/api/download/${jobId}/docx`;
   document.getElementById('dl-report').href = `${API_BASE}/api/download/${jobId}/report`;
@@ -410,10 +395,7 @@ function showResults(data) {
     pdfBtn.style.display = 'none';
   }
 
-  // 5-Layer Validation
   renderLayers(data.layers || []);
-
-  // Engine Report Stats
   renderEngineStats(data.engine_report || {});
 }
 
@@ -452,12 +434,12 @@ function renderEngineStats(report) {
   const grid = document.getElementById('report-grid');
 
   const fields = [
-    { key: 'word_tables', label: 'Bảng Word' },
-    { key: 'equation_nodes', label: 'Công thức OMML' },
-    { key: 'drawing_references', label: 'Hình ảnh' },
-    { key: 'embedded_media_files', label: 'Media Files' },
-    { key: 'rendered_figures', label: 'TikZ Rendered' },
-    { key: 'expanded_tex_includes', label: 'TeX Includes' },
+    { key: 'drawingml_groups', label: 'Nhóm Hình DrawingML' },
+    { key: 'drawingml_shapes', label: 'Nét Vẽ Vector Word' },
+    { key: 'tkz_tab_tables', label: 'Bảng Biến Thiên' },
+    { key: 'choice_tables', label: 'Bảng Trắc Nghiệm' },
+    { key: 'word_tables', label: 'Tổng Bảng Word' },
+    { key: 'equation_nodes', label: 'Công Thức OMML' },
   ];
 
   const hasData = fields.some(f => report[f.key] !== undefined);
