@@ -2,7 +2,7 @@
 """Giao diện Web (Streamlit) đồng bộ với Nhân Xử Lý Duy Nhất (`backend/core_converter.py`).
 
 Hỗ trợ chuyển đổi trực tiếp cả:
-- File `.pdf` (Đề thi Toán, tài liệu Toán học PDF)
+- File `.pdf` (Đề thi Toán, tài liệu Toán học PDF — tích hợp Bộ giải mã 2D Pure-Python `zlib` không phụ thuộc thư viện ngoài)
 - File `.tex` (Mã nguồn LaTeX / TikZ / PGFPlots / tkz-tab)
 - Gói `.zip` (chứa `.pdf` hoặc `.tex`)
 
@@ -14,17 +14,50 @@ from __future__ import annotations
 import json
 import os
 import shutil
+import sys
 import tempfile
 import zipfile
 from pathlib import Path
 
 import streamlit as st
 
-from backend.core_converter import convert_latex_file_unified, decompile_pdf_to_latex
-from backend.validators import generate_visual_comparison, run_all_layers
-
 os.environ["PYTHONUTF8"] = "1"
 os.environ["PYTHONIOENCODING"] = "utf-8"
+
+# Tự động đồng bộ PATH từ Windows Registry (giúp tìm thấy LibreOffice, Poppler, MiKTeX nếu có)
+if sys.platform == "win32":
+    try:
+        import winreg
+
+        reg_paths: list[str] = []
+        for hkey in (winreg.HKEY_LOCAL_MACHINE, winreg.HKEY_CURRENT_USER):
+            sub = (
+                r"SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
+                if hkey == winreg.HKEY_LOCAL_MACHINE
+                else r"Environment"
+            )
+            try:
+                with winreg.OpenKey(hkey, sub) as key:
+                    val, _ = winreg.QueryValueEx(key, "Path")
+                    if val:
+                        reg_paths.append(val)
+            except Exception:
+                pass
+        if reg_paths:
+            combined = ";".join(reg_paths) + ";" + os.environ.get("PATH", "")
+            seen: set[str] = set()
+            clean_p: list[str] = []
+            for pt in combined.split(";"):
+                pc = pt.strip()
+                if pc and pc.lower() not in seen:
+                    seen.add(pc.lower())
+                    clean_p.append(pc)
+            os.environ["PATH"] = ";".join(clean_p)
+    except Exception:
+        pass
+
+from backend.core_converter import convert_latex_file_unified, decompile_pdf_to_latex
+from backend.validators import generate_visual_comparison, run_all_layers
 
 BASE_DIR = Path(__file__).resolve().parent
 EXAMPLE_TEX = BASE_DIR / "example.tex"
@@ -36,7 +69,7 @@ DEFAULT_LATEX_TEMPLATE = r"""\documentclass[12pt,a4paper]{article}
 \pgfplotsset{compat=1.18}
 
 \title{Mẫu Kiểm Thử PDF \& LaTeX sang Word (Native DrawingML Shapes \& Bảng Toán)}
-\author{Nhân Xử Lý Hợp Nhất (Unified Core Engine)}
+\author{Nhân Xử Lý Hợp Nhất (Unified Core Engine v2.3)}
 \date{\today}
 
 \begin{document}
@@ -99,8 +132,9 @@ def main() -> None:
 
     st.title("📐 Hệ Thống Chuyển Đổi PDF & LaTeX → Word (.docx)")
     st.caption(
-        "Đồng bộ chung một nhân xử lý `backend/core_converter.py` cho cả CLI, FastAPI và Streamlit — "
-        "Hỗ trợ tải trực tiếp **file `.pdf`**, **`.tex`** hoặc **`.zip`**, chuyển hình học TikZ/PGFPlots thành **Word Shapes (DrawingML)** và hỗ trợ đầy đủ **Bảng Biến Thiên, Bảng Trắc Nghiệm, Công thức Tổ hợp `\\binom{n}{k}`**."
+        "Đồng bộ chung một nhân xử lý `backend/core_converter.py` (v2.3) cho cả CLI, FastAPI và Streamlit — "
+        "Hỗ trợ tải trực tiếp **file `.pdf`** (tích hợp **2D Pure-Python Math PDF Decompiler** không cần cài đặt công cụ ngoài), "
+        "**`.tex`** hoặc **`.zip`**, chuyển hình học TikZ/PGFPlots thành **Word Shapes (DrawingML)** và hỗ trợ đầy đủ **Bảng Biến Thiên, Hệ phương trình/ngoặc vuông, Công thức Tổ hợp `\\binom{n}{k}`**."
     )
 
     has_soffice = bool(shutil.which("soffice") or shutil.which("libreoffice"))
@@ -130,10 +164,10 @@ def main() -> None:
         st.divider()
         st.subheader("🔍 Trạng thái Nhân Xử Lý")
         st.write("✅ **Unified Core Engine (`backend/core_converter.py`)**")
-        st.write("✅ **PDF Decompiler (`.pdf` & `.zip`)**")
+        st.write("✅ **2D Pure-Python Math PDF Decompiler (`zlib` + `CMEX10/CMSY10/CMMI10`)**")
         st.write("✅ **Native DrawingML Shape Compiler (`<wpg:wgp>`)**")
         st.write("✅ **Native Math Tables (`tkz-tab`, `\\choice`, `tabular`, `\\immini`)**")
-        st.write("✅ **Native OMML Math (`<m:oMath>`, `\\binom{n}{k}`)**")
+        st.write("✅ **Native OMML Math (`<m:oMath>`, `\\heva`, `\\hoac`, `\\xrightarrow`, `\\binom`)**")
 
     tab_paste, tab_upload = st.tabs(
         ["✍️ Cách 1: Dán trực tiếp mã LaTeX / TikZ", "📂 Cách 2: Tải lên file .pdf, .tex hoặc gói .zip"]
@@ -227,7 +261,8 @@ def main() -> None:
                 layers = run_all_layers(raw_tex_source, output_docx, visual_info)
                 status_box.update(
                     label=(
-                        f"Hoàn tất! Đã tạo {report.get('drawingml_groups', 0)} nhóm hình DrawingML "
+                        f"Hoàn tất! Đã tạo {report.get('equation_nodes', 0)} công thức OMML, "
+                        f"{report.get('drawingml_groups', 0)} nhóm hình DrawingML "
                         f"({report.get('drawingml_shapes', 0)} nét vẽ), "
                         f"{report.get('tkz_tab_tables', 0)} bảng biến thiên và "
                         f"{report.get('word_tables', 0)} bảng Word!"
@@ -237,8 +272,9 @@ def main() -> None:
                 )
 
             st.success(
-                f"✅ Đã tạo thành công `{output_docx.name}` với **{report.get('drawingml_groups', 0)}** nhóm hình vẽ gốc Word (DrawingML), "
-                f"**{report.get('tkz_tab_tables', 0)}** bảng biến thiên Word và **{report.get('equation_nodes', 0)}** công thức OMML!"
+                f"✅ Đã tạo thành công `{output_docx.name}` với **{report.get('equation_nodes', 0)}** công thức toán OMML chỉnh sửa trực tiếp, "
+                f"**{report.get('drawingml_groups', 0)}** nhóm hình vẽ gốc Word (DrawingML), "
+                f"**{report.get('tkz_tab_tables', 0)}** bảng biến thiên Word và **{report.get('word_tables', 0)}** bảng Word!"
             )
 
             dl_col1, dl_col2 = st.columns(2)
@@ -259,6 +295,9 @@ def main() -> None:
                     mime="application/json",
                     use_container_width=True,
                 )
+
+            with st.expander("📄 Xem mã nguồn LaTeX đã giải mã / chuẩn hóa từ file đầu vào"):
+                st.code(raw_tex_source, language="latex")
 
             st.subheader("🛡️ Báo cáo Kiểm thử Tự động 5 Tầng (5 Validation Layers)")
             for res in layers:

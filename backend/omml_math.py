@@ -1,6 +1,6 @@
 """Pure-Python LaTeX Math to Office Math Markup Language (OMML) Converter (`backend/omml_math.py`).
 
-Converts inline ($...$) and display (\\[...\\], $$...$$, equation/align/cases/matrix/binom) LaTeX math
+Converts inline ($...$) and display (\\[...\\], $$...$$, equation/align/cases/matrix/binom/xrightarrow) LaTeX math
 directly into native Microsoft Word <m:oMath> / <m:oMathPara> XML elements.
 """
 from __future__ import annotations
@@ -49,6 +49,12 @@ LATEX_SYMBOLS: dict[str, str] = {
     r"\forall": "∀",
     r"\exists": "∃",
     r"\nexists": "∄",
+    r"\lor": "∨",
+    r"\vee": "∨",
+    r"\land": "∧",
+    r"\wedge": "∧",
+    r"\neg": "¬",
+    r"\lnot": "¬",
     r"\partial": "∂",
     r"\nabla": "∇",
     r"\to": "→",
@@ -494,6 +500,47 @@ class _LatexMathParser:
                 f.append(den)
                 return [_wrap_in_delimiter([f], "(", ")")]
 
+            if cmd in (r"\xrightarrow", r"\xleftarrow"):
+                sub_raw = self.read_bracket_raw()
+                sup_els = self.parse_group_elements()
+                arrow_str = " ⎯⎯⎯⎯→ " if cmd == r"\xrightarrow" else " ←⎯⎯⎯⎯ "
+                base_node: ET.Element = _make_run(arrow_str, normal_text=True)
+                if sup_els:
+                    limUpp = _m("limUpp")
+                    e_up = _m("e")
+                    e_up.append(base_node)
+                    lim_up = _m("lim")
+                    for el in sup_els:
+                        lim_up.append(el)
+                    limUpp.append(e_up)
+                    limUpp.append(lim_up)
+                    base_node = limUpp
+                if sub_raw:
+                    limLow = _m("limLow")
+                    e_lo = _m("e")
+                    e_lo.append(base_node)
+                    lim_lo = _m("lim")
+                    for el in _LatexMathParser(sub_raw).parse_all():
+                        lim_lo.append(el)
+                    limLow.append(e_lo)
+                    limLow.append(lim_lo)
+                    base_node = limLow
+                return [base_node]
+
+            if cmd in (r"\overset", r"\underset"):
+                lim_els = self.parse_group_elements()
+                base_els = self.parse_group_elements()
+                node = _m("limUpp" if cmd == r"\overset" else "limLow")
+                e_box = _m("e")
+                for el in base_els or [_make_run("")]:
+                    e_box.append(el)
+                lim_box = _m("lim")
+                for el in lim_els or [_make_run("")]:
+                    lim_box.append(el)
+                node.append(e_box)
+                node.append(lim_box)
+                return [node]
+
             if cmd == r"\sqrt":
                 deg_raw = self.read_bracket_raw()
                 body_els = self.parse_group_elements()
@@ -575,7 +622,10 @@ class _LatexMathParser:
 
             if cmd in LATEX_SYMBOLS:
                 sym = LATEX_SYMBOLS[cmd]
-                use_nor = cmd in (r"\mid", r"\Rightarrow", r"\Leftarrow", r"\Leftrightarrow", r"\iff", r"\implies")
+                use_nor = cmd in (
+                    r"\mid", r"\Rightarrow", r"\Leftarrow", r"\Leftrightarrow",
+                    r"\iff", r"\implies", r"\lor", r"\vee", r"\land", r"\wedge",
+                )
                 return [_make_run(sym, normal_text=use_nor, italic=False)]
 
             clean_cmd = cmd.lstrip("\\")
@@ -586,6 +636,8 @@ class _LatexMathParser:
             return [_make_run("′")]
         if ch == "-":
             return [_make_run("−")]
+        if ch == "·":
+            return [_make_run("⋅", italic=False)]
         if ch == "=":
             return [_make_run("=", normal_text=True)]
         if ch == "*":
