@@ -13,7 +13,7 @@ Features:
   * True/False 2025 tables (`\choiceTF`) -> 3-column table
   * Statistical & Data tables (`tabular`, `tabularx`, `longtable`, `\multicolumn`, `\multirow`, `\diagbox`)
   * Side-by-Side Question + Figure layout (`\immini{...}{...}`)
-- Native Office Math (OMML `<m:oMath>`) for all inline & display equations
+- Native Office Math (OMML `<m:oMath>`) for all inline & display equations (including matrices, cases, aligned, span)
 """
 from __future__ import annotations
 
@@ -169,7 +169,7 @@ def _extract_braced_args(text: str, start_pos: int, num_args: int) -> tuple[list
 
 
 def _preprocess_blocks_with_placeholders(body_tex: str) -> tuple[str, dict[str, tuple[str, Any]]]:
-    """Extract special blocks (immini, tikzpicture, axis, tabular, choice macros) into ordered tokens."""
+    """Extract special blocks (immini, tikzpicture, axis, tabular, choice macros, display math) into ordered tokens."""
     registry: dict[str, tuple[str, Any]] = {}
     counter = 0
 
@@ -211,14 +211,13 @@ def _preprocess_blocks_with_placeholders(body_tex: str) -> tuple[str, dict[str, 
         if not m_ch:
             out_chars.append(s[idx:])
             break
-        out_chars.append(s[idx:m_ch.start()])
+        out_chars.append(s[idx : m_ch.start()])
         cmd_name = m_ch.group(1)
         args, new_pos = _extract_braced_args(s, m_ch.end(), 4)
         if len(args) == 4:
             correct_map = {"choiceA": 0, "choiceB": 1, "choiceC": 2, "choiceD": 3}
             force_map = {"boncot": 4, "haicot": 2, "motcot": 1}
             correct_idx = correct_map.get(cmd_name)
-            # Also detect {\True ...} inside \choice{...}{...}{...}{...}
             cleaned_opts: list[str] = []
             for o_i, opt_str in enumerate(args):
                 if r"\True" in opt_str:
@@ -237,7 +236,7 @@ def _preprocess_blocks_with_placeholders(body_tex: str) -> tuple[str, dict[str, 
             )
             idx = new_pos
         else:
-            out_chars.append(s[m_ch.start():m_ch.end()])
+            out_chars.append(s[m_ch.start() : m_ch.end()])
             idx = m_ch.end()
     s = "".join(out_chars)
 
@@ -250,14 +249,14 @@ def _preprocess_blocks_with_placeholders(body_tex: str) -> tuple[str, dict[str, 
         if not m_tf:
             out_chars.append(s[idx:])
             break
-        out_chars.append(s[idx:m_tf.start()])
+        out_chars.append(s[idx : m_tf.start()])
         args, new_pos = _extract_braced_args(s, m_tf.end(), 8)
         if len(args) == 8:
             stmts = [(args[0], args[1]), (args[2], args[3]), (args[4], args[5]), (args[6], args[7])]
             out_chars.append(_next_token("choice_tf", stmts))
             idx = new_pos
         else:
-            out_chars.append(s[m_tf.start():m_tf.end()])
+            out_chars.append(s[m_tf.start() : m_tf.end()])
             idx = m_tf.end()
     s = "".join(out_chars)
 
@@ -276,12 +275,19 @@ def _preprocess_blocks_with_placeholders(body_tex: str) -> tuple[str, dict[str, 
     )
     s = tab_re.sub(lambda m: _next_token("tabular", m.group(0)), s)
 
-    # 7. Handle display equations \begin{equation|align|gather} ... \end{...} and \[ ... \]
+    # 7. Handle display equations \begin{equation|align|gather|eqnarray} ... \end{...} and \[ ... \] / $$ ... $$
+    def _replace_disp_env(m: re.Match[str]) -> str:
+        env = m.group(1)
+        inner = m.group(2).strip()
+        if env.startswith(("align", "gather", "eqnarray")) and not inner.startswith(r"\begin{aligned}"):
+            inner = f"\\begin{{aligned}}\n{inner}\n\\end{{aligned}}"
+        return _next_token("display_math", inner)
+
     disp_env_re = re.compile(
-        r"\\begin\{(equation\*?|align\*?|gather\*?)\}(.*?)\\end\{\1\}",
+        r"\\begin\{(equation\*?|align\*?|gather\*?|eqnarray\*?)\}(.*?)\\end\{\1\}",
         re.S,
     )
-    s = disp_env_re.sub(lambda m: _next_token("display_math", m.group(2).strip()), s)
+    s = disp_env_re.sub(_replace_disp_env, s)
 
     bracket_math_re = re.compile(r"\\\[(.*?)\\\]|\$\$(.*?)\$\$", re.S)
     s = bracket_math_re.sub(lambda m: _next_token("display_math", (m.group(1) or m.group(2) or "").strip()), s)
@@ -364,7 +370,6 @@ def build_native_docx_from_latex(
         if not blk_str:
             continue
 
-        # Check if block contains one or more @@L2W_BLOCK_xxxx@@ tokens
         parts = re.split(r"(@@L2W_BLOCK_\d{4}@@)", blk_str)
         for part in parts:
             p_str = part.strip()
@@ -467,13 +472,11 @@ def build_native_docx_from_latex(
 
                 continue
 
-            # Regular headings, captions, and text paragraphs
             _render_text_block(doc, p_str, base_dir=base_dir)
 
     output_docx.parent.mkdir(parents=True, exist_ok=True)
     doc.save(str(output_docx))
 
-    # Run table post-processor to ensure consistent styling & count metadata
     ooxml_stats = postprocess_docx_tables(output_docx, is_mode2=(mode == 2))
     counts = docx_counts(output_docx)
     stats.update(counts)
@@ -483,7 +486,8 @@ def build_native_docx_from_latex(
 
 def _render_text_block(doc, text_block: str, *, base_dir: Path | None = None) -> None:
     """Render sections, captions, static images, or standard math/Vietnamese paragraphs."""
-    s = text_block.strip()
+    s = re.sub(r"\\(?:vspace|hspace)\*?\s*\{[^{}]*\}", "", text_block).strip()
+    s = re.sub(r"\\(?:setstretch|linespread)\s*\{[^{}]*\}", "", s).strip()
     if not s:
         return
 
@@ -535,7 +539,7 @@ def _render_text_block(doc, text_block: str, *, base_dir: Path | None = None) ->
             _render_text_block(doc, remainder, base_dir=base_dir)
         return
 
-    # Standard paragraph (e.g. "\textbf{Câu 1.} Cho hàm số...")
+    # Standard paragraph
     p = doc.add_paragraph()
     p.paragraph_format.space_before = Pt(3)
     p.paragraph_format.space_after = Pt(4)

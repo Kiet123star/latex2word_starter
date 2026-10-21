@@ -1,0 +1,240 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{vietnam}
+\usepackage[margin=2cm]{geometry}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+\begin{document}
+
+% Slide 1
+\begin{center}
+    {\LARGE \textbf{Bài toán đếm}}\\[0.3cm]
+    {\large \textbf{Toán rời rạc}}
+\end{center}
+\vspace{0.5cm}
+
+% Slide 2, 3, 4
+\section*{Giới thiệu}
+\begin{itemize}
+    \item Việt Nam có bao nhiêu tỉnh, thành phố?
+    \item Có bao nhiêu tỉnh có tên bắt đầu bằng chữ A?
+    \item Lớp có bao nhiêu sinh viên?
+    \item Có bao nhiêu bạn thi qua môn toán rời rạc?
+\end{itemize}
+$\Rightarrow$ \textbf{Đơn giản}
+
+\begin{itemize}
+    \item Có bao nhiêu số chẵn có 6 chữ số khác nhau?
+    \item Có bao nhiêu cách xếp 6 người ngồi quanh một bàn tròn?
+\end{itemize}
+
+% Slide 5
+\begin{itemize}
+    \item Xác định độ phức tạp thuật toán
+    \item Xác định xem số điện thoại / địa chỉ IP / số chứng minh nhân dân... có đủ đáp ứng nhu cầu sử dụng?
+    \item Khả năng trúng số độc đắc?
+    \item Khả năng nhiễm bệnh?
+\end{itemize}
+
+% Slide 6
+\section*{Bài toán}
+\begin{itemize}
+    \item Xác định lực lượng của một (hay nhiều) tập hợp thỏa mãn một số điều kiện cho trước
+    \item Bài toán đếm có thể được phân chia thành những bài toán nhỏ hơn, dễ tìm được lời giải hơn
+\end{itemize}
+
+\hrulefill
+
+% Slide 7
+\section*{I. Các nguyên lý cơ bản}
+
+% Slide 8
+\subsection*{1. Nguyên lý cộng}
+\begin{itemize}
+    \item Có 2 công việc $A$ và $B$. Các việc này có thể làm tương ứng bằng $n_1, n_2$ cách và không thể làm đồng thời. Khi đó số cách làm một trong 2 việc là $n_1 + n_2$.
+    \item Công thức: Cho 2 tập hợp $A, B \mid A \cap B = \emptyset$
+    $$N(A \cup B) = N(A) + N(B)$$
+    \item Tổng quát: Cho $A_1, \dots, A_n$ là một phân hoạch của $A$
+    $$N(A) = N(A_1) + \dots + N(A_n)$$
+\end{itemize}
+
+% Slide 9
+\begin{itemize}
+    \item \textbf{Ví dụ:} Hôm nay có 5 bài tập môn GT, 6 bài môn TRR, 9 bài môn ĐS. Hỏi có mấy cách chọn bài tập đầu tiên để bắt đầu?
+\end{itemize}
+
+% Slide 10
+\subsection*{2. Nguyên lý nhân}
+\begin{itemize}
+    \item Giả sử một nhiệm vụ nào đó được tách ra thành 2 việc $A$ và $B$. Nếu việc $A$ có thể làm bằng $n_1$ cách, việc $B$ có thể làm (sau $A$) bằng $n_2$ cách, khi đó có $n_1 \cdot n_2$ cách thi hành nhiệm vụ đã cho
+    \item Công thức: $N(A \times B) = N(A) \times N(B)$
+    \item Tổng quát:
+    $$N(A_1 \times \dots \times A_n) = N(A_1) \times \dots \times N(A_n)$$
+\end{itemize}
+
+% Slide 11
+\begin{itemize}
+    \item Có bao nhiêu cách sắp xếp có thứ tự một bộ gồm $n$ phần tử?
+    \item Có bao nhiêu cách chọn một bộ có thứ tự gồm $k$ phần tử từ $n$ phần tử cho trước?
+    \item Có bao nhiêu cách chọn một bộ không có thứ tự gồm $k$ phần tử từ $n$ phần tử cho trước?
+\end{itemize}
+
+% Slide 12
+\textbf{Ví dụ}
+\begin{enumerate}
+    \item Một biển số xe có dạng \texttt{ab-?c defgh}. Có thể cấp tối đa bao nhiêu biển số?
+    \begin{itemize}[label=+]
+        \item $ab$: 29, 30, 31, 32, 33, 40
+        \item $?$: F, H, K, L, M, N, P, R, S, T, U, V, X, Y, Z
+        \item $c, d, e, f, g, h$: $0, 1, \dots, 9$
+    \end{itemize}
+    \item Số $p_1^{n_1} \cdot p_2^{n_2} \cdots p_k^{n_k}$ ($p_i$ là số nguyên tố phân biệt, $n_i$ là số nguyên dương) có bao nhiêu ước số?
+\end{enumerate}
+
+% Slide 13
+\subsection*{3. Quy tắc chia}
+\begin{itemize}
+    \item Nếu tập hữu hạn $A$ là hợp của $n$ tập rời nhau, mỗi tập có $k$ phần tử thì
+    $$n = \frac{N(A)}{k}$$
+    \item Nói cách khác: Nếu $f$ là một toàn ánh từ $A$ vào $B$, ($A, B$ là 2 tập hữu hạn) mỗi phần tử của $B$ có đúng $k$ phần tử $x$ thuộc $A$ sao cho $f(x) = y$ thì:
+    $$N(B) = \frac{N(A)}{k}$$
+\end{itemize}
+
+% Slide 14
+\subsection*{4. Nguyên lý bù trừ}
+\begin{itemize}
+    \item Cho trước 2 tập hợp $A$ và $B$.
+    $$N(A \cup B) = N(A) + N(B) - N(A \cap B)$$
+    \item Định lý: cho $n$ tập $A_1, A_2, \dots, A_n$
+    $$N(A_1 \cup \dots \cup A_n) = N_1 - N_2 + \dots + (-1)^{n-1}N_n$$
+    Trong đó: $N_k$ là tổng số phần tử của giao $k$ tập bất kỳ trong số $n$ tập đã cho
+    \item Cách chứng minh: xét số lần được đếm của phần tử $a$ (xuất hiện $k$ lần trong $n$ tập) trong vế phải của định lý (tr 20)
+\end{itemize}
+
+% Slide 15
+\begin{itemize}
+    \item \textbf{Nguyên lý bù trừ:} Đồng nhất tập $A_k$ với tính chất $A_k$ trên tập $X$. Khi đó số phần tử thuộc $X$ không thỏa mãn tính chất $A_k$ nào sẽ bằng:
+    $$\overline{N} = N(X) - N(A_1 \cup \dots \cup A_n)$$
+\end{itemize}
+
+% Slide 16
+\textbf{Ví dụ}
+\begin{enumerate}
+    \item Có bao nhiêu bộ 5 quân bài (trong bộ bài chuẩn) mà trong đó
+    \begin{enumerate}[label=\alph*.]
+        \item Năm quân cùng chất
+        \item Mỗi chất có ít nhất 1 quân
+    \end{enumerate}
+    \item Một công ty máy tính nhận được hồ sơ của 350 ứng viên cho một dự án. Giả sử có 220 ứng viên ngành KHMT, 147 ứng viên ngành kinh doanh và 51 trong số đó biết cả KHMT và kinh doanh. Hỏi có bao nhiêu ứng viên không biết KHMT cũng không biết kinh doanh?
+    \item Có bao nhiêu số nhỏ hơn 1000 chia hết cho ít nhất một trong ba số 3, 4 hoặc 7.
+    \item Tìm số các số nguyên trong tập $\{1, 2, \dots, 1000\}$ không chia hết cho 5, không chia hết cho 7, nhưng chia hết cho 3.
+\end{enumerate}
+
+\hrulefill
+
+% Slide 17
+\section*{II. Hoán vị - chỉnh hợp – tổ hợp}
+
+% Slide 18
+\subsection*{1. Hoán vị}
+\begin{itemize}
+    \item Định nghĩa: một cách xếp thứ tự một bộ $n$ phần tử là một hoán vị của $n$ phần tử đó.
+    \item Số hoán vị: $n!$
+\end{itemize}
+
+% Slide 19
+\subsection*{2. Chỉnh hợp}
+\begin{itemize}
+    \item Định nghĩa 1: một cách sắp xếp có thứ tự $k$ phần tử không lặp lại của một tập $n$ phần tử được gọi là một chỉnh hợp không lặp chập $k$ của $n$ phần tử.
+    \item Số chỉnh hợp không lặp: $P(n,k) = \dfrac{n!}{(n-k)!}$
+    \item Định nghĩa 2: một cách sắp xếp có thứ tự $k$ phần tử có thể lặp lại của một tập $n$ phần tử được gọi là một chỉnh hợp lặp chập $k$ của $n$ phần tử.
+    \item Số chỉnh hợp lặp: $n^k$
+\end{itemize}
+
+% Slide 20
+\subsection*{3. Tổ hợp}
+\begin{itemize}
+    \item Định nghĩa 1: một tổ hợp chập $k$ của $n$ phần tử là một cách chọn không có thứ tự $k$ phần tử không lặp lại từ $n$ phần tử đã cho
+    \item Số tổ hợp: $\dbinom{n}{k} = \dfrac{n!}{k!(n-k)!}$
+    \item Định nghĩa 2: một tổ hợp lặp chập $k$ của $n$ phần tử là một cách chọn không có thứ tự $k$ phần tử có thể lặp lại từ $n$ phần tử đã cho.
+    \item Số tổ hợp lặp:
+    $$\binom{n+k-1}{k} = \binom{n+k-1}{n-1} = \frac{(n+k-1)!}{(n-1)!k!}$$
+\end{itemize}
+
+% Slide 21
+\subsection*{Một số ví dụ}
+\begin{itemize}
+    \item \textbf{VD 1:} Có bao nhiêu cách lựa chọn nhà vô địch, á quân, hạng 3 từ 100 người khác nhau trong một cuộc thi?
+    \item \textbf{VD2:} Có bao nhiêu hoán vị của các chữ cái ABCDEFGH có chứa dãy ABC?
+    \item \textbf{Ví dụ 3:} Giả sử có 8 vận động viên tham dự cuộc thi chạy, trao 3 huy chương vàng, bạc, đồng. Có bao nhiêu cách khác nhau để trao huy chương, giả sử các vận động viên có khả năng nhận huy chương như nhau?
+    \item \textbf{Ví dụ 4:} Giả sử một người bán hàng phải đi qua tám thành phố khác nhau. Cô ta bắt đầu tại một thành phố cụ thể, và có thể đi đến bảy thành phố khác nhau bất kỳ. Có bao nhiêu khả năng có thể xảy ra để người bán hàng sử dụng khi đi qua các thành phố này?
+    % Slide 22
+    \item \textbf{VD 5:} Có bao nhiêu cách lựa chọn một đội thi toán gồm 5 sinh viên từ nhóm 10 sinh viên.
+    \item \textbf{VD 6:} Có bao nhiêu dãy nhị phân có độ dài $n$ mà chứa chính xác $r$ bit 1?
+    \item \textbf{VD 7:} Một trường học có 9 thành viên trong khoa Toán và 11 thành viên trong khoa CNTT. Có bao nhiêu cách để phát triển một nhóm Toán rời rạc nếu hội đồng gồm 3 thành viên từ khoa Toán và 4 thành viên từ khoa CNTT?
+\end{itemize}
+
+% Slide 23
+\subsection*{Một số ví dụ (Tổ hợp với sự lặp lại)}
+\begin{itemize}
+    \item \textbf{VD1:} Có bao nhiêu cách để lựa chọn 4 quả bất kỳ từ một giỏ hàng bao gồm ba loại táo, cam, lê (mỗi loại có ít nhất 4 quả) nếu thứ tự các loại quả không quan trọng (chỉ quan tâm đến loại trái cây)
+    \item \textbf{VD2:} Giả sử một tiệm bánh có 4 loại bánh khác nhau (mỗi loại lớn hơn 6 cái). Có bao nhiêu cách khác nhau để lựa chọn được 6 cái bánh với giả thiết chỉ quan tâm đến loại bánh và không quan tâm đến thứ tự các bánh?
+    \item \textbf{VD3:} Có bao nhiêu nghiệm nguyên không âm của phương trình $x_1 + x_2 + x_3 = 11$?
+    % Slide 24
+    \item \textbf{VD4:} Giá trị $k$ bằng bao nhiêu sau khi thực hiện đoạn chương trình sau? ($1 \le i_m \le i_{m-1} \le \dots \le i_1 \le n$)
+    \begin{quote}
+        \texttt{$k := 0$}\\
+        \texttt{for $i_1 := 1$ to $n$}\\
+        \hspace*{0.5cm}\texttt{for $i_2 := 1$ to $i_1$}\\
+        \hspace*{1cm}\texttt{\dots}\\
+        \hspace*{1.5cm}\texttt{for $i_m := 1$ to $i_{m-1}$}\\
+        \hspace*{2cm}\texttt{$k := k + 1$}
+    \end{quote}
+\end{itemize}
+
+\hrulefill
+
+% Slide 25
+\section*{III. Hệ số nhị thức (Binomial coefficients)}
+
+% Slide 26
+\subsection*{1. Công thức}
+$$\binom{n}{k} = \begin{cases} \dfrac{n!}{k!(n-k)!} & \text{nếu } 0 \le k \le n \\ 0 & \text{ngược lại} \end{cases}$$
+($n$ chọn $k$)
+
+% Slide 27
+\subsection*{2. Một số tính chất của hệ số nhị thức}
+\begin{itemize}
+    \item $\dbinom{n}{k} = \dbinom{n}{n-k}$
+    \item $\dbinom{n}{k} = \dbinom{n-1}{k} + \dbinom{n-1}{k-1}$
+    \item $(x+y)^n = \sum_{k} \dbinom{n}{k} x^k y^{n-k}$
+    \item $\sum_{k=0}^{n} \dbinom{k}{m} = \dbinom{n+1}{m+1}$
+\end{itemize}
+
+% Slide 28
+\subsection*{Một số kết quả mở rộng}
+\begin{itemize}
+    \item \textbf{Bổ đề 1:} Gọi $n \in \mathbb{N}^*$, khi đó $\sum_{k=0}^{n} \dbinom{n}{k} = 2^n$
+    \item \textbf{Bổ đề 2:} Gọi $n \in \mathbb{N}^*$, khi đó $\sum_{k=0}^{n} (-1)^k \dbinom{n}{k} = 0$
+    \item \textbf{Bổ đề 3:} Gọi $n \in \mathbb{N}^*$, khi đó $\sum_{k=0}^{n} 2^k \dbinom{n}{k} = 3^n$
+\end{itemize}
+
+% Slide 29
+\subsection*{Một số định lý}
+\begin{itemize}
+    \item \textbf{Định lý VanderMonde's Identity:}\\
+    Cho $m, n, r \in \mathbb{N}^*$, với $r < m, n$. Khi đó
+    $$\binom{m+n}{r} = \sum_{k=0}^{r} \binom{m}{r-k}\binom{n}{k}$$
+    \item \textbf{Bổ đề 4:}\\
+    Cho $n \in \mathbb{N}^*$ khi đó
+    $$\binom{2n}{n} = \sum_{k=0}^{n} \binom{n}{k}^2$$
+\end{itemize}
+
+% Slide 30
+\subsection*{3. Ví dụ}
+Đội nữ Việt Nam đăng ký 18 cầu thủ thi đấu, gồm 2 thủ môn, 6 hậu vệ, 6 tiền vệ, 4 tiền đạo. Bác Chung có bao nhiêu cách chọn các cầu thủ thi đấu theo sơ đồ 4-4-2?
+
+\end{document}

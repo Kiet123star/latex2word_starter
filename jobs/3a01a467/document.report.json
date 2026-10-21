@@ -1,0 +1,33 @@
+{
+  "input": "E:\\gomchung\\latex2word_starter\\jobs\\3a01a467\\document.tex",
+  "output": "E:\\gomchung\\latex2word_starter\\jobs\\3a01a467\\document.docx",
+  "mode": 2,
+  "engine": "Native DrawingML + OMML + MathTables Unified Engine",
+  "rendered_figures": 0,
+  "drawingml_groups": 0,
+  "drawingml_shapes": 0,
+  "tkz_tab_tables": 0,
+  "choice_tables": 0,
+  "data_tables": 0,
+  "immini_layouts": 0,
+  "expanded_tex_includes": 0,
+  "warnings": [],
+  "word_tables": 0,
+  "equation_nodes": 119,
+  "drawing_references": 0,
+  "embedded_media_files": 0,
+  "input_table_environments": 0,
+  "input_includegraphics": 0,
+  "expected_total_image_commands": 0,
+  "ooxml_stats": {
+    "tables_processed": 0,
+    "variation_tables": 0,
+    "choice_tables": 0,
+    "immini_tables": 0,
+    "data_tables": 0,
+    "cells_formatted": 0,
+    "merged_cells_detected": 0
+  },
+  "qa_rendered_pdf": "E:\\gomchung\\latex2word_starter\\jobs\\3a01a467\\document_qa\\document.pdf",
+  "status": "automated_checks_passed"
+}

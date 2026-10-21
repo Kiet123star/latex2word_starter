@@ -1,6 +1,6 @@
-"""Pure-Python LaTeX Math to Office Math Markup Language (OMML) Converter.
+"""Pure-Python LaTeX Math to Office Math Markup Language (OMML) Converter (`backend/omml_math.py`).
 
-Converts inline ($...$) and display (\\[...\\], $$...$$, equation/align) LaTeX math
+Converts inline ($...$) and display (\\[...\\], $$...$$, equation/align/cases/matrix) LaTeX math
 directly into native Microsoft Word <m:oMath> / <m:oMathPara> XML elements.
 """
 from __future__ import annotations
@@ -61,6 +61,8 @@ LATEX_SYMBOLS: dict[str, str] = {
     r"\mapsto": "↦",
     r"\uparrow": "↑",
     r"\downarrow": "↓",
+    r"\mid": " ∣ ",
+    r"\colon": ":",
     r"\alpha": "α",
     r"\beta": "β",
     r"\gamma": "γ",
@@ -95,7 +97,7 @@ LATEX_SYMBOLS: dict[str, str] = {
     r"\Pi": "Π",
     r"\Sigma": "Σ",
     r"\Upsilon": "Υ",
-    r"\Phi": "Φ",
+    r"\Phi": "Phi",
     r"\Psi": "Ψ",
     r"\Omega": "Ω",
     r"\ell": "ℓ",
@@ -127,9 +129,11 @@ BLACKBOARD_BOLD: dict[str, str] = {
     "C": "ℂ",
     "P": "ℙ",
     "E": "𝔼",
+    "F": "𝔽",
+    "K": "𝕂",
 }
 
-FUNC_NAMES = {
+FUNC_NAMES: dict[str, str] = {
     r"\sin": "sin",
     r"\cos": "cos",
     r"\tan": "tan",
@@ -149,9 +153,16 @@ FUNC_NAMES = {
     r"\deg": "deg",
     r"\dim": "dim",
     r"\ker": "ker",
+    r"\span": "span",
+    r"\Span": "Span",
+    r"\Im": "Im",
+    r"\Re": "Re",
+    r"\rank": "rank",
+    r"\rk": "rk",
+    r"\tr": "tr",
 }
 
-LIM_OPS = {
+LIM_OPS: dict[str, str] = {
     r"\lim": "lim",
     r"\max": "max",
     r"\min": "min",
@@ -159,7 +170,7 @@ LIM_OPS = {
     r"\inf": "inf",
 }
 
-NARY_OPS = {
+NARY_OPS: dict[str, str] = {
     r"\int": "∫",
     r"\iint": "∬",
     r"\iiint": "∭",
@@ -170,7 +181,7 @@ NARY_OPS = {
     r"\bigcap": "⋂",
 }
 
-ACCENT_MAP = {
+ACCENT_MAP: dict[str, str] = {
     r"\vec": "→",
     r"\overrightarrow": "→",
     r"\hat": "^",
@@ -181,6 +192,19 @@ ACCENT_MAP = {
     r"\widetilde": "~",
     r"\dot": "˙",
     r"\ddot": "¨",
+}
+
+MATRIX_DELIMS: dict[str, tuple[str, str]] = {
+    "bmatrix": ("[", "]"),
+    "bmatrix*": ("[", "]"),
+    "pmatrix": ("(", ")"),
+    "pmatrix*": ("(", ")"),
+    "Bmatrix": ("{", "}"),
+    "Bmatrix*": ("{", "}"),
+    "vmatrix": ("|", "|"),
+    "vmatrix*": ("|", "|"),
+    "Vmatrix": ("‖", "‖"),
+    "Vmatrix*": ("‖", "‖"),
 }
 
 
@@ -222,14 +246,41 @@ def _make_run(text: str, *, normal_text: bool = False, bold: bool = False, itali
     r.append(rPr_w)
 
     t = _m("t")
+    if text.startswith(" ") or text.endswith(" "):
+        t.set("{http://www.w3.org/XML/1998/namespace}space", "preserve")
     t.text = text
     r.append(t)
     return r
 
 
+def _wrap_in_delimiter(inner_elements: list[ET.Element], beg_chr: str, end_chr: str) -> ET.Element:
+    """Wrap one or more OMML elements in an <m:d> delimiter element."""
+    d = _m("d")
+    dPr = _m("dPr")
+    b_el = _m("begChr")
+    b_el.set(f"{{{M_NS}}}val", beg_chr)
+    dPr.append(b_el)
+    e_el = _m("endChr")
+    e_el.set(f"{{{M_NS}}}val", end_chr)
+    dPr.append(e_el)
+    d.append(dPr)
+    e_box = _m("e")
+    for el in inner_elements or [_make_run("", normal_text=True)]:
+        e_box.append(el)
+    d.append(e_box)
+    return d
+
+
 class _LatexMathParser:
     def __init__(self, src: str) -> None:
         s = src.strip()
+        # Extract \tag{...} or \tag*{...} if present
+        self.tag: str | None = None
+        m_tag = re.search(r"\\tag\*?\{([^{}]*)\}", s)
+        if m_tag:
+            self.tag = m_tag.group(1).strip()
+            s = (s[: m_tag.start()] + s[m_tag.end() :]).strip()
+
         s = re.sub(r"\\(?:displaystyle|textstyle|scriptstyle|scriptscriptstyle)\b", "", s)
         s = re.sub(r"\\(?:quad|qquad)\b", "  ", s)
         s = re.sub(r"\\(?:,|;|:|!)\b", " ", s)
@@ -274,11 +325,11 @@ class _LatexMathParser:
             elif self.s[self.pos] == "}":
                 depth -= 1
                 if depth == 0:
-                    res = self.s[start:self.pos]
+                    res = self.s[start : self.pos]
                     self.pos += 1
                     return res
             self.pos += 1
-        return self.s[start:self.pos]
+        return self.s[start : self.pos]
 
     def read_bracket_raw(self) -> str | None:
         self.skip_ws()
@@ -293,11 +344,11 @@ class _LatexMathParser:
             elif self.s[self.pos] == "]":
                 depth -= 1
                 if depth == 0:
-                    res = self.s[start:self.pos]
+                    res = self.s[start : self.pos]
                     self.pos += 1
                     return res
             self.pos += 1
-        return self.s[start:self.pos]
+        return self.s[start : self.pos]
 
     def parse_group_elements(self) -> list[ET.Element]:
         raw = self.read_braced_raw()
@@ -321,7 +372,7 @@ class _LatexMathParser:
             elif self.s[self.pos] == close_ch:
                 depth -= 1
                 if depth == 0:
-                    inner_raw = self.s[inner_start:self.pos]
+                    inner_raw = self.s[inner_start : self.pos]
                     self.pos += 1
                     inner_els = _LatexMathParser(inner_raw).parse_all()
                     return (
@@ -330,9 +381,34 @@ class _LatexMathParser:
                         + [_make_run(close_ch, normal_text=True)]
                     )
             self.pos += 1
-        # Unbalanced (e.g. half-open interval (-2; 0]): emit literal bracket with normal_text=True
         self.pos = start_pos + 1
         return [_make_run(open_ch, normal_text=True)]
+
+    def _parse_escaped_brace_group(self) -> list[ET.Element]:
+        """Parse a balanced \\{ ... \\} set or span group into a native <m:d> curly brace delimiter."""
+        start_pos = self.pos
+        depth = 1
+        inner_start = self.pos
+        while self.pos < self.n and depth > 0:
+            if self.s.startswith(r"\{", self.pos):
+                depth += 1
+                self.pos += 2
+                continue
+            if self.s.startswith(r"\}", self.pos):
+                depth -= 1
+                if depth == 0:
+                    inner_raw = self.s[inner_start : self.pos]
+                    self.pos += 2
+                    inner_els = _LatexMathParser(inner_raw).parse_all()
+                    return [_make_run("{", italic=False)] + inner_els + [_make_run("}", italic=False)]
+                self.pos += 2
+                continue
+            if self.s[self.pos] == "\\":
+                self.pos += 2
+                continue
+            self.pos += 1
+        self.pos = start_pos
+        return [_make_run("{", normal_text=True)]
 
     def parse_single_atom(self) -> list[ET.Element]:
         self.skip_ws()
@@ -360,6 +436,12 @@ class _LatexMathParser:
 
             if cmd == r"\left":
                 return self._parse_left_right()
+
+            if cmd == r"\{":
+                return self._parse_escaped_brace_group()
+
+            if cmd == r"\}":
+                return [_make_run("}", normal_text=True)]
 
             if cmd in (r"\frac", r"\dfrac", r"\tfrac", r"\cfrac"):
                 num_els = self.parse_group_elements()
@@ -399,11 +481,14 @@ class _LatexMathParser:
                 arg = self.read_braced_raw().strip()
                 return [_make_run(BLACKBOARD_BOLD.get(arg, arg), italic=False)]
 
-            if cmd in (r"\text", r"\textrm", r"\textbf", r"\textit", r"\mathrm", r"\mathbf", r"\mathcal"):
+            if cmd in (
+                r"\text", r"\textrm", r"\textbf", r"\textit",
+                r"\mathrm", r"\mathbf", r"\mathcal", r"\operatorname",
+            ):
                 arg = self.read_braced_raw()
                 is_bold = cmd in (r"\textbf", r"\mathbf")
-                is_nor = cmd in (r"\text", r"\textrm", r"\mathrm")
-                return [_make_run(arg, normal_text=is_nor, bold=is_bold)]
+                is_nor = cmd in (r"\text", r"\textrm", r"\mathrm", r"\operatorname")
+                return [_make_run(arg, normal_text=is_nor, bold=is_bold, italic=False if is_bold else None)]
 
             if cmd in ACCENT_MAP:
                 body_els = self.parse_group_elements()
@@ -426,7 +511,7 @@ class _LatexMathParser:
                 return [self._parse_lim_op(LIM_OPS[cmd])]
 
             if cmd in FUNC_NAMES:
-                return [_make_run(FUNC_NAMES[cmd], italic=False)]
+                return [_make_run(FUNC_NAMES[cmd], normal_text=True)]
 
             if cmd in (r"\heva", r"\hoac"):
                 body_raw = self.read_braced_raw()
@@ -438,7 +523,10 @@ class _LatexMathParser:
                 return [self._parse_environment(env_name)]
 
             if cmd in LATEX_SYMBOLS:
-                return [_make_run(LATEX_SYMBOLS[cmd], italic=False)]
+                sym = LATEX_SYMBOLS[cmd]
+                # Emit relational arrows and mid with normal_text=True so StarMath never flags missing operands
+                use_nor = cmd in (r"\mid", r"\Rightarrow", r"\Leftarrow", r"\Leftrightarrow", r"\iff", r"\implies")
+                return [_make_run(sym, normal_text=use_nor, italic=False)]
 
             clean_cmd = cmd.lstrip("\\")
             return [_make_run(clean_cmd)]
@@ -448,6 +536,8 @@ class _LatexMathParser:
             return [_make_run("′")]
         if ch == "-":
             return [_make_run("−")]
+        if ch == "=":
+            return [_make_run("=", normal_text=True)]
         return [_make_run(ch)]
 
     def _parse_left_right(self) -> list[ET.Element]:
@@ -486,6 +576,9 @@ class _LatexMathParser:
         if right_chr == ".":
             right_chr = ""
 
+        if left_chr in ("(", "[", "{", "|", "‖") and right_chr in (")", "]", "}", "|", "‖", ""):
+            return [_wrap_in_delimiter(inner_els, left_chr, right_chr)]
+
         res: list[ET.Element] = []
         if left_chr:
             res.append(_make_run(left_chr, normal_text=True))
@@ -506,7 +599,6 @@ class _LatexMathParser:
                 self.pos += 1
                 sup_els = self.parse_single_atom()
 
-        # Collect integrand / summand tokens up to '=', ',', ';', or end of expression
         operand_els: list[ET.Element] = []
         while self.pos < self.n:
             self.skip_ws()
@@ -569,10 +661,10 @@ class _LatexMathParser:
         end_token = f"\\end{{{env_name}}}"
         idx = self.s.find(end_token, self.pos)
         if idx == -1:
-            body = self.s[self.pos:]
+            body = self.s[self.pos :]
             self.pos = self.n
         else:
-            body = self.s[self.pos:idx]
+            body = self.s[self.pos : idx]
             self.pos = idx + len(end_token)
 
         if env_name in ("cases", "dcases"):
@@ -581,42 +673,133 @@ class _LatexMathParser:
         if "matrix" in env_name or env_name == "array":
             return self._build_matrix(env_name, body)
 
-        rows = [r.strip() for r in re.split(r"\\\\", body) if r.strip()]
-        if len(rows) <= 1:
-            els = _LatexMathParser(body.replace("&", " ")).parse_all()
-            return els[0] if len(els) == 1 else _make_run(body)
-        eqArr = _m("eqArr")
-        for row_str in rows:
-            e = _m("e")
-            for el in _LatexMathParser(row_str.replace("&", " ")).parse_all():
-                e.append(el)
-            eqArr.append(e)
-        return eqArr
+        # Aligned / multi-line environments: aligned, align, align*, gather, gather*, split, eqnarray
+        return self._build_aligned(body)
 
     def _build_cases(self, body: str, left_chr: str = "{") -> ET.Element:
-        eqArr = _m("eqArr")
-        rows = [r.strip() for r in re.split(r"\\\\", body) if r.strip()]
-        for r_str in rows:
-            e_row = _m("e")
-            e_row.append(_make_run(left_chr + " ", normal_text=True))
-            clean_r = r_str.replace("&", "  ")
-            for el in _LatexMathParser(clean_r).parse_all():
-                e_row.append(el)
-            eqArr.append(e_row)
-        return eqArr
+        """Build a native OMML system of equations with a single stretchy left brace <m:d> + <m:m>."""
+        raw_rows = [r.strip() for r in re.split(r"\\\\", body) if r.strip()]
+        parsed_rows: list[list[str]] = []
+        for r_str in raw_rows:
+            if "&" in r_str:
+                cols = [c.strip() for c in r_str.split("&")]
+            else:
+                # Also split trailing \quad (1) into a second aligned column if present
+                m_eqnum = re.match(r"^(.*?)(?:\\quad|\\qquad|\s{2,})(\(\d+\))\s*$", r_str)
+                if m_eqnum:
+                    cols = [m_eqnum.group(1).strip(), m_eqnum.group(2).strip()]
+                else:
+                    cols = [r_str]
+            parsed_rows.append(cols)
+
+        max_cols = max((len(r) for r in parsed_rows), default=1)
+        m_el = _m("m")
+        mPr = _m("mPr")
+        mcs = _m("mcs")
+        mc = _m("mc")
+        mcPr = _m("mcPr")
+        cnt = _m("count")
+        cnt.set(f"{{{M_NS}}}val", str(max_cols))
+        jc = _m("mcJc")
+        jc.set(f"{{{M_NS}}}val", "left")
+        mcPr.append(cnt)
+        mcPr.append(jc)
+        mc.append(mcPr)
+        mcs.append(mc)
+        mPr.append(mcs)
+        m_el.append(mPr)
+
+        for cols in parsed_rows:
+            mr = _m("mr")
+            for c_i in range(max_cols):
+                e = _m("e")
+                c_str = cols[c_i] if c_i < len(cols) else ""
+                if c_str:
+                    for el in _LatexMathParser(c_str).parse_all():
+                        e.append(el)
+                else:
+                    e.append(_make_run("", normal_text=True))
+                mr.append(e)
+            m_el.append(mr)
+
+        return _wrap_in_delimiter([m_el], left_chr, "")
 
     def _build_matrix(self, env_name: str, body: str) -> ET.Element:
+        """Build a native OMML matrix <m:m>, wrapped in <m:d> brackets for bmatrix/pmatrix/vmatrix/Bmatrix."""
         if env_name == "array":
             body = re.sub(r"^\s*\{[^{}]*\}", "", body, count=1)
-        rows = [r.strip() for r in re.split(r"\\\\", body) if r.strip()]
+        raw_rows = [r.strip() for r in re.split(r"\\\\", body) if r.strip()]
+        parsed_rows = [[c.strip() for c in r_str.split("&")] for r_str in raw_rows]
+        max_cols = max((len(r) for r in parsed_rows), default=1)
+
         m_el = _m("m")
-        for r_str in rows:
+        mPr = _m("mPr")
+        mcs = _m("mcs")
+        mc = _m("mc")
+        mcPr = _m("mcPr")
+        cnt = _m("count")
+        cnt.set(f"{{{M_NS}}}val", str(max_cols))
+        jc = _m("mcJc")
+        jc.set(f"{{{M_NS}}}val", "center")
+        mcPr.append(cnt)
+        mcPr.append(jc)
+        mc.append(mcPr)
+        mcs.append(mc)
+        mPr.append(mcs)
+        m_el.append(mPr)
+
+        for cols in parsed_rows:
             mr = _m("mr")
-            cols = r_str.split("&")
-            for c_str in cols:
+            for c_i in range(max_cols):
                 e = _m("e")
-                for el in _LatexMathParser(c_str.strip()).parse_all():
-                    e.append(el)
+                c_str = cols[c_i] if c_i < len(cols) else ""
+                if c_str:
+                    for el in _LatexMathParser(c_str).parse_all():
+                        e.append(el)
+                else:
+                    e.append(_make_run("", normal_text=True))
+                mr.append(e)
+            m_el.append(mr)
+
+        if env_name in MATRIX_DELIMS:
+            beg_c, end_c = MATRIX_DELIMS[env_name]
+            return _wrap_in_delimiter([m_el], beg_c, end_c)
+        return m_el
+
+    def _build_aligned(self, body: str) -> ET.Element:
+        """Build a multi-line aligned equation array using a left-aligned <m:m> matrix."""
+        raw_rows = [r.strip() for r in re.split(r"\\\\", body) if r.strip()]
+        if not raw_rows:
+            return _make_run("")
+        parsed_rows = [[c.strip() for c in r_str.split("&")] for r_str in raw_rows]
+        max_cols = max((len(r) for r in parsed_rows), default=1)
+
+        m_el = _m("m")
+        mPr = _m("mPr")
+        mcs = _m("mcs")
+        mc = _m("mc")
+        mcPr = _m("mcPr")
+        cnt = _m("count")
+        cnt.set(f"{{{M_NS}}}val", str(max_cols))
+        jc = _m("mcJc")
+        jc.set(f"{{{M_NS}}}val", "left")
+        mcPr.append(cnt)
+        mcPr.append(jc)
+        mc.append(mcPr)
+        mcs.append(mc)
+        mPr.append(mcs)
+        m_el.append(mPr)
+
+        for cols in parsed_rows:
+            mr = _m("mr")
+            for c_i in range(max_cols):
+                e = _m("e")
+                c_str = cols[c_i] if c_i < len(cols) else ""
+                if c_str:
+                    for el in _LatexMathParser(c_str).parse_all():
+                        e.append(el)
+                else:
+                    e.append(_make_run(" ", normal_text=True))
                 mr.append(e)
             m_el.append(mr)
         return m_el
@@ -699,6 +882,8 @@ class _LatexMathParser:
             if not nxt:
                 break
             elements.extend(nxt)
+        if self.tag:
+            elements.append(_make_run(f"   ({self.tag})", normal_text=True))
         return elements
 
 
@@ -758,91 +943,145 @@ def latex_to_omml_xml_string(latex_math: str, display: bool = False) -> str:
     return ET.tostring(omath, encoding="unicode")
 
 
+def _extract_braced_content(s: str, open_brace_idx: int) -> tuple[str, int] | None:
+    """Given index of `{`, return `(inner_content, index_after_closing_brace)` supporting arbitrary nesting."""
+    if open_brace_idx >= len(s) or s[open_brace_idx] != "{":
+        return None
+    depth = 1
+    i = open_brace_idx + 1
+    n = len(s)
+    while i < n and depth > 0:
+        if s[i] == "\\":
+            i += 2
+            continue
+        if s[i] == "{":
+            depth += 1
+        elif s[i] == "}":
+            depth -= 1
+            if depth == 0:
+                return s[open_brace_idx + 1 : i], i + 1
+        i += 1
+    return s[open_brace_idx + 1 :], n
+
+
 def append_rich_latex_text_to_paragraph(
-    paragraph, text: str, *, default_bold: bool = False, font_size_pt: float = 12.0
+    paragraph,
+    text: str,
+    *,
+    default_bold: bool = False,
+    default_underline: bool = False,
+    default_italic: bool = False,
+    font_size_pt: float = 12.0,
 ) -> None:
-    """Parse mixed Vietnamese text, formatting (\\textbf, \\underline, \\textit), and $...$ math into a Word paragraph."""
+    """Parse mixed Vietnamese text, nested formatting (\\textbf, \\underline, \\textit), line breaks (\\\\), and $...$ math."""
     from docx.shared import Pt
 
     s = text.replace(r"\(", "$").replace(r"\)", "$")
     s = re.sub(r"\\texttt\{([^{}]*)\}", r"\1", s)
     s = s.replace(r"\textbackslash ", "\\").replace(r"\textbackslash", "\\")
 
-    token_re = re.compile(
-        r"(\\\[.*?\\\]|\$\$.*?\$\$|\$[^$]+\$"
-        r"|\\underline\{\\textbf\{[^{}]*\}\}"
-        r"|\\textbf\{\\underline\{[^{}]*\}\}"
-        r"|\\textbf\{[^{}]*\}"
-        r"|\\underline\{[^{}]*\}"
-        r"|\\textit\{[^{}]*\}"
-        r"|\\emph\{[^{}]*\})",
-        re.S,
-    )
+    i = 0
+    n = len(s)
+    plain_buf: list[str] = []
 
-    pos = 0
-    for m in token_re.finditer(s):
-        if m.start() > pos:
-            plain = _clean_plain_tex_fragment(s[pos:m.start()])
-            if plain:
-                r = paragraph.add_run(plain)
-                r.bold = default_bold
-                r.font.size = Pt(font_size_pt)
-
-        tok = m.group(0)
-        if tok.startswith("\\[") or tok.startswith("$$"):
-            omml = latex_to_omml_element(tok, display=True)
-            paragraph._p.append(omml)
-        elif tok.startswith("$") and tok.endswith("$"):
-            omml = latex_to_omml_element(tok[1:-1], display=False)
-            paragraph._p.append(omml)
-        elif tok.startswith(r"\underline{\textbf{") or tok.startswith(r"\textbf{\underline{"):
-            inner = tok[19:-2]
-            _append_formatted_runs(paragraph, inner, bold=True, underline=True, font_size_pt=font_size_pt)
-        elif tok.startswith(r"\textbf{"):
-            inner = tok[8:-1]
-            _append_formatted_runs(paragraph, inner, bold=True, underline=False, font_size_pt=font_size_pt)
-        elif tok.startswith(r"\underline{"):
-            inner = tok[11:-1]
-            _append_formatted_runs(paragraph, inner, bold=default_bold, underline=True, font_size_pt=font_size_pt)
-        elif tok.startswith(r"\textit{") or tok.startswith(r"\emph{"):
-            inner = tok.split("{", 1)[1][:-1]
-            _append_formatted_runs(paragraph, inner, bold=default_bold, italic=True, font_size_pt=font_size_pt)
-
-        pos = m.end()
-
-    if pos < len(s):
-        plain = _clean_plain_tex_fragment(s[pos:])
-        if plain:
-            r = paragraph.add_run(plain)
+    def _flush_plain() -> None:
+        if not plain_buf:
+            return
+        raw_frag = "".join(plain_buf)
+        plain_buf.clear()
+        clean = _clean_plain_tex_fragment(raw_frag)
+        if clean:
+            r = paragraph.add_run(clean)
             r.bold = default_bold
+            r.underline = default_underline
+            r.italic = default_italic
             r.font.size = Pt(font_size_pt)
 
-
-def _append_formatted_runs(
-    paragraph,
-    text: str,
-    *,
-    bold: bool = False,
-    underline: bool = False,
-    italic: bool = False,
-    font_size_pt: float = 12.0,
-) -> None:
-    from docx.shared import Pt
-
-    parts = re.split(r"(\$[^$]+\$)", text)
-    for part in parts:
-        if not part:
+    while i < n:
+        # 1. Explicit LaTeX line break \\ or \newline outside math
+        if s.startswith(r"\\", i):
+            _flush_plain()
+            i += 2
+            while i < n and s[i] in " \t":
+                i += 1
+            if i < n and s[i] == "[":
+                end_b = s.find("]", i)
+                if end_b != -1:
+                    i = end_b + 1
+            if i < n and s[i] == "\n":
+                i += 1
+            # Only add a line break if there is more content following in this paragraph
+            if s[i:].strip():
+                paragraph.add_run().add_break()
             continue
-        if part.startswith("$") and part.endswith("$"):
-            paragraph._p.append(latex_to_omml_element(part[1:-1], display=False))
-        else:
-            clean = _clean_plain_tex_fragment(part)
-            if clean:
-                r = paragraph.add_run(clean)
-                r.bold = bold
-                r.underline = underline
-                r.italic = italic
-                r.font.size = Pt(font_size_pt)
+
+        if s.startswith(r"\newline", i) and (i + 8 == n or not s[i + 8].isalpha()):
+            _flush_plain()
+            i += 8
+            if s[i:].strip():
+                paragraph.add_run().add_break()
+            continue
+
+        # 2. Display math \[ ... \] or $$ ... $$
+        if s.startswith(r"\[", i):
+            end_m = s.find(r"\]", i + 2)
+            if end_m != -1:
+                _flush_plain()
+                math_src = s[i + 2 : end_m].strip()
+                paragraph._p.append(latex_to_omml_element(math_src, display=True))
+                i = end_m + 2
+                continue
+
+        if s.startswith("$$", i):
+            end_m = s.find("$$", i + 2)
+            if end_m != -1:
+                _flush_plain()
+                math_src = s[i + 2 : end_m].strip()
+                paragraph._p.append(latex_to_omml_element(math_src, display=True))
+                i = end_m + 2
+                continue
+
+        # 3. Inline math $ ... $
+        if s[i] == "$":
+            end_m = i + 1
+            while end_m < n:
+                if s[end_m] == "\\":
+                    end_m += 2
+                    continue
+                if s[end_m] == "$":
+                    break
+                end_m += 1
+            if end_m < n and s[end_m] == "$":
+                _flush_plain()
+                math_src = s[i + 1 : end_m].strip()
+                paragraph._p.append(latex_to_omml_element(math_src, display=False))
+                i = end_m + 1
+                continue
+
+        # 4. Formatting commands \textbf{...}, \underline{...}, \textit{...}, \emph{...} (with arbitrary nested braces)
+        m_fmt = re.match(r"^\\(textbf|underline|textit|emph)\s*\{", s[i:])
+        if m_fmt:
+            cmd_name = m_fmt.group(1)
+            open_idx = i + m_fmt.end() - 1
+            extracted = _extract_braced_content(s, open_idx)
+            if extracted is not None:
+                _flush_plain()
+                inner_str, next_i = extracted
+                append_rich_latex_text_to_paragraph(
+                    paragraph,
+                    inner_str,
+                    default_bold=default_bold or (cmd_name == "textbf"),
+                    default_underline=default_underline or (cmd_name == "underline"),
+                    default_italic=default_italic or (cmd_name in ("textit", "emph")),
+                    font_size_pt=font_size_pt,
+                )
+                i = next_i
+                continue
+
+        plain_buf.append(s[i])
+        i += 1
+
+    _flush_plain()
 
 
 def _clean_plain_tex_fragment(s: str) -> str:

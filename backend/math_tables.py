@@ -1,8 +1,9 @@
 """Comprehensive Native Word Table Engine for Mathematics (`backend/math_tables.py`).
 
 Handles all table types required in Mathematics documents and exams:
-1. Variation & Sign Tables (`tkz-tab`: \\tkzTabInit, \\tkzTabLine, \\tkzTabVar) -> Native Word Table (<w:tbl>)
-   with editable OMML equations (<m:oMath>) and native DrawingML variation arrows (<wps:wsp>).
+1. Variation & Sign Tables (`tkz-tab`: \\tkzTabInit, \\tkzTabLine, \\tkzTabVar, and hand-drawn TikZ BBT) ->
+   Compact fixed-grid Native Word Table (<w:tbl>) with exact column widths, OMML equations (<m:oMath>),
+   and native DrawingML variation arrows (<wps:wsp>) aligned directly between extrema values.
 2. Smart Multiple-Choice Tables (\\choiceA..D, \\choice, \\boncot, \\haicot, \\motcot) -> Auto 1x4, 2x2, or 4x1
    borderless Word table with OMML math and bold/underlined correct answer key.
 3. True/False 2025 Exam Tables (\\choiceTF) -> Structured 3-column table (Mệnh đề | Đúng | Sai).
@@ -107,6 +108,45 @@ def set_table_width_pct(table, pct: int = 5000) -> None:
     tblW.set(qn("w:type"), "pct")
 
 
+def apply_fixed_table_grid(table, col_widths_dxa: list[int]) -> None:
+    """Lock a Word table to exact fixed column widths in dxa (1/20th of a point) so Word AutoFit never shifts cells."""
+    tblPr = table._tbl.tblPr
+    if tblPr is None:
+        return
+    tblW = tblPr.find(qn("w:tblW"))
+    if tblW is None:
+        tblW = OxmlElement("w:tblW")
+        tblPr.append(tblW)
+    tblW.set(qn("w:w"), str(sum(col_widths_dxa)))
+    tblW.set(qn("w:type"), "dxa")
+
+    tblLayout = tblPr.find(qn("w:tblLayout"))
+    if tblLayout is None:
+        tblLayout = OxmlElement("w:tblLayout")
+        tblPr.append(tblLayout)
+    tblLayout.set(qn("w:type"), "fixed")
+
+    old_grid = table._tbl.find(qn("w:tblGrid"))
+    if old_grid is not None:
+        table._tbl.remove(old_grid)
+    tblGrid = OxmlElement("w:tblGrid")
+    for w in col_widths_dxa:
+        gc = OxmlElement("w:gridCol")
+        gc.set(qn("w:w"), str(w))
+        tblGrid.append(gc)
+    tblPr.addnext(tblGrid)
+
+    for row in table.rows:
+        for c_i, cell in enumerate(row.cells):
+            if c_i < len(col_widths_dxa):
+                tcPr = cell._tc.get_or_add_tcPr()
+                tcW = tcPr.find(qn("w:tcW"))
+                if tcW is None:
+                    tcW = OxmlElement("w:tcW")
+                    tcPr.append(tcW)
+                tcW.set(qn("w:w"), str(col_widths_dxa[c_i]))
+                tcW.set(qn("w:type"), "dxa")
+
 
 def keep_table_together(table) -> None:
     if len(table.rows) <= 6:
@@ -115,6 +155,7 @@ def keep_table_together(table) -> None:
                 for para in cell.paragraphs:
                     para.paragraph_format.keep_with_next = True
 
+
 def prevent_row_split(row) -> None:
     trPr = row._tr.get_or_add_trPr()
     if trPr.find(qn("w:cantSplit")) is None:
@@ -122,10 +163,10 @@ def prevent_row_split(row) -> None:
 
 
 # ==============================================================================
-# 1. BẢNG XÉT DẤU & BẢNG BIẾN THIÊN (TKZ-TAB -> NATIVE EDITABLE WORD TABLE)
+# 1. BẢNG XÉT DẤU & BẢNG BIẾN THIÊN (TKZ-TAB & TIKZ BBT -> COMPACT FIXED WORD TABLE)
 # ==============================================================================
 def _create_variation_arrow_drawingml(
-    going_down: bool, width_emu: int = 620000, height_emu: int = 440000, doc_id: int = 900
+    going_down: bool, width_emu: int = 440000, height_emu: int = 270000, doc_id: int = 900
 ):
     """Create a native Word DrawingML diagonal arrow (<wps:wsp>) for a variation table interval cell."""
     flip_v = "" if going_down else ' flipV="1"'
@@ -212,7 +253,7 @@ def _read_braced_groups(s: str, start_idx: int, count: int) -> list[str]:
 
 
 def build_tkz_tab_word_table(doc, tikz_code: str, table_id: int = 500):
-    """Convert a `tkz-tab` (or hand-drawn TikZ BBT) block into a 100% Native Editable Word Table (<w:tbl>)."""
+    """Convert a `tkz-tab` (or hand-drawn TikZ BBT) block into a compact, fixed-grid Native Editable Word Table."""
     if r"\tkzTabInit" not in tikz_code:
         return _build_handdrawn_tikz_bbt_table(doc, tikz_code, table_id=table_id)
 
@@ -246,31 +287,27 @@ def build_tkz_tab_word_table(doc, tikz_code: str, table_id: int = 500):
     num_rows = len(row_headers)
     table = doc.add_table(rows=num_rows, cols=total_cols)
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
-    set_table_width_pct(table, 4700)
+
+    # Compact fixed-grid widths in dxa (1 cm ≈ 567 dxa):
+    # Col 0 (header): 760 dxa (~1.34 cm)
+    # Odd cols (point/value columns): 520 dxa (~0.92 cm)
+    # Even cols (interval/arrow columns): 780 dxa (~1.38 cm)
+    col_widths_dxa = [760] + [520 if (c % 2 == 1) else 780 for c in range(1, total_cols)]
+    apply_fixed_table_grid(table, col_widths_dxa)
 
     b_solid = ("single", 6, "0F172A")
     b_none = ("none", 0, "auto")
 
-    col0_pct = 600
-    rem_pct = max(150, (5000 - col0_pct) // num_grid_cols)
-
-    # Explicitly set outer box borders and row horizontal borders on every cell
     for r_idx, row in enumerate(table.rows):
         prevent_row_split(row)
         for c_idx, cell in enumerate(row.cells):
-            tcPr = cell._tc.get_or_add_tcPr()
-            tcW = OxmlElement("w:tcW")
-            tcW.set(qn("w:w"), str(col0_pct if c_idx == 0 else rem_pct))
-            tcW.set(qn("w:type"), "pct")
-            tcPr.append(tcW)
-            set_cell_margins(cell, top=60, bottom=60, left=60, right=60)
-            cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-
-            top_b = b_solid if r_idx == 0 else b_solid
+            top_b = b_solid
             bot_b = b_solid
             left_b = b_solid if c_idx in (0, 1) else b_none
             right_b = b_solid if c_idx in (0, total_cols - 1) else b_none
             set_cell_borders(cell, top=top_b, bottom=bot_b, left=left_b, right=right_b)
+            set_cell_margins(cell, top=40, bottom=40, left=15, right=15)
+            cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
 
     # Populate Column 0 headers ($x$, $y'$, $y$)
     for r_idx, h_text in enumerate(row_headers):
@@ -337,10 +374,10 @@ def build_tkz_tab_word_table(doc, tikz_code: str, table_id: int = 500):
             if is_top:
                 cell.vertical_alignment = WD_ALIGN_VERTICAL.TOP
                 p.paragraph_format.space_before = Pt(2)
-                p.paragraph_format.space_after = Pt(26)
+                p.paragraph_format.space_after = Pt(22)
             else:
                 cell.vertical_alignment = WD_ALIGN_VERTICAL.BOTTOM
-                p.paragraph_format.space_before = Pt(26)
+                p.paragraph_format.space_before = Pt(22)
                 p.paragraph_format.space_after = Pt(2)
 
             append_rich_latex_text_to_paragraph(p, val_str, font_size_pt=11.0)
@@ -353,27 +390,37 @@ def build_tkz_tab_word_table(doc, tikz_code: str, table_id: int = 500):
                 arrow_cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
                 ap = arrow_cell.paragraphs[0]
                 ap.alignment = WD_ALIGN_PARAGRAPH.CENTER
-                ap.paragraph_format.space_before = Pt(4)
-                ap.paragraph_format.space_after = Pt(4)
+                ap.paragraph_format.space_before = Pt(2)
+                ap.paragraph_format.space_after = Pt(2)
                 ap._p.append(
                     _create_variation_arrow_drawingml(
                         going_down=going_down,
-                        width_emu=560000,
-                        height_emu=380000,
+                        width_emu=460000,
+                        height_emu=280000,
                         doc_id=table_id * 10 + i,
                     )
                 )
 
     keep_table_together(table)
+    if hasattr(doc, "add_paragraph"):
+        sp = doc.add_paragraph()
+        sp.paragraph_format.space_before = Pt(0)
+        sp.paragraph_format.space_after = Pt(2)
     return table
 
 
 def _build_handdrawn_tikz_bbt_table(doc, tikz_code: str, table_id: int = 550):
-    """Convert a hand-drawn TikZ variation table (such as Câu 12 with vertical asymptote x=1) into a native Word table."""
+    """Convert a hand-drawn TikZ variation table (such as Câu 12 with vertical asymptote x=1) into a 7-column fixed-grid Word table."""
     has_double = "double" in tikz_code
-    table = doc.add_table(rows=2, cols=6)
+    table = doc.add_table(rows=2, cols=7)
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
-    set_table_width_pct(table, 4600)
+
+    # Symmetric 7-column fixed grid:
+    # Col 0 (header x/y): 680 dxa
+    # Col 1, 2, 3 (left of asymptote): 480 (start val), 740 (arrow), 520 (end val before ||)
+    # Col 4, 5, 6 (right of asymptote): 520 (start val after ||), 740 (arrow), 480 (end val)
+    col_w = [680, 480, 740, 520, 520, 740, 480]
+    apply_fixed_table_grid(table, col_w)
 
     b_solid = ("single", 6, "0F172A")
     b_none = ("none", 0, "auto")
@@ -382,65 +429,88 @@ def _build_handdrawn_tikz_bbt_table(doc, tikz_code: str, table_id: int = 550):
     for r_idx, row in enumerate(table.rows):
         prevent_row_split(row)
         for c_idx, cell in enumerate(row.cells):
-            set_cell_margins(cell, top=60, bottom=60, left=60, right=60)
-            cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-            left_b = b_solid if c_idx in (0, 1) else (b_double if (c_idx == 3 and r_idx == 1 and has_double) else b_none)
-            right_b = b_solid if c_idx in (0, 5) else (b_double if (c_idx == 2 and r_idx == 1 and has_double) else b_none)
+            left_b = b_solid if c_idx in (0, 1) else (b_double if (c_idx == 4 and r_idx == 1 and has_double) else b_none)
+            right_b = b_solid if c_idx in (0, 6) else (b_double if (c_idx == 3 and r_idx == 1 and has_double) else b_none)
             set_cell_borders(cell, top=b_solid, bottom=b_solid, left=left_b, right=right_b)
+            set_cell_margins(cell, top=40, bottom=40, left=15, right=15)
+            cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
 
-    # Merge (0, 2) and (0, 3) so x = 1 sits centered directly above the double vertical line!
-    merged_x1 = table.cell(0, 2).merge(table.cell(0, 3))
+    # Merge (0, 3) and (0, 4) (each 520 dxa) so x = 1 sits centered directly over the double border between col 3 & 4
+    merged_x1 = table.cell(0, 3).merge(table.cell(0, 4))
+    tcPr_m = merged_x1._tc.get_or_add_tcPr()
+    tcW_m = tcPr_m.find(qn("w:tcW"))
+    if tcW_m is not None:
+        tcW_m.set(qn("w:w"), str(col_w[3] + col_w[4]))
     set_cell_borders(merged_x1, top=b_solid, bottom=b_solid, left=b_none, right=b_none)
 
-    # Row 0: x | -\infty | 1 (centered over double line) | +\infty
-    r0_data = [(0, "$x$"), (1, r"$-\infty$"), (2, "$1$"), (5, r"$+\infty$")]
-    for col_i, txt in r0_data:
+    # Row 0: x | -\infty | (empty) | 1 (centered over ||) | (empty) | +\infty
+    for col_i, txt in [(0, "$x$"), (1, r"$-\infty$"), (3, "$1$"), (6, r"$+\infty$")]:
         p = table.cell(0, col_i).paragraphs[0]
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p.paragraph_format.space_before = Pt(2)
+        p.paragraph_format.space_after = Pt(2)
         append_rich_latex_text_to_paragraph(p, txt, font_size_pt=11.0)
 
+    # Row 1: y | 2 (top) | \ arrow | -\infty (bottom) || +\infty (top) | \ arrow | 2 (bottom)
     p_y = table.cell(1, 0).paragraphs[0]
     p_y.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_y.paragraph_format.space_before = Pt(2)
+    p_y.paragraph_format.space_after = Pt(2)
     append_rich_latex_text_to_paragraph(p_y, "$y$", font_size_pt=11.0)
 
     c1 = table.cell(1, 1)
     c1.vertical_alignment = WD_ALIGN_VERTICAL.TOP
     p1 = c1.paragraphs[0]
-    p1.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p1.paragraph_format.space_after = Pt(24)
+    p1.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    p1.paragraph_format.space_before = Pt(2)
+    p1.paragraph_format.space_after = Pt(22)
     append_rich_latex_text_to_paragraph(p1, "$2$", font_size_pt=11.0)
 
     c2 = table.cell(1, 2)
-    c2.vertical_alignment = WD_ALIGN_VERTICAL.BOTTOM
+    c2.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
     p2 = c2.paragraphs[0]
     p2.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p2._p.append(_create_variation_arrow_drawingml(going_down=True, width_emu=520000, height_emu=340000, doc_id=table_id + 1))
-    p2_sub = c2.add_paragraph()
-    p2_sub.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    p2_sub.paragraph_format.space_before = Pt(0)
-    append_rich_latex_text_to_paragraph(p2_sub, r"$-\infty$", font_size_pt=10.5)
+    p2.paragraph_format.space_before = Pt(2)
+    p2.paragraph_format.space_after = Pt(2)
+    p2._p.append(_create_variation_arrow_drawingml(going_down=True, width_emu=430000, height_emu=260000, doc_id=table_id + 1))
 
     c3 = table.cell(1, 3)
-    c3.vertical_alignment = WD_ALIGN_VERTICAL.TOP
+    c3.vertical_alignment = WD_ALIGN_VERTICAL.BOTTOM
     p3 = c3.paragraphs[0]
     p3.alignment = WD_ALIGN_PARAGRAPH.LEFT
-    p3.paragraph_format.space_after = Pt(24)
-    append_rich_latex_text_to_paragraph(p3, r"$+\infty$", font_size_pt=10.5)
+    p3.paragraph_format.space_before = Pt(22)
+    p3.paragraph_format.space_after = Pt(2)
+    append_rich_latex_text_to_paragraph(p3, r"$-\infty$", font_size_pt=10.5)
 
     c4 = table.cell(1, 4)
-    c4.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+    c4.vertical_alignment = WD_ALIGN_VERTICAL.TOP
     p4 = c4.paragraphs[0]
-    p4.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p4._p.append(_create_variation_arrow_drawingml(going_down=True, width_emu=520000, height_emu=340000, doc_id=table_id + 2))
+    p4.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    p4.paragraph_format.space_before = Pt(2)
+    p4.paragraph_format.space_after = Pt(22)
+    append_rich_latex_text_to_paragraph(p4, r"$+\infty$", font_size_pt=10.5)
 
     c5 = table.cell(1, 5)
-    c5.vertical_alignment = WD_ALIGN_VERTICAL.BOTTOM
+    c5.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
     p5 = c5.paragraphs[0]
     p5.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p5.paragraph_format.space_before = Pt(24)
-    append_rich_latex_text_to_paragraph(p5, "$2$", font_size_pt=11.0)
+    p5.paragraph_format.space_before = Pt(2)
+    p5.paragraph_format.space_after = Pt(2)
+    p5._p.append(_create_variation_arrow_drawingml(going_down=True, width_emu=430000, height_emu=260000, doc_id=table_id + 2))
+
+    c6 = table.cell(1, 6)
+    c6.vertical_alignment = WD_ALIGN_VERTICAL.BOTTOM
+    p6 = c6.paragraphs[0]
+    p6.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    p6.paragraph_format.space_before = Pt(22)
+    p6.paragraph_format.space_after = Pt(2)
+    append_rich_latex_text_to_paragraph(p6, "$2$", font_size_pt=11.0)
 
     keep_table_together(table)
+    if hasattr(doc, "add_paragraph"):
+        sp = doc.add_paragraph()
+        sp.paragraph_format.space_before = Pt(0)
+        sp.paragraph_format.space_after = Pt(2)
     return table
 
 
@@ -608,7 +678,7 @@ def _split_latex_table_cells(row_str: str) -> list[str]:
     while i < n:
         ch = row_str[i]
         if ch == "\\":
-            cur.append(row_str[i:i + 2])
+            cur.append(row_str[i : i + 2])
             i += 2
             continue
         if ch == "{":
@@ -855,7 +925,6 @@ def build_latex_data_table(doc, tabular_tex: str):
 
             col_cursor += p_cell.colspan
 
-        # Handle trailing vmerge columns at end of row
         while col_cursor < num_cols and vmerge_remaining.get(col_cursor, 0) > 0:
             cov_cell = row.cells[col_cursor]
             cov_tcPr = cov_cell._tc.get_or_add_tcPr()

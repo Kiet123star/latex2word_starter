@@ -1,4 +1,4 @@
-"""Native Microsoft Word DrawingML Shape & Graph Compiler (TikZ / PGFPlots -> <wpg:wgp>).
+"""Native Microsoft Word DrawingML Shape & Graph Compiler (`backend/drawingml_engine.py`).
 
 Converts LaTeX TikZ geometry diagrams (\begin{tikzpicture}) and PGFPlots function graphs
 (\begin{axis}) directly into editable Office Open XML WordprocessingGroup (<wpg:wgp>)
@@ -333,6 +333,27 @@ def _parse_style_opts(opt_str: str) -> dict[str, any]:
     return info
 
 
+def _parse_tick_list(val_str: str) -> list[float] | None:
+    """Parse PGFPlots xtick={-2,-1,1,2} or xtick=\empty."""
+    s = val_str.strip()
+    if s in (r"\empty", "none", "{}"):
+        return []
+    if s.startswith("{") and s.endswith("}"):
+        s = s[1:-1].strip()
+    if not s:
+        return []
+    res: list[float] = []
+    for part in s.split(","):
+        p = part.strip()
+        if not p:
+            continue
+        try:
+            res.append(float(_safe_eval_math(p)))
+        except Exception:
+            pass
+    return res if res else None
+
+
 def parse_pgfplots_axis_to_scene(axis_tex: str, scale: float = 1.0) -> Scene2D:
     """Parse a PGFPlots \\begin{axis}[...] ... \\end{axis} environment into a 2D vector Scene."""
     scene = Scene2D(scale=scale)
@@ -342,8 +363,8 @@ def parse_pgfplots_axis_to_scene(axis_tex: str, scale: float = 1.0) -> Scene2D:
     body_end = axis_tex.rfind(r"\end{axis}")
     body = axis_tex[body_start:body_end] if body_end != -1 else axis_tex[body_start:]
 
-    width_cm = 7.2
-    height_cm = 4.6
+    width_cm = 7.0
+    height_cm = 4.2
     xmin: float | None = None
     xmax: float | None = None
     ymin: float | None = None
@@ -355,6 +376,11 @@ def parse_pgfplots_axis_to_scene(axis_tex: str, scale: float = 1.0) -> Scene2D:
     has_grid = False
     default_domain = (-3.0, 3.0)
     default_samples = 80
+    explicit_xticks: list[float] | None = None
+    explicit_yticks: list[float] | None = None
+    explicit_xticklabels: list[str] | None = None
+    explicit_yticklabels: list[str] | None = None
+    ticks_none = False
 
     tokens: list[str] = []
     cur: list[str] = []
@@ -381,11 +407,12 @@ def parse_pgfplots_axis_to_scene(axis_tex: str, scale: float = 1.0) -> Scene2D:
         if kl == "width":
             m_n = re.search(r"(\d+(?:\.\d+)?)", v_clean)
             if m_n:
-                width_cm = float(m_n.group(1))
+                # PGFPlots axis width includes label margins (~1.4cm smaller canvas than nominal width)
+                width_cm = max(4.2, float(m_n.group(1)) * 0.84)
         elif kl == "height":
             m_n = re.search(r"(\d+(?:\.\d+)?)", v_clean)
             if m_n:
-                height_cm = float(m_n.group(1))
+                height_cm = max(2.8, float(m_n.group(1)) * 0.84)
         elif kl == "xmin":
             try:
                 xmin = float(v_clean)
@@ -407,15 +434,26 @@ def parse_pgfplots_axis_to_scene(axis_tex: str, scale: float = 1.0) -> Scene2D:
             except ValueError:
                 pass
         elif kl == "xlabel":
-            xlabel = v_clean
+            xlabel = v_clean if v_clean.startswith("$") else f"${v_clean}$"
         elif kl == "ylabel":
-            ylabel = v_clean
+            ylabel = v_clean if v_clean.startswith("$") else f"${v_clean}$"
         elif kl == "title":
             title = v_clean
-        elif kl == "axis lines":
+        elif kl in ("axis lines", "axis x line", "axis y line"):
             axis_lines = v_clean.lower()
         elif kl == "grid":
             has_grid = v_clean.lower() in ("major", "both", "minor")
+        elif kl == "ticks":
+            if v_clean.lower() == "none":
+                ticks_none = True
+        elif kl == "xtick":
+            explicit_xticks = _parse_tick_list(v)
+        elif kl == "ytick":
+            explicit_yticks = _parse_tick_list(v)
+        elif kl == "xticklabels":
+            explicit_xticklabels = [x.strip() for x in v_clean.split(",") if x.strip()]
+        elif kl == "yticklabels":
+            explicit_yticklabels = [x.strip() for x in v_clean.split(",") if x.strip()]
         elif kl == "domain":
             dp = v_clean.split(":")
             if len(dp) == 2:
@@ -482,7 +520,7 @@ def parse_pgfplots_axis_to_scene(axis_tex: str, scale: float = 1.0) -> Scene2D:
         cy = (yv - ymin) / (ymax - ymin) * height_cm
         return cx, cy
 
-    scene.clip_rect = (-0.4, -0.4, width_cm + 0.8, height_cm + 0.8)
+    scene.clip_rect = (-0.55, -0.55, width_cm + 0.65, height_cm + 0.55)
 
     if has_grid:
         for gx in range(int(math.ceil(xmin)), int(math.floor(xmax)) + 1):
@@ -502,13 +540,58 @@ def parse_pgfplots_axis_to_scene(axis_tex: str, scale: float = 1.0) -> Scene2D:
         y_axis_x, y_start = to_cm(oy_x, ymin)
         _, y_end = to_cm(oy_x, ymax)
 
-        scene.lines.append(PrimLine(x_start, y_axis_pos, x_end, y_axis_pos, color="0F172A", width_pt=1.2, arrow_end=True))
-        scene.lines.append(PrimLine(y_axis_x, y_start, y_axis_x, y_end, color="0F172A", width_pt=1.2, arrow_end=True))
+        scene.lines.append(PrimLine(x_start, y_axis_pos, x_end, y_axis_pos, color="0F172A", width_pt=1.0, arrow_end=True))
+        scene.lines.append(PrimLine(y_axis_x, y_start, y_axis_x, y_end, color="0F172A", width_pt=1.0, arrow_end=True))
 
-        ox_cm, oy_cm = to_cm(oy_x, ox_y)
-        scene.labels.append(PrimLabel(ox_cm, oy_cm, "$O$", anchor="below left", font_size_pt=10.5))
-        scene.labels.append(PrimLabel(x_end, y_axis_pos, xlabel or "$x$", anchor="right", font_size_pt=11.0))
-        scene.labels.append(PrimLabel(y_axis_x, y_end, ylabel or "$y$", anchor="above", font_size_pt=11.0))
+        # Place axis labels $x$ (above-left of Ox arrow tip) and $y$ (below-right of Oy arrow tip) exactly like PGFPlots
+        scene.labels.append(PrimLabel(x_end - 0.12, y_axis_pos + 0.05, xlabel or "$x$", anchor="above left", font_size_pt=10.5))
+        scene.labels.append(PrimLabel(y_axis_x + 0.06, y_end - 0.10, ylabel or "$y$", anchor="below right", font_size_pt=10.5))
+
+        # Generate tick marks and tick numbers along Ox and Oy (matching PGFPlots axis lines=middle)
+        if not ticks_none:
+            if explicit_xticks is not None:
+                x_ticks = explicit_xticks
+            else:
+                x_span = xmax - xmin
+                x_step = 1 if x_span <= 6.5 else (2 if x_span <= 14.0 else 5)
+                first_x = int(math.ceil(xmin / x_step)) * x_step
+                x_ticks = []
+                cur_x = first_x
+                while cur_x <= xmax + 1e-6:
+                    if abs(cur_x - oy_x) > 1e-6:
+                        x_ticks.append(float(cur_x))
+                    cur_x += x_step
+
+            for idx_t, gx in enumerate(x_ticks):
+                cx, _ = to_cm(gx, ox_y)
+                scene.lines.append(PrimLine(cx, y_axis_pos - 0.07, cx, y_axis_pos + 0.07, color="64748B", width_pt=0.65))
+                if explicit_xticklabels and idx_t < len(explicit_xticklabels):
+                    lbl_str = explicit_xticklabels[idx_t]
+                else:
+                    lbl_str = f"${int(round(gx))}$" if abs(gx - round(gx)) < 1e-6 else f"${gx:g}$"
+                scene.labels.append(PrimLabel(cx, y_axis_pos - 0.07, lbl_str, anchor="below", font_size_pt=9.5))
+
+            if explicit_yticks is not None:
+                y_ticks = explicit_yticks
+            else:
+                y_span = ymax - ymin
+                y_step = 1 if y_span <= 4.5 else (2 if y_span <= 12.0 else 5)
+                first_y = int(math.ceil(ymin / y_step)) * y_step
+                y_ticks = []
+                cur_y = first_y
+                while cur_y <= ymax - 0.15:
+                    if abs(cur_y - ox_y) > 1e-6:
+                        y_ticks.append(float(cur_y))
+                    cur_y += y_step
+
+            for idx_t, gy in enumerate(y_ticks):
+                _, cy = to_cm(oy_x, gy)
+                scene.lines.append(PrimLine(y_axis_x - 0.07, cy, y_axis_x + 0.07, cy, color="64748B", width_pt=0.65))
+                if explicit_yticklabels and idx_t < len(explicit_yticklabels):
+                    lbl_str = explicit_yticklabels[idx_t]
+                else:
+                    lbl_str = f"${int(round(gy))}$" if abs(gy - round(gy)) < 1e-6 else f"${gy:g}$"
+                scene.labels.append(PrimLabel(y_axis_x - 0.07, cy, lbl_str, anchor="left", font_size_pt=9.5))
     else:
         scene.paths.append(
             PrimPath(
@@ -1034,17 +1117,15 @@ def scene_to_drawingml_element(scene: Scene2D, group_id: int = 100):
     raw_w_cm = span_x * scene.scale
     raw_h_cm = span_y * scene.scale
 
-    max_w_cm = 11.2
-    max_h_cm = 6.8
+    max_w_cm = 14.2
+    max_h_cm = 10.8
     fit_ratio = min(1.0, max_w_cm / max(raw_w_cm, 0.1), max_h_cm / max(raw_h_cm, 0.1))
-    if raw_w_cm * fit_ratio < 4.5 and raw_h_cm * fit_ratio < 3.5:
-        fit_ratio = min(4.8 / max(raw_w_cm, 0.1), max_h_cm / max(raw_h_cm, 0.1))
 
     eff_scale_x = scene.scale * fit_ratio
     eff_scale_y = scene.scale * fit_ratio
 
-    pad_x_cm = 0.90
-    pad_y_cm = 0.70
+    pad_x_cm = 1.35
+    pad_y_cm = 0.80
 
     total_w_cm = span_x * eff_scale_x + 2 * pad_x_cm
     total_h_cm = span_y * eff_scale_y + 2 * pad_y_cm
@@ -1217,8 +1298,8 @@ def scene_to_drawingml_element(scene: Scene2D, group_id: int = 100):
             </wps:wsp>"""
         )
 
-    # Track placed label boxes to prevent collision when multiple labels share a point (e.g. "Vàng" and "X")
-    placed_boxes: list[tuple[int, int, int, int]] = []
+    # Track placed labels with their original coordinates so we only de-collide labels sharing the same point
+    placed_boxes: list[tuple[float, float, int, int, int, int]] = []
 
     for lb in scene.labels:
         lx, ly = to_emu(lb.x, lb.y)
@@ -1227,13 +1308,13 @@ def scene_to_drawingml_element(scene: Scene2D, group_id: int = 100):
 
         has_tall_math = any(k in lb.text for k in (r"\frac", r"\dfrac", r"\sqrt"))
         clean_len = len(re.sub(r"\\[a-zA-Z]+|[{}$_^\s]", "", lb.text))
-        box_w = max(240000, min(1450000, (clean_len + 2) * 82000))
-        box_h = 390000 if has_tall_math else 230000
+        box_w = max(180000, min(1450000, (clean_len + 1) * 72000))
+        box_h = 360000 if has_tall_math else 200000
 
         anc = lb.anchor
         off_x = lx - box_w // 2
         off_y = ly - box_h // 2
-        gap = 36000
+        gap = 24000
 
         if "above" in anc:
             off_y = ly - box_h - gap
@@ -1244,21 +1325,22 @@ def scene_to_drawingml_element(scene: Scene2D, group_id: int = 100):
         elif "right" in anc:
             off_x = lx + gap
 
-        # De-collide against already placed label boxes
-        for px1, py1, px2, py2 in placed_boxes:
-            overlap_x = min(off_x + box_w, px2) - max(off_x, px1)
-            overlap_y = min(off_y + box_h, py2) - max(off_y, py1)
-            if overlap_x > 20000 and overlap_y > 20000:
-                if "left" in anc:
-                    off_x = px1 - box_w - 15000
-                elif "right" in anc:
-                    off_x = px2 + 15000
-                else:
-                    off_y = py1 - box_h - 15000
+        # Only de-collide when two labels are anchored at virtually the same point (e.g. "Vàng" and "X" at X)
+        for orig_x, orig_y, px1, py1, px2, py2 in placed_boxes:
+            if math.hypot(lb.x - orig_x, lb.y - orig_y) < 0.25:
+                overlap_x = min(off_x + box_w, px2) - max(off_x, px1)
+                overlap_y = min(off_y + box_h, py2) - max(off_y, py1)
+                if overlap_x > 10000 and overlap_y > 10000:
+                    if "left" in anc:
+                        off_x = px1 - box_w - 15000
+                    elif "right" in anc:
+                        off_x = px2 + 15000
+                    else:
+                        off_y = py1 - box_h - 15000
 
         off_x = max(0, min(total_w_emu - box_w, off_x))
         off_y = max(0, min(total_h_emu - box_h, off_y))
-        placed_boxes.append((off_x, off_y, off_x + box_w, off_y + box_h))
+        placed_boxes.append((lb.x, lb.y, off_x, off_y, off_x + box_w, off_y + box_h))
 
         p_xml = _build_textbox_paragraph_xml(lb.text, lb.color, lb.bold, lb.font_size_pt)
 
