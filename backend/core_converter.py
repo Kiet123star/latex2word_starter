@@ -2468,12 +2468,12 @@ def _preprocess_blocks_with_placeholders(body_tex: str) -> tuple[str, dict[str, 
     def _replace_disp_env(m: re.Match[str]) -> str:
         env = m.group(1)
         inner = m.group(2).strip()
-        if env.startswith(("align", "gather", "eqnarray")) and not inner.startswith(r"\begin{aligned}"):
+        if env.startswith(("align", "gather", "eqnarray", "flalign")) and not inner.startswith(r"\begin{aligned}"):
             inner = f"\\begin{{aligned}}\n{inner}\n\\end{{aligned}}"
         return _next_token("display_math", inner)
 
     disp_env_re = re.compile(
-        r"\\begin\{(equation\*?|align\*?|gather\*?|eqnarray\*?)\}(.*?)\\end\{\1\}",
+        r"\\begin\{(equation\*?|align\*?|gather\*?|eqnarray\*?|flalign\*?|multline\*?)\}(.*?)\\end\{\1\}",
         re.S,
     )
     s = disp_env_re.sub(_replace_disp_env, s)
@@ -2501,6 +2501,145 @@ def _add_horizontal_rule_paragraph(doc) -> None:
     bottom.set(qn("w:color"), "94A3B8")
     pBdr.append(bottom)
     pPr.append(pBdr)
+
+
+def _preprocess_latex_body(body: str) -> str:
+    """Comprehensive preprocessing: strip/convert all LaTeX structures not handled by the block pipeline.
+
+    Ensures commands like \\fontsize, \\selectfont, \\rule, \\begin{titlepage}, \\begin{minipage},
+    \\label, \\ref, \\cite, \\footnote, \\textcolor, \\url, and 80+ other commands never leak
+    as raw text into the final Word document.
+    """
+    s = body
+
+    # ── 1. Preamble-only commands that sometimes leak into body ──
+    s = re.sub(r"\\(?:documentclass|usepackage|RequirePackage)(?:\[[^\]]*\])?\s*\{[^{}]*\}", "", s)
+    s = re.sub(r"\\(?:usetikzlibrary|pgfplotsset|tikzset)\s*\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}", "", s)
+    s = re.sub(
+        r"\\(?:newcommand|renewcommand|providecommand|DeclareRobustCommand)\*?"
+        r"\s*(?:\\[a-zA-Z]+|\{[^{}]*\})\s*(?:\[\d+\])?\s*(?:\[[^\]]*\])?"
+        r"\s*\{[^{}]*(?:\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}[^{}]*)*\}",
+        "", s,
+    )
+    s = re.sub(r"\\(?:newtheorem|theoremstyle)\*?\s*\{[^{}]*\}(?:\[[^\]]*\])?\s*(?:\{[^{}]*\})?\s*(?:\[[^\]]*\])?", "", s)
+    s = re.sub(r"\\(?:newlength|newcounter)\s*\{?\\?[a-zA-Z]+\}?", "", s)
+    s = re.sub(r"\\(?:setlength|addtolength)\s*\{?\\?[a-zA-Z]+\}?\s*\{[^{}]*\}", "", s)
+    s = re.sub(r"\\(?:setcounter|addtocounter|stepcounter)\s*\{[^{}]*\}(?:\s*\{[^{}]*\})?", "", s)
+    s = re.sub(r"\\(?:def|edef|gdef|xdef)\\[a-zA-Z]+(?:#\d)*\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}", "", s)
+    s = re.sub(r"\\(?:let|futurelet)\s*\\[a-zA-Z]+\s*(?:=\s*)?\\?[a-zA-Z]+", "", s)
+    s = re.sub(r"\\(?:numberwithin|DeclareMathOperator)\*?\s*\{[^{}]*\}\s*(?:\{[^{}]*\})?", "", s)
+
+    # ── 2. Font & sizing commands → strip ──
+    s = re.sub(r"\\fontsize\s*\{[^{}]*\}\s*\{[^{}]*\}", "", s)
+    s = re.sub(r"\\fontsize\s*[\d.]+\s*(?:pt|mm|cm|em|ex)?\s*[\d.]+\s*(?:pt|mm|cm|em|ex)?", "", s)
+    s = re.sub(r"\\(?:selectfont|normalfont)\b", "", s)
+    s = re.sub(r"\\(?:sffamily|rmfamily|ttfamily|mdseries|upshape|slshape|scshape)\b", "", s)
+    s = re.sub(r"\\(?:fontseries|fontshape|fontfamily|usefont)\s*\{[^{}]*\}", "", s)
+
+    # ── 3. Page control → markers or strip ──
+    s = re.sub(r"\\(?:newpage|pagebreak|clearpage|cleardoublepage)\b", "\n\n@@L2W_PAGEBREAK@@\n\n", s)
+    s = re.sub(r"\\(?:thispagestyle|pagestyle)\s*\{[^{}]*\}", "", s)
+    s = re.sub(r"\\pagenumbering\s*\{[^{}]*\}", "", s)
+
+    # ── 4. \rule → horizontal rule ──
+    s = re.sub(r"\\rule\s*\{[^{}]*\}\s*\{[^{}]*\}", "\n\n@@L2W_HRULE@@\n\n", s)
+    s = re.sub(r"\\rule\s*[\d.]+\s*(?:pt|mm|cm|em|ex)\s*[\d.]+\s*(?:pt|mm|cm|em|ex)?", "\n\n@@L2W_HRULE@@\n\n", s)
+
+    # ── 5. Spacing ──
+    s = re.sub(r"\\(?:vfill|hfill)\b\s*", "", s)
+    s = re.sub(r"\\(?:bigskip|medskip|smallskip)\b", "\n", s)
+    s = re.sub(r"\\addvspace\s*\{[^{}]*\}", "", s)
+    s = re.sub(r"\\(?:phantom|hphantom|vphantom)\s*\{[^{}]*\}", " ", s)
+    s = re.sub(r"\\(?:strut|null|relax|protect|leavevmode|ignorespaces|xspace)\b", "", s)
+    s = re.sub(r"\\(?:allowbreak|nolinebreak|nopagebreak|sloppy|fussy)\b", "", s)
+
+    # ── 6. Box commands → keep content (replace \cmd{ with just {) ──
+    s = re.sub(r"\\mbox\s*\{", "{", s)
+    s = re.sub(r"\\makebox\s*(?:\[[^\]]*\])*\s*\{", "{", s)
+    s = re.sub(r"\\parbox\s*(?:\[[^\]]*\])?\s*\{[^{}]*\}\s*\{", "{", s)
+    s = re.sub(r"\\raisebox\s*\{[^{}]*\}\s*(?:\[[^\]]*\])*\s*\{", "{", s)
+    s = re.sub(r"\\fbox\s*\{", "{", s)
+    s = re.sub(r"\\framebox\s*(?:\[[^\]]*\])*\s*\{", "{", s)
+    s = re.sub(r"\\colorbox\s*(?:\[[^\]]*\])?\s*\{[^{}]*\}\s*\{", "{", s)
+
+    # ── 7. Color commands → keep content ──
+    s = re.sub(r"\\textcolor\s*(?:\[[^\]]*\])?\s*\{[^{}]*\}\s*\{", "{", s)
+    s = re.sub(r"\\color\s*(?:\[[^\]]*\])?\s*\{[^{}]*\}", "", s)
+    s = re.sub(r"\\definecolor\s*\{[^{}]*\}\s*\{[^{}]*\}\s*\{[^{}]*\}", "", s)
+
+    # ── 8. Cross-references, citations, labels ──
+    s = re.sub(r"\\label\s*\{[^{}]*\}", "", s)
+    s = re.sub(r"\\eqref\s*\{[^{}]*\}", "(??)", s)
+    s = re.sub(r"\\(?:ref|pageref|autoref|nameref|cref|Cref)\s*\{[^{}]*\}", "??", s)
+    s = re.sub(r"\\cite\s*(?:\[[^\]]*\])?\s*\{[^{}]*\}", "[?]", s)
+    s = re.sub(r"\\(?:nocite|bibliography|bibliographystyle)\s*\{[^{}]*\}", "", s)
+
+    # ── 9. Footnote & marginpar → inline ──
+    s = re.sub(r"\\footnote\s*\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}", r" (\1)", s)
+    s = re.sub(r"\\(?:marginpar|thanks)\s*\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}", "", s)
+
+    # ── 10. Text font commands → keep content ──
+    s = re.sub(r"\\(?:textsf|textrm|texttt)\s*\{", "{", s)
+    s = re.sub(r"\\textsc\s*\{([^{}]*)\}", lambda m: m.group(1).upper(), s)
+    s = re.sub(r"\\MakeUppercase\s*\{([^{}]*)\}", lambda m: m.group(1).upper(), s)
+    s = re.sub(r"\\MakeLowercase\s*\{([^{}]*)\}", lambda m: m.group(1).lower(), s)
+    s = re.sub(r"\\uppercase\s*\{([^{}]*)\}", lambda m: m.group(1).upper(), s)
+
+    # ── 11. URLs, hyperlinks, \verb ──
+    s = re.sub(r"\\url\s*\{([^{}]*)\}", r"\1", s)
+    s = re.sub(r"\\href\s*\{[^{}]*\}\s*\{([^{}]*)\}", r"\1", s)
+    s = re.sub(r"\\hyperref\s*\[[^\]]*\]\s*\{([^{}]*)\}", r"\1", s)
+    s = re.sub(r"\\verb\|([^|]*)\|", r"\1", s)
+    s = re.sub(r"\\verb\+([^+]*)\+", r"\1", s)
+
+    # ── 12. Special symbols in text mode ──
+    s = s.replace(r"\LaTeX", "LaTeX").replace(r"\TeX", "TeX")
+    s = s.replace(r"\copyright", "©")
+    s = s.replace(r"\textregistered", "®").replace(r"\texttrademark", "™")
+    s = re.sub(r"\\(?:dag|textdagger)\b", "†", s)
+    s = re.sub(r"\\(?:ddag|textdaggerdbl)\b", "‡", s)
+    s = re.sub(r"\\textsection\b", "§", s)
+    s = re.sub(r"\\textparagraph\b", "¶", s)
+    s = re.sub(r"\\today\b", "2026", s)
+
+    # ── 13. Misc stripped commands ──
+    s = re.sub(r"\\(?:index|glossary)\s*\{[^{}]*\}", "", s)
+    s = re.sub(r"\\(?:maketitle|makeindex|printindex|printbibliography)\b", "", s)
+    s = re.sub(r"\\(?:tableofcontents|listoffigures|listoftables)\b", "", s)
+    s = re.sub(r"\\(?:enlargethispage|hyphenation)\s*\{[^{}]*\}", "", s)
+    s = re.sub(r"\\(?:centering|raggedright|raggedleft|obeylines|obeyspaces)\b", "", s)
+    s = re.sub(r"\\bibitem\s*(?:\[[^\]]*\])?\s*\{[^{}]*\}", "\n• ", s)
+
+    # ── 14. Environments → strip begin/end tags, keep content ──
+    _STRIP_ENVS = (
+        "titlepage", "minipage", "multicols", "abstract",
+        "thebibliography", "spacing", "tcolorbox", "mdframed",
+        "frame", "block", "alertblock", "exampleblock",
+        "theorem", "lemma", "proof", "corollary", "definition",
+        "remark", "example", "exercise", "solution", "proposition",
+        "note", "observation", "conjecture", "claim", "notation",
+        "footnotesize", "scriptsize", "normalsize",
+        "sloppypar", "samepage", "adjustwidth",
+        "wrapfigure", "wraptable", "subfigure",
+        "landscape", "sidewaystable", "sidewaysfigure",
+        "varwidth", "empheq", "subequations", "split",
+    )
+    for env_name in _STRIP_ENVS:
+        pat_begin = re.compile(
+            r"\\begin\{" + re.escape(env_name) + r"\}(?:\s*\[[^\]]*\])*(?:\s*\{[^{}]*\})*",
+        )
+        s = pat_begin.sub("\n", s)
+        s = s.replace(f"\\end{{{env_name}}}", "\n")
+
+    # ── 15. Verbatim-like → keep content ──
+    for verb_env in ("verbatim", "Verbatim", "lstlisting", "minted", "alltt"):
+        verb_re = re.compile(
+            r"\\begin\{" + re.escape(verb_env) + r"\}(?:\[[^\]]*\])?\s*(.*?)\s*\\end\{" + re.escape(verb_env) + r"\}",
+            re.S,
+        )
+        s = verb_re.sub(lambda m: "\n\n" + m.group(1) + "\n\n", s)
+
+    return s
 
 
 def build_native_docx_from_latex(
@@ -2556,6 +2695,9 @@ def build_native_docx_from_latex(
     # Strip non-visual float wrappers (\begin{figure}[ht], \begin{table}[h!])
     body = re.sub(r"\\begin\{(?:figure|table)\}(?:\[[^\]]*\])?", "\n", body)
     body = re.sub(r"\\end\{(?:figure|table)\}", "\n", body)
+
+    # Comprehensive preprocessing: strip 80+ unsupported LaTeX commands & environments
+    body = _preprocess_latex_body(body)
 
     tokenized_body, registry = _preprocess_blocks_with_placeholders(body)
 
@@ -2701,6 +2843,13 @@ def _render_text_block(doc, text_block: str, *, base_dir: Path | None = None) ->
 
     if s == "@@L2W_HRULE@@":
         _add_horizontal_rule_paragraph(doc)
+        return
+
+    if s == "@@L2W_PAGEBREAK@@":
+        p = doc.add_paragraph()
+        br = OxmlElement("w:br")
+        br.set(qn("w:type"), "page")
+        p._p.append(br)
         return
 
     if "@@L2W_HRULE@@" in s:
