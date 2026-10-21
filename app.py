@@ -69,7 +69,7 @@ DEFAULT_LATEX_TEMPLATE = r"""\documentclass[12pt,a4paper]{article}
 \pgfplotsset{compat=1.18}
 
 \title{Mẫu Kiểm Thử PDF \& LaTeX sang Word (Native DrawingML Shapes \& Bảng Toán)}
-\author{Nhân Xử Lý Hợp Nhất (Unified Core Engine v2.3)}
+\author{Nhân Xử Lý Hợp Nhất (Unified Core Engine v2.4 Universal)}
 \date{\today}
 
 \begin{document}
@@ -132,7 +132,7 @@ def main() -> None:
 
     st.title("📐 Hệ Thống Chuyển Đổi PDF & LaTeX → Word (.docx)")
     st.caption(
-        "Đồng bộ chung một nhân xử lý `backend/core_converter.py` (v2.3) cho cả CLI, FastAPI và Streamlit — "
+        "Đồng bộ chung một nhân xử lý `backend/core_converter.py` (v2.4 Universal) cho cả CLI, FastAPI và Streamlit — "
         "Hỗ trợ tải trực tiếp **file `.pdf`** (tích hợp **2D Pure-Python Math PDF Decompiler** không cần cài đặt công cụ ngoài), "
         "**`.tex`** hoặc **`.zip`**, chuyển hình học TikZ/PGFPlots thành **Word Shapes (DrawingML)** và hỗ trợ đầy đủ **Bảng Biến Thiên, Hệ phương trình/ngoặc vuông, Công thức Tổ hợp `\\binom{n}{k}`**."
     )

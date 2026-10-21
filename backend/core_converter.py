@@ -1,4 +1,4 @@
-"""Unified Core LaTeX & PDF to Word Converter Engine (`backend/core_converter.py`).
+r"""Unified Core PDF & LaTeX-to-Word Converter Engine (`backend/core_converter.py` v2.4 Universal).
 
 Single unified conversion engine shared across:
 1. CLI (`latex2word.py`)
@@ -6,22 +6,21 @@ Single unified conversion engine shared across:
 3. Streamlit Web App (`app.py`)
 
 Features:
-- Accepts `.tex` AND `.pdf` inputs (with a 100% Pure-Python 2D PDF Math & Text Decompiler using `zlib` + `re`
-  that works out-of-the-box on Windows/Linux/macOS without requiring `pypdf`, `pdfplumber`, or `pdftotext`)
-- Reconstructs 2D positioned math expressions from TeX-compiled PDFs (`\\max_{[\\alpha;\\beta]}`, stacked fractions
-  `\\dfrac{A}{B}`, 2-row bracket/brace systems `\\hoac{...}` / `\\heva{...}`, overset/underset arrows
-  `\\xrightarrow[sub]{sup}`, superscripts/subscripts, tall absolute value bars, and multiple-choice options)
+- Universal 2D Pure-Python Math PDF Decompiler (`decompile_pdf_to_latex`) with zero external tool dependencies:
+  * Unpacks PDF 1.5+ Compressed Object Streams (`/Type /ObjStm` with `/N` and `/First`)
+  * Walks the `/Catalog -> /Pages -> /Kids` page tree in exact document order with inherited `/Resources`
+  * 4-Layer Font Decoder:
+    1) `/ToUnicode` CMap (`beginbfchar` / `beginbfrange`, stripping Variation Selectors `\uFE00-\uFE0F`)
+    2) `/Encoding /Differences` array
+    3) Type 1 `/FontFile` cleartext `dup <code> /<glyph_name> put` parser
+    4) Built-in TeX math font tables (`CMSY*`, `CMEX*`, `CMMI*`, `CMR*`, `MSBM*`) for slots 0..127
+  * Reconstructs 2D spatial fractions (`\dfrac{A}{B}`), nested radicals (`\sqrt{...}`), extensible systems
+    of equations (`\heva{...}`, `\hoac{...}`), arrows with labels (`\xrightarrow[sub]{sup}`), superscripts,
+    subscripts, multiple-choice tables (`\choice{...}{...}{...}{...}`), and Vietnamese typography (`VnNimbus*`,
+    `VNR*`, `VNBX*`, `VNTI*`, `VNSL*`, `PTM*`, etc.).
 - Native Word Shapes / DrawingML (<wpg:wgp>, <wps:wsp>, <a:custGeom>) for TikZ & PGFPlots
-- Native Editable Math Tables for all math table types:
-  * Variation & Sign tables (`tkz-tab` & TikZ BBT) -> Word Table + OMML + DrawingML arrows
-  * Smart Multiple-Choice tables (`\\choiceA..D`, `\\choice`, `\\boncot`, `\\haicot`, `\\motcot`) -> Auto 1x4 / 2x2 / 4x1
-  * True/False 2025 tables (`\\choiceTF`) -> 3-column table
-  * Statistical & Data tables (`tabular`, `tabularx`, `longtable`, `\\multicolumn`, `\\multirow`, `\\diagbox`)
-  * Side-by-Side Question + Figure layout (`\\immini{...}{...}`)
-- Full support for LaTeX document structures:
-  * Nested `itemize` and `enumerate` lists with custom `enumitem` labels (`[label=+]`, `[label=\\alph*.]`, etc.)
-  * `quote` environments, `center` blocks, `\\hrulefill` horizontal rules, and scoped font sizes (`{\\LARGE ...}`)
-- Native Office Math (OMML `<m:oMath>`) for all inline & display equations (including `\\binom`, `\\dbinom`, matrices, cases, aligned)
+- Native Editable Math Tables (`tkz-tab`, `\choice`, `\choiceTF`, `tabular`, `\immini`)
+- Native Office Math (OMML `<m:oMath>`) with XML 1.0 control-character sanitization
 """
 from __future__ import annotations
 
@@ -31,9 +30,9 @@ import re
 import shutil
 import subprocess
 import sys
-import zipfile
 import zlib
-from dataclasses import dataclass
+import zipfile
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 from xml.etree import ElementTree as ET
@@ -53,7 +52,11 @@ from .math_tables import (
     build_true_false_table,
     is_tkz_tab_block,
 )
-from .omml_math import append_rich_latex_text_to_paragraph, latex_to_omml_element
+from .omml_math import (
+    append_rich_latex_text_to_paragraph,
+    latex_to_omml_element,
+    sanitize_xml_text,
+)
 from .postprocessor import postprocess_docx_tables
 
 NS = {
@@ -66,201 +69,759 @@ NS = {
 
 INCLUDE_RE = re.compile(r"\\(?:input|include)\s*\{([^{}]+)\}")
 
-_WIN_PATH_REFRESHED = False
 
-
-def _refresh_windows_path_once() -> None:
-    """Refresh PATH from Windows Registry so Streamlit/CLI/FastAPI always find installed Poppler/MiKTeX/LibreOffice."""
-    global _WIN_PATH_REFRESHED
-    if _WIN_PATH_REFRESHED or sys.platform != "win32":
-        return
-    _WIN_PATH_REFRESHED = True
-    try:
-        import winreg
-
-        paths: list[str] = []
-        for hkey in (winreg.HKEY_LOCAL_MACHINE, winreg.HKEY_CURRENT_USER):
-            sub = (
-                r"SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
-                if hkey == winreg.HKEY_LOCAL_MACHINE
-                else r"Environment"
-            )
-            try:
-                with winreg.OpenKey(hkey, sub) as key:
-                    p, _ = winreg.QueryValueEx(key, "Path")
-                    paths.append(p)
-            except Exception:
-                pass
-        if paths:
-            combined = ";".join(paths) + ";" + os.environ.get("PATH", "")
-            seen: set[str] = set()
-            clean_paths: list[str] = []
-            for part in combined.split(";"):
-                part_clean = part.strip()
-                if part_clean and part_clean.lower() not in seen:
-                    seen.add(part_clean.lower())
-                    clean_paths.append(part_clean)
-            os.environ["PATH"] = ";".join(clean_paths)
-    except Exception:
-        pass
-
-
-_refresh_windows_path_once()
+def clean_newlines(s: str) -> str:
+    """Normalize line endings to standard LF and strip illegal XML control chars."""
+    s = s.replace("\r\r\n", "\n").replace("\r\n", "\n").replace("\r", "\n")
+    return sanitize_xml_text(s)
 
 
 # ==============================================================================
-# PURE-PYTHON 2D PDF MATH & TEXT DECOMPILER (Zero External Dependencies)
+# UNIVERSAL 2D PURE-PYTHON MATH PDF DECOMPILER (NO EXTERNAL DEPENDENCIES)
 # ==============================================================================
-AGL_MAP: dict[str, str] = {
-    "space": " ", "exclam": "!", "quotedbl": '"', "numbersign": "#", "dollar": "$",
-    "percent": "%", "ampersand": "&", "quotesingle": "'", "parenleft": "(", "parenright": ")",
-    "asterisk": "*", "plus": "+", "comma": ",", "hyphen": "-", "minus": "−", "period": ".",
-    "slash": "/", "zero": "0", "one": "1", "two": "2", "three": "3", "four": "4",
-    "five": "5", "six": "6", "seven": "7", "eight": "8", "nine": "9", "colon": ":",
-    "semicolon": ";", "less": "<", "equal": "=", "greater": ">", "question": "?", "at": "@",
-    "bracketleft": "[", "backslash": "\\", "bracketright": "]", "asciicircum": "^",
-    "underscore": "_", "grave": "`", "braceleft": "{", "bar": "|", "braceright": "}",
-    "asciitilde": "~", "bullet": "•", "endash": "–", "emdash": "—",
-    "Alpha": "Α", "Beta": "Β", "Gamma": "Γ", "Delta": "Δ", "Epsilon": "Ε", "Zeta": "Ζ",
-    "Eta": "Η", "Theta": "Θ", "Iota": "Ι", "Kappa": "Κ", "Lambda": "Λ", "Mu": "Μ",
-    "Nu": "Ν", "Xi": "Ξ", "Omicron": "Ο", "Pi": "Π", "Rho": "Ρ", "Sigma": "Σ",
-    "Tau": "Τ", "Upsilon": "Υ", "Phi": "Φ", "Chi": "Χ", "Psi": "Ψ", "Omega": "Ω",
-    "alpha": "α", "beta": "β", "gamma": "γ", "delta": "δ", "epsilon": "ε", "varepsilon": "ε",
-    "zeta": "ζ", "eta": "η", "theta": "θ", "vartheta": "ϑ", "iota": "ι", "kappa": "κ",
-    "lambda": "λ", "mu": "μ", "nu": "ν", "xi": "ξ", "omicron": "ο", "pi": "π", "rho": "ρ",
-    "sigma": "σ", "tau": "τ", "upsilon": "υ", "phi": "ϕ", "varphi": "φ", "chi": "χ",
-    "psi": "ψ", "omega": "ω",
-    "lessequal": "≤", "greaterequal": "≥", "notequal": "≠", "approxequal": "≈",
-    "equivalence": "≡", "infinity": "∞", "partialdiff": "∂", "integral": "∫",
-    "summation": "∑", "product": "∏", "radical": "√", "plusminus": "±", "minusplus": "∓",
-    "multiply": "×", "divide": "÷", "periodcentered": "⋅", "dotmath": "⋅",
-    "arrowright": "→", "arrowleft": "←", "arrowboth": "↔",
-    "arrowdblright": "⇒", "arrowdblleft": "⇐", "arrowdblboth": "⇔",
-    "universal": "∀", "existential": "∃", "emptyset": "∅",
-    "element": "∈", "notelement": "∉", "propersubset": "⊂", "reflexsubset": "⊆",
-    "propersuperset": "⊃", "reflexsuperset": "⊇", "intersection": "∩", "union": "∪",
-    "logicaland": "∧", "logicalor": "∨", "logicalnot": "¬", "perp": "⊥", "similar": "∼",
-    "prime": "′", "dblverticalbar": "‖",
-    "Agrave": "À", "Aacute": "Á", "Acircumflex": "Â", "Atilde": "Ã", "Adieresis": "Ä",
-    "Egrave": "È", "Eacute": "É", "Ecircumflex": "Ê", "Igrave": "Ì", "Iacute": "Í",
-    "Ograve": "Ò", "Oacute": "Ó", "Ocircumflex": "Ô", "Otilde": "Õ",
-    "Ugrave": "Ù", "Uacute": "Ú", "Yacute": "Ý",
-    "agrave": "à", "aacute": "á", "acircumflex": "â", "atilde": "ã",
-    "egrave": "è", "eacute": "é", "ecircumflex": "ê", "igrave": "ì", "iacute": "í",
-    "ograve": "ò", "oacute": "ó", "ocircumflex": "ô", "otilde": "õ",
-    "ugrave": "ù", "uacute": "ú", "yacute": "ý",
-    "Abreve": "Ă", "abreve": "ă", "Dcroat": "Đ", "dcroat": "đ",
-    "Ohorn": "Ơ", "ohorn": "ơ", "Uhorn": "Ư", "uhorn": "ư",
+GLYPH_TO_TEXT: dict[str, str] = {
+    "space": " ",
+    "exclam": "!",
+    "quotedbl": '"',
+    "numbersign": "#",
+    "dollar": "$",
+    "percent": "%",
+    "ampersand": "&",
+    "quotesingle": "'",
+    "quoteright": "'",
+    "quoteleft": "`",
+    "parenleft": "(",
+    "parenright": ")",
+    "asterisk": "*",
+    "plus": "+",
+    "comma": ",",
+    "hyphen": "-",
+    "minus": "-",
+    "period": ".",
+    "slash": "/",
+    "zero": "0",
+    "one": "1",
+    "two": "2",
+    "three": "3",
+    "four": "4",
+    "five": "5",
+    "six": "6",
+    "seven": "7",
+    "eight": "8",
+    "nine": "9",
+    "colon": ":",
+    "semicolon": ";",
+    "less": "<",
+    "equal": "=",
+    "greater": ">",
+    "question": "?",
+    "at": "@",
+    "bracketleft": "[",
+    "backslash": "\\",
+    "bracketright": "]",
+    "asciicircum": "^",
+    "underscore": "_",
+    "braceleft": "{",
+    "bar": "|",
+    "bracketlefttp": "[",
+    "bracketleftbt": "[",
+    "bracketleftex": "[",
+    "bracketrighttp": "]",
+    "bracketrightbt": "]",
+    "bracketrightex": "]",
+    "bracelefttp": "{",
+    "braceleftmid": "{",
+    "braceleftbt": "{",
+    "braceex": "|",
+    "braceright": "}",
+    "asciitilde": "~",
+    "bullet": "•",
+    "endash": "–",
+    "emdash": "—",
+    "quotedblleft": "“",
+    "quotedblright": "”",
+    "ellipsis": "…",
+    # Math & Greek glyphs
+    "alpha": r"\alpha ",
+    "beta": r"\beta ",
+    "gamma": r"\gamma ",
+    "delta": r"\delta ",
+    "epsilon": r"\epsilon ",
+    "epsilon1": r"\varepsilon ",
+    "varepsilon": r"\varepsilon ",
+    "zeta": r"\zeta ",
+    "eta": r"\eta ",
+    "theta": r"\theta ",
+    "vartheta": r"\vartheta ",
+    "iota": r"\iota ",
+    "kappa": r"\kappa ",
+    "lambda": r"\lambda ",
+    "mu": r"\mu ",
+    "nu": r"\nu ",
+    "xi": r"\xi ",
+    "pi": r"\pi ",
+    "rho": r"\rho ",
+    "sigma": r"\sigma ",
+    "tau": r"\tau ",
+    "upsilon": r"\upsilon ",
+    "phi": r"\phi ",
+    "phi1": r"\varphi ",
+    "varphi": r"\varphi ",
+    "chi": r"\chi ",
+    "psi": r"\psi ",
+    "omega": r"\omega ",
+    "Gamma": r"\Gamma ",
+    "Delta": r"\Delta ",
+    "Theta": r"\Theta ",
+    "Lambda": r"\Lambda ",
+    "Xi": r"\Xi ",
+    "Pi": r"\Pi ",
+    "Sigma": r"\Sigma ",
+    "Upsilon": r"\Upsilon ",
+    "Phi": r"\Phi ",
+    "Psi": r"\Psi ",
+    "Omega": r"\Omega ",
+    "infinity": r"\infty ",
+    "inities": r"\infty ",
+    "lessequal": r"\le ",
+    "greaterequal": r"\ge ",
+    "notequal": r"\neq ",
+    "approxequal": r"\approx ",
+    "equivalence": r"\equiv ",
+    "similar": r"\sim ",
+    "similarequal": r"\simeq ",
+    "plusminus": r"\pm ",
+    "minusplus": r"\mp ",
+    "multiply": r"\times ",
+    "divide": r"\div ",
+    "periodcentered": r"\cdot ",
+    " mathasterisk": "*",
+    "arrowright": r"\to ",
+    "arrowleft": r"\leftarrow ",
+    "arrowboth": r"\leftrightarrow ",
+    "arrowdblright": r"\Rightarrow ",
+    "arrowdblleft": r"\Leftarrow ",
+    "arrowdblboth": r"\Leftrightarrow ",
+    "mapsto": r"\mapsto ",
+    "arrowup": r"\uparrow ",
+    "arrowdown": r"\downarrow ",
+    "element": r"\in ",
+    "notelement": r"\notin ",
+    "owner": r"\ni ",
+    "propersubset": r"\subset ",
+    "reflexsubset": r"\subseteq ",
+    "propersuperset": r"\supset ",
+    "reflexsuperset": r"\supseteq ",
+    "intersection": r"\cap ",
+    "union": r"\cup ",
+    "universal": r"\forall ",
+    "existential": r"\exists ",
+    "emptyset": r"\emptyset ",
+    "logicaland": r"\land ",
+    "logicalor": r"\lor ",
+    "logicalnot": r"\neg ",
+    "perp": r"\perp ",
+    "perpendicular": r"\perp ",
+    "parallel": r"\parallel ",
+    "bardbl": r"\Vert ",
+    "angle": r"\angle ",
+    "triangle": r"\triangle ",
+    "openbullet": r"\circ ",
+    "circle": r"\circ ",
+    "prime": "'",
+    "partialdiff": r"\partial ",
+    " gradient": r"\nabla ",
+    "nabla": r"\nabla ",
+    "radical": "@@RAD@@",
+    "radicalbig": "@@RAD@@",
+    "radicalBig": "@@RAD@@",
+    "radicalbigg": "@@RAD@@",
+    "radicalBigg": "@@RAD@@",
+    "radicalvertex": "@@RAD_V@@",
+    "radicalbt": "@@RAD_B@@",
+    "parenleftbig": "(",
+    "parenrightbig": ")",
+    "parenleftBig": "(",
+    "parenrightBig": ")",
+    "parenleftbigg": "(",
+    "parenrightbigg": ")",
+    "parenleftBigg": "(",
+    "parenrightBigg": ")",
+    "parenlefttp": "(",
+    "parenleftbt": "(",
+    "parenleftex": "(",
+    "parenrighttp": ")",
+    "parenrightbt": ")",
+    "parenrightex": ")",
+    "bracketleftbig": "[",
+    "bracketrightbig": "]",
+    "bracketleftBig": "[",
+    "bracketrightBig": "]",
+    "bracketleftbigg": "[",
+    "bracketrightbigg": "]",
+    "bracketleftBigg": "[",
+    "bracketrightBigg": "]",
+    "braceleftbig": "{",
+    "bracerightbig": "}",
+    "braceleftBig": "{",
+    "bracerightBig": "}",
+    "braceleftbigg": "{",
+    "bracerightbigg": "}",
+    "braceleftBigg": "{",
+    "bracerightBigg": "}",
+    "summationtext": r"\sum ",
+    "summationdisplay": r"\sum ",
+    "producttext": r"\prod ",
+    "productdisplay": r"\prod ",
+    "integraltext": r"\int ",
+    "integraldisplay": r"\int ",
+    "uniontext": r"\bigcup ",
+    "uniondisplay": r"\bigcup ",
+    "intersectiontext": r"\bigcap ",
+    "intersectiondisplay": r"\bigcap ",
+    # Vietnamese Adobe / T5 / VnTeX glyph names
+    "Agrave": "À",
+    "Aacute": "Á",
+    "Acircumflex": "Â",
+    "Atilde": "Ã",
+    "Adieresis": "Ä",
+    "Egrave": "È",
+    "Eacute": "É",
+    "Ecircumflex": "Ê",
+    "Igrave": "Ì",
+    "Iacute": "Í",
+    "Ograve": "Ò",
+    "Oacute": "Ó",
+    "Ocircumflex": "Ô",
+    "Otilde": "Õ",
+    "Ugrave": "Ù",
+    "Uacute": "Ú",
+    "Yacute": "Ý",
+    "agrave": "à",
+    "aacute": "á",
+    "acircumflex": "â",
+    "atilde": "ã",
+    "egrave": "è",
+    "eacute": "é",
+    "ecircumflex": "ê",
+    "igrave": "ì",
+    "iacute": "í",
+    "ograve": "ò",
+    "oacute": "ó",
+    "ocircumflex": "ô",
+    "otilde": "õ",
+    "ugrave": "ù",
+    "uacute": "ú",
+    "yacute": "ý",
+    "Abreve": "Ă",
+    "abreve": "ă",
+    "Dcroat": "Đ",
+    "dcroat": "đ",
+    "DJ": "Đ",
+    "dj": "đ",
+    "Eth": "Đ",
+    "eth": "đ",
+    "Ohorn": "Ơ",
+    "ohorn": "ơ",
+    "Uhorn": "Ư",
+    "uhorn": "ư",
+    "ihookabove": "ỉ",
+    "Ihookabove": "Ỉ",
+    "idotbelow": "ị",
+    "Idotbelow": "Ị",
+    "ahookabove": "ả",
+    "Ahookabove": "Ả",
+    "adotbelow": "ạ",
+    "Adotbelow": "Ạ",
+    "acircumflexacute": "ấ",
+    "Acircumflexacute": "Ấ",
+    "acircumflexgrave": "ầ",
+    "Acircumflexgrave": "Ầ",
+    "acircumflexhookabove": "ẩ",
+    "Acircumflexhookabove": "Ẩ",
+    "acircumflextilde": "ẫ",
+    "Acircumflextilde": "Ẫ",
+    "acircumflexdotbelow": "ậ",
+    "Acircumflexdotbelow": "Ậ",
+    "abreveacute": "ắ",
+    "Abreveacute": "Ắ",
+    "abrevegrave": "ằ",
+    "Abrevegrave": "Ằ",
+    "abrevehookabove": "ẳ",
+    "Abrevehookabove": "Ẳ",
+    "abrevetilde": "ẵ",
+    "Abrevetilde": "Ẵ",
+    "abrevedotbelow": "ặ",
+    "Abrevedotbelow": "Ặ",
+    "ehookabove": "ẻ",
+    "Ehookabove": "Ẻ",
+    "etilde": "ẽ",
+    "Etilde": "Ẽ",
+    "edotbelow": "ẹ",
+    "Edotbelow": "Ẹ",
+    "ecircumflexacute": "ế",
+    "Ecircumflexacute": "Ế",
+    "ecircumflexgrave": "ề",
+    "Ecircumflexgrave": "Ề",
+    "ecircumflexhookabove": "ể",
+    "Ecircumflexhookabove": "Ể",
+    "ecircumflextilde": "ễ",
+    "Ecircumflextilde": "Ễ",
+    "ecircumflexdotbelow": "ệ",
+    "Ecircumflexdotbelow": "Ệ",
+    "ohookabove": "ỏ",
+    "Ohookabove": "Ỏ",
+    "odotbelow": "ọ",
+    "Odotbelow": "Ọ",
+    "ocircumflexacute": "ố",
+    "Ocircumflexacute": "Ố",
+    "ocircumflexgrave": "ồ",
+    "Ocircumflexgrave": "Ồ",
+    "ocircumflexhookabove": "ổ",
+    "Ocircumflexhookabove": "Ổ",
+    "ocircumflextilde": "ỗ",
+    "Ocircumflextilde": "Ỗ",
+    "ocircumflexdotbelow": "ộ",
+    "Ocircumflexdotbelow": "Ộ",
+    "ohornacute": "ớ",
+    "Ohornacute": "Ớ",
+    "ohorngrave": "ờ",
+    "Ohorngrave": "Ờ",
+    "ohornhookabove": "ở",
+    "Ohornhookabove": "Ở",
+    "ohorntilde": "ỡ",
+    "Ohorntilde": "Ỡ",
+    "ohorndotbelow": "ợ",
+    "Ohorndotbelow": "Ợ",
+    "uhookabove": "ủ",
+    "Uhookabove": "Ủ",
+    "utilde": "ũ",
+    "Utilde": "Ũ",
+    "udotbelow": "ụ",
+    "Udotbelow": "Ụ",
+    "uhornacute": "ứ",
+    "Uhornacute": "Ứ",
+    "uhorngrave": "ừ",
+    "Uhorngrave": "Ừ",
+    "uhornhookabove": "ử",
+    "Uhornhookabove": "Ử",
+    "uhorntilde": "ữ",
+    "Uhorntilde": "Ữ",
+    "uhorndotbelow": "ự",
+    "Uhorndotbelow": "Ự",
+    "ygrave": "ỳ",
+    "Ygrave": "Ỳ",
+    "yhookabove": "ỷ",
+    "Yhookabove": "Ỷ",
+    "ytilde": "ỹ",
+    "Ytilde": "Ỹ",
+    "ydotbelow": "ỵ",
+    "Ydotbelow": "Ỵ",
 }
 
-MATH_SYMBOL_LATEX: dict[str, str] = {
-    "−": "-",
-    "±": r"\pm ",
-    "∓": r"\mp ",
-    "×": r"\times ",
-    "⋅": r"\cdot ",
-    "·": r"\cdot ",
-    "÷": r"\div ",
-    "≤": r"\le ",
-    "≥": r"\ge ",
-    "≠": r"\neq ",
-    "≈": r"\approx ",
-    "≡": r"\equiv ",
-    "∈": r"\in ",
-    "∉": r"\notin ",
-    "⊂": r"\subset ",
-    "⊆": r"\subseteq ",
-    "∪": r"\cup ",
-    "∩": r"\cap ",
-    "∅": r"\emptyset ",
-    "∀": r"\forall ",
-    "∃": r"\exists ",
-    "∞": r"\infty ",
-    "→": r"\to ",
-    "⇒": r"\Rightarrow ",
-    "⇔": r"\Leftrightarrow ",
-    "∨": r"\lor ",
-    "∧": r"\land ",
-    "α": r"\alpha ",
-    "β": r"\beta ",
-    "γ": r"\gamma ",
-    "δ": r"\delta ",
-    "ε": r"\varepsilon ",
-    "θ": r"\theta ",
-    "λ": r"\lambda ",
-    "μ": r"\mu ",
-    "π": r"\pi ",
-    "σ": r"\sigma ",
-    "φ": r"\varphi ",
-    "ω": r"\omega ",
-    "Δ": r"\Delta ",
-    "Ω": r"\Omega ",
-    "√": r"\sqrt",
-    "∫": r"\int ",
-    "∑": r"\sum ",
-    "∏": r"\prod ",
-    "ℝ": r"\mathbb{R}",
-    "ℕ": r"\mathbb{N}",
-    "ℤ": r"\mathbb{Z}",
-    "ℚ": r"\mathbb{Q}",
-    "ℂ": r"\mathbb{C}",
+# Standard Computer Modern Symbol (CMSY10 / CMSY8 / CMSY7) fallback table for slots 0..127
+CMSY_FALLBACK: dict[int, str] = {
+    0: "-",
+    1: r"\cdot ",
+    2: r"\times ",
+    3: "*",
+    4: r"\div ",
+    5: r"\diamond ",
+    6: r"\pm ",
+    7: r"\mp ",
+    8: r"\oplus ",
+    9: r"\ominus ",
+    10: r"\otimes ",
+    11: r"\oslash ",
+    12: r"\odot ",
+    13: r"\bigcirc ",
+    14: r"\circ ",
+    15: r"\bullet ",
+    16: r"\asymp ",
+    17: r"\equiv ",
+    18: r"\subseteq ",
+    19: r"\supseteq ",
+    20: r"\le ",
+    21: r"\ge ",
+    22: r"\preceq ",
+    23: r"\succeq ",
+    24: r"\sim ",
+    25: r"\approx ",
+    26: r"\subset ",
+    27: r"\supset ",
+    28: r"\ll ",
+    29: r"\gg ",
+    30: r"\prec ",
+    31: r"\succ ",
+    32: r"\leftarrow ",
+    33: r"\to ",
+    34: r"\uparrow ",
+    35: r"\downarrow ",
+    36: r"\leftrightarrow ",
+    37: r"\nearrow ",
+    38: r"\searrow ",
+    39: r"\simeq ",
+    40: r"\Leftarrow ",
+    41: r"\Rightarrow ",
+    42: r"\Uparrow ",
+    43: r"\Downarrow ",
+    44: r"\Leftrightarrow ",
+    45: r"\nwarrow ",
+    46: r"\swarrow ",
+    47: r"\propto ",
+    48: "'",
+    49: r"\infty ",
+    50: r"\in ",
+    51: r"\ni ",
+    52: r"\triangle ",
+    53: r"\bigtriangledown ",
+    54: "/",
+    56: r"\forall ",
+    57: r"\exists ",
+    58: r"\neg ",
+    59: r"\emptyset ",
+    60: r"\Re ",
+    61: r"\Im ",
+    62: r"\top ",
+    63: r"\perp ",
+    91: r"\cup ",
+    92: r"\cap ",
+    93: r"\uplus ",
+    94: r"\land ",
+    95: r"\lor ",
+    102: "{",
+    103: "}",
+    104: r"\langle ",
+    105: r"\rangle ",
+    106: "|",
+    107: r"\Vert ",
+    110: r"\setminus ",
+    112: "@@RAD@@",
 }
 
-UNICODE_TO_LATEX_MATH: list[tuple[str, str]] = list(MATH_SYMBOL_LATEX.items())
+# Standard Computer Modern Math Extension (CMEX10) fallback table
+CMEX_FALLBACK: dict[int, str] = {
+    0: "(",
+    1: ")",
+    2: "[",
+    3: "]",
+    8: "{",
+    9: "}",
+    16: "(",
+    17: ")",
+    18: "(",
+    19: ")",
+    20: "[",
+    21: "]",
+    22: "[",
+    23: "]",
+    26: "{",
+    27: "}",
+    28: "{",
+    29: "}",
+    32: "(",
+    33: ")",
+    34: "[",
+    35: "]",
+    40: "{",
+    41: "}",
+    48: "(",
+    50: "[",
+    52: "[",
+    54: "|",
+    56: "{",
+    58: "{",
+    60: "{",
+    62: "|",
+    64: ")",
+    66: "]",
+    68: "]",
+    70: "@@RAD@@",
+    71: "@@RAD@@",
+    72: r"\oint ",
+    73: r"\oint ",
+    80: r"\sum ",
+    81: r"\prod ",
+    82: r"\int ",
+    83: r"\bigcup ",
+    84: r"\bigcap ",
+    88: r"\sum ",
+    89: r"\prod ",
+    90: r"\int ",
+    91: r"\bigcup ",
+    92: r"\bigcap ",
+    104: "[",
+    105: "]",
+    110: "{",
+    111: "}",
+    112: "@@RAD@@",
+    113: "@@RAD@@",
+    114: "@@RAD@@",
+    115: "@@RAD@@",
+    116: "@@RAD_B@@",
+    117: "@@RAD_V@@",
+}
 
+# Standard Computer Modern Math Italic (CMMI10 / CMMI8) fallback table for slots 0..63
+CMMI_FALLBACK: dict[int, str] = {
+    0: r"\Gamma ",
+    1: r"\Delta ",
+    2: r"\Theta ",
+    3: r"\Lambda ",
+    4: r"\Xi ",
+    5: r"\Pi ",
+    6: r"\Sigma ",
+    7: r"\Upsilon ",
+    8: r"\Phi ",
+    9: r"\Psi ",
+    10: r"\Omega ",
+    11: r"\alpha ",
+    12: r"\beta ",
+    13: r"\gamma ",
+    14: r"\delta ",
+    15: r"\epsilon ",
+    16: r"\zeta ",
+    17: r"\eta ",
+    18: r"\theta ",
+    19: r"\iota ",
+    20: r"\kappa ",
+    21: r"\lambda ",
+    22: r"\mu ",
+    23: r"\nu ",
+    24: r"\xi ",
+    25: r"\pi ",
+    26: r"\rho ",
+    27: r"\sigma ",
+    28: r"\tau ",
+    29: r"\upsilon ",
+    30: r"\phi ",
+    31: r"\chi ",
+    32: r"\psi ",
+    33: r"\omega ",
+    34: r"\varepsilon ",
+    35: r"\vartheta ",
+    36: r"\varpi ",
+    37: r"\varrho ",
+    38: r"\varsigma ",
+    39: r"\varphi ",
+    58: ".",
+    59: ",",
+    60: "<",
+    61: "/",
+    62: ">",
+    96: r"\ell ",
+    123: r"\imath ",
+    124: r"\jmath ",
+}
 
-def _resolve_glyph_name(gname: str) -> str:
-    if gname in AGL_MAP:
-        return AGL_MAP[gname]
-    if gname.startswith("uni") and len(gname) == 7:
-        try:
-            return chr(int(gname[3:], 16))
-        except ValueError:
-            pass
-    if len(gname) == 1:
-        return gname
-    return ""
+# Standard Computer Modern Roman (CMR10 / CMR8 / CMR7) fallback table for slots 0..31
+CMR_FALLBACK: dict[int, str] = {
+    0: r"\Gamma ",
+    1: r"\Delta ",
+    2: r"\Theta ",
+    3: r"\Lambda ",
+    4: r"\Xi ",
+    5: r"\Pi ",
+    6: r"\Sigma ",
+    7: r"\Upsilon ",
+    8: r"\Phi ",
+    9: r"\Psi ",
+    10: r"\Omega ",
+    11: "ff",
+    12: "fi",
+    13: "fl",
+    14: "ffi",
+    15: "ffl",
+    16: "ı",
+    17: "ȷ",
+    18: "`",
+    19: "´",
+    20: "ˇ",
+    21: "˘",
+    22: "¯",
+    23: "˚",
+    24: "¸",
+    25: "ß",
+    26: "æ",
+    27: "œ",
+    28: "ø",
+    29: "Æ",
+    30: "Œ",
+    31: "Ø",
+    34: "”",
+    60: "¡",
+    62: "¿",
+    92: "“",
+    123: "–",
+    124: "—",
+}
+
+# AMS Blackboard Bold (MSBM10)
+MSBM_FALLBACK: dict[int, str] = {
+    ord("R"): r"\mathbb{R}",
+    ord("N"): r"\mathbb{N}",
+    ord("Z"): r"\mathbb{Z}",
+    ord("Q"): r"\mathbb{Q}",
+    ord("C"): r"\mathbb{C}",
+    ord("P"): r"\mathbb{P}",
+    ord("E"): r"\mathbb{E}",
+    ord("F"): r"\mathbb{F}",
+    ord("K"): r"\mathbb{K}",
+    63: r"\emptyset ",
+}
 
 
 @dataclass
-class PdfTextSpan:
+class _PdfSpan:
+    page: int
     x: float
     y: float
-    font_size: float
-    font_name: str
     text: str
+    font_name: str
+    font_size: float
+    end_x: float = 0.0
 
 
-def _decode_pdf_literal_bytes(lit: str) -> list[int]:
+@dataclass
+class _PdfHBar:
+    page: int
+    x: float
+    y: float
+    w: float
+
+
+def _decompress_pdf_stream(raw_stream: bytes) -> bytes | None:
+    raw = raw_stream.strip(b"\r\n")
+    for wbits in (zlib.MAX_WBITS, -zlib.MAX_WBITS):
+        try:
+            return zlib.decompress(raw, wbits)
+        except Exception:
+            pass
+    return None
+
+
+def _parse_differences_array(diff_str: str) -> dict[int, str]:
+    mapping: dict[int, str] = {}
+    code = 0
+    for tok in re.findall(r"\d+|/[A-Za-z0-9_.]+", diff_str):
+        if tok.isdigit():
+            code = int(tok)
+        elif tok.startswith("/"):
+            gname = tok[1:]
+            mapping[code] = GLYPH_TO_TEXT.get(gname, gname[:1] if len(gname) == 1 else "")
+            code += 1
+    return mapping
+
+
+def _clean_tounicode_target(u_str: str) -> str:
+    """Clean Unicode string from a PDF `/ToUnicode` CMap (strip Variation Selectors, soft hyphens, etc.)."""
+    if not u_str:
+        return ""
+    u_str = u_str.replace("\u2423", " ")
+    # Check if this is a CMEX radical with Variation Selector (e.g. \u221A\uFE00)
+    if "\u221a" in u_str or "√" in u_str:
+        return "@@RAD@@"
+    # Strip Variation Selectors (\uFE00..\uFE0F), Zero-Width Non-Joiner/Joiner (\u200B..\u200D), Soft Hyphen (\u00AD)
+    u_str = re.sub(r"[\uFE00-\uFE0F\u200B-\u200D\u00AD\uFEFF]", "", u_str)
+    return sanitize_xml_text(u_str)
+
+
+def _parse_tounicode_cmap(cmap_text: str) -> dict[int, str]:
+    mapping: dict[int, str] = {}
+    for block in re.findall(r"beginbfchar(.*?)endbfchar", cmap_text, re.S):
+        for src_hex, dst_hex in re.findall(r"<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>", block):
+            code = int(src_hex, 16)
+            chars = "".join(
+                chr(int(dst_hex[i : i + 4], 16))
+                for i in range(0, len(dst_hex), 4)
+                if len(dst_hex[i : i + 4]) == 4
+            )
+            cleaned = _clean_tounicode_target(chars)
+            if cleaned:
+                mapping[code] = cleaned
+    for block in re.findall(r"beginbfrange(.*?)endbfrange", block_src := cmap_text, re.S):
+        for s_hex, e_hex, d_hex in re.findall(
+            r"<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>", block
+        ):
+            start_c = int(s_hex, 16)
+            end_c = int(e_hex, 16)
+            base_u = int(d_hex, 16)
+            for offset in range(max(0, end_c - start_c + 1)):
+                cleaned = _clean_tounicode_target(chr(base_u + offset))
+                if cleaned:
+                    mapping[start_c + offset] = cleaned
+        # Also support array form: <start> <end> [ <u1> <u2> ... ]
+        for s_hex, e_hex, arr_body in re.findall(
+            r"<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>\s*\[(.*?)\]", block, re.S
+        ):
+            start_c = int(s_hex, 16)
+            hex_items = re.findall(r"<([0-9A-Fa-f]+)>", arr_body)
+            for idx, h_item in enumerate(hex_items):
+                chars = "".join(
+                    chr(int(h_item[i : i + 4], 16))
+                    for i in range(0, len(h_item), 4)
+                    if len(h_item[i : i + 4]) == 4
+                )
+                cleaned = _clean_tounicode_target(chars)
+                if cleaned:
+                    mapping[start_c + idx] = cleaned
+    return mapping
+
+
+def _parse_type1_fontfile_encoding(raw_font_bytes: bytes) -> dict[int, str]:
+    """Parse cleartext header of an embedded Type 1 `/FontFile` stream for `dup <code> /<glyph> put`."""
+    mapping: dict[int, str] = {}
+    text = raw_font_bytes.decode("latin1", errors="ignore")
+    for m in re.finditer(r"\bdup\s+(\d+)\s+/([A-Za-z0-9_.]+)\s+put\b", text):
+        code = int(m.group(1))
+        gname = m.group(2)
+        if gname in GLYPH_TO_TEXT:
+            mapping[code] = GLYPH_TO_TEXT[gname]
+        elif len(gname) == 1 and gname.isprintable():
+            mapping[code] = gname
+    return mapping
+
+
+def _builtin_font_fallback(base_font: str) -> dict[int, str]:
+    """Return built-in glyph mapping table for standard TeX math fonts."""
+    bf = base_font.upper()
+    if "CMSY" in bf or "MSAM" in bf:
+        return dict(CMSY_FALLBACK)
+    if "CMEX" in bf:
+        return dict(CMEX_FALLBACK)
+    if "CMMI" in bf:
+        return dict(CMMI_FALLBACK)
+    if "MSBM" in bf:
+        return dict(MSBM_FALLBACK)
+    if any(k in bf for k in ("CMR", "CMBX", "CMTI", "CMSL", "CMSS", "CMTT")):
+        return dict(CMR_FALLBACK)
+    return {}
+
+
+def _decode_pdf_literal_bytes(inner: str) -> list[int]:
     out: list[int] = []
     i = 0
-    n = len(lit)
+    n = len(inner)
     while i < n:
-        ch = lit[i]
+        ch = inner[i]
         if ch == "\\":
             i += 1
             if i >= n:
                 break
-            esc = lit[i]
+            esc = inner[i]
             if esc in "01234567":
                 oct_s = esc
                 i += 1
                 for _ in range(2):
-                    if i < n and lit[i] in "01234567":
-                        oct_s += lit[i]
+                    if i < n and inner[i] in "01234567":
+                        oct_s += inner[i]
                         i += 1
                     else:
                         break
                 out.append(int(oct_s, 8) & 0xFF)
                 continue
             esc_map = {"n": 10, "r": 13, "t": 9, "b": 8, "f": 12, "(": 40, ")": 41, "\\": 92}
-            if esc in esc_map:
-                out.append(esc_map[esc])
-            elif esc in "\r\n":
-                if esc == "\r" and i + 1 < n and lit[i + 1] == "\n":
-                    i += 1
-            else:
-                out.append(ord(esc) & 0xFF)
+            out.append(esc_map.get(esc, ord(esc) & 0xFF))
             i += 1
         else:
             out.append(ord(ch) & 0xFF)
@@ -268,865 +829,1089 @@ def _decode_pdf_literal_bytes(lit: str) -> list[int]:
     return out
 
 
-def _parse_content_stream_spans(
-    content: str,
-    p_fonts: dict[str, tuple[str, dict[int, str]]],
-) -> list[PdfTextSpan]:
-    spans: list[PdfTextSpan] = []
-    cur_font_key = ""
-    cur_font_size = 12.0
-
-    def decode_str_token(tok: str) -> str:
-        _, fmap = p_fonts.get(cur_font_key, ("", {}))
-        if tok.startswith("<") and tok.endswith(">"):
-            hex_s = re.sub(r"\s+", "", tok[1:-1])
-            if len(hex_s) % 2 == 1:
-                hex_s += "0"
-            b_list = [int(hex_s[i : i + 2], 16) for i in range(0, len(hex_s), 2)]
-        else:
-            b_list = _decode_pdf_literal_bytes(tok[1:-1])
-        chars: list[str] = []
-        for b in b_list:
-            if b in fmap:
-                chars.append(fmap[b])
-            elif 32 <= b <= 126:
-                chars.append(chr(b))
-            else:
-                chars.append(chr(b))
-        return "".join(chars)
-
-    op_re = re.compile(
-        r"/([F]\d+)\s+([+-]?\d+(?:\.\d+)?)\s+Tf"
-        r"|([+-]?\d+(?:\.\d+)?)\s+([+-]?\d+(?:\.\d+)?)\s+([+-]?\d+(?:\.\d+)?)\s+([+-]?\d+(?:\.\d+)?)\s+([+-]?\d+(?:\.\d+)?)\s+([+-]?\d+(?:\.\d+)?)\s+Tm"
-        r"|([+-]?\d+(?:\.\d+)?)\s+([+-]?\d+(?:\.\d+)?)\s+(Td|TD)"
-        r"|([+-]?\d+(?:\.\d+)?)\s+TL"
-        r"|(T\*)"
-        r"|\[(.*?)\]\s*TJ"
-        r"|(\((?:\\.|[^\\()])*\)|<[0-9A-Fa-f\s]*>)\s*Tj",
-        re.S,
-    )
-
-    tl = 14.446
-    for bt_block in re.findall(r"\bBT\b(.*?)\bET\b", content, re.S):
-        tm_a, tm_d = 1.0, 1.0
-        tm_e, tm_f = 0.0, 0.0
-        lm_e, lm_f = 0.0, 0.0
-
-        for m in op_re.finditer(bt_block):
-            if m.group(1):
-                cur_font_key = m.group(1)
-                cur_font_size = float(m.group(2))
-            elif m.group(3):
-                tm_a = float(m.group(3))
-                tm_d = float(m.group(6))
-                tm_e = float(m.group(7))
-                tm_f = float(m.group(8))
-                lm_e, lm_f = tm_e, tm_f
-            elif m.group(9):
-                tx = float(m.group(9))
-                ty = float(m.group(10))
-                op_td = m.group(11)
-                if op_td == "TD":
-                    tl = -ty
-                lm_e += tx * tm_a
-                lm_f += ty * tm_d
-                tm_e, tm_f = lm_e, lm_f
-            elif m.group(12):
-                tl = float(m.group(12))
-            elif m.group(13):
-                lm_f -= tl * tm_d
-                tm_e, tm_f = lm_e, lm_f
-            elif m.group(14) is not None:
-                arr_s = m.group(14)
-                font_name, _ = p_fonts.get(cur_font_key, (cur_font_key, {}))
-                eff_fs = abs(cur_font_size * tm_d) if abs(tm_d) > 0.01 else cur_font_size
-                sub_parts: list[str] = []
-                cur_x = tm_e
-                span_start_x = cur_x
-                for item in re.findall(r"\((?:\\.|[^\\()])*\)|<[0-9A-Fa-f\s]*>|[+-]?\d+(?:\.\d+)?", arr_s):
-                    if item.startswith("(") or item.startswith("<"):
-                        s_dec = decode_str_token(item)
-                        if not sub_parts:
-                            span_start_x = cur_x
-                        sub_parts.append(s_dec)
-                        cur_x += len(s_dec) * eff_fs * 0.48
-                    else:
-                        kern = float(item)
-                        if kern < -180 and sub_parts:
-                            txt_piece = "".join(sub_parts)
-                            if txt_piece:
-                                spans.append(PdfTextSpan(span_start_x, tm_f, eff_fs, font_name, txt_piece))
-                            sub_parts = []
-                        cur_x -= (kern / 1000.0) * eff_fs
-                        if not sub_parts:
-                            span_start_x = cur_x
-                if sub_parts:
-                    txt_piece = "".join(sub_parts)
-                    if txt_piece:
-                        spans.append(PdfTextSpan(span_start_x, tm_f, eff_fs, font_name, txt_piece))
-                tm_e = cur_x
-            elif m.group(15):
-                tok = m.group(15)
-                font_name, _ = p_fonts.get(cur_font_key, (cur_font_key, {}))
-                eff_fs = abs(cur_font_size * tm_d) if abs(tm_d) > 0.01 else cur_font_size
-                s_dec = decode_str_token(tok)
-                if s_dec:
-                    spans.append(PdfTextSpan(tm_e, tm_f, eff_fs, font_name, s_dec))
-                tm_e += len(s_dec) * eff_fs * 0.48
-
-    return spans
+def _unpack_pdf_object_streams(
+    objects: dict[int, bytes],
+    streams: dict[int, bytes],
+) -> None:
+    """Unpack PDF 1.5+ `/Type /ObjStm` compressed object streams into `objects` dictionary."""
+    objstm_ids = [
+        oid
+        for oid, body in list(objects.items())
+        if b"/ObjStm" in body and oid in streams
+    ]
+    for oid in objstm_ids:
+        header_dict = objects[oid].decode("latin1", errors="ignore")
+        m_n = re.search(r"/N\s+(\d+)", header_dict)
+        m_first = re.search(r"/First\s+(\d+)", header_dict)
+        if not m_n or not m_first:
+            continue
+        num_objs = int(m_n.group(1))
+        first_offset = int(m_first.group(1))
+        dec = streams[oid]
+        if first_offset > len(dec):
+            continue
+        idx_header = dec[:first_offset].decode("latin1", errors="ignore")
+        pairs = re.findall(r"(\d+)\s+(\d+)", idx_header)
+        if not pairs:
+            continue
+        pairs = pairs[:num_objs]
+        for i, (sub_oid_str, rel_off_str) in enumerate(pairs):
+            sub_oid = int(sub_oid_str)
+            start_pos = first_offset + int(rel_off_str)
+            end_pos = (
+                first_offset + int(pairs[i + 1][1])
+                if i + 1 < len(pairs)
+                else len(dec)
+            )
+            if 0 <= start_pos <= end_pos <= len(dec):
+                if sub_oid not in objects:
+                    objects[sub_oid] = dec[start_pos:end_pos]
 
 
-def extract_pdf_spans_pure_python(pdf_path: Path) -> list[list[PdfTextSpan]]:
-    """Extract 2D positioned text & math spans from any PDF using only Python standard library (`zlib` + `re`)."""
-    try:
-        data = pdf_path.read_bytes()
-    except Exception:
-        return []
+def _collect_ordered_page_ids(
+    objects: dict[int, bytes],
+) -> list[tuple[int, str]]:
+    """Walk the `/Catalog -> /Pages -> /Kids` tree in exact document order and return
+    `[(page_obj_id, effective_page_dict_str_with_inherited_resources), ...]`.
+    """
+    obj_strs: dict[int, str] = {
+        oid: raw.decode("latin1", errors="ignore") for oid, raw in objects.items()
+    }
 
-    obj_re = re.compile(rb"(\d+)\s+0\s+obj\b(.*?)endobj", re.S)
+    root_pages_id: int | None = None
+    for oid, s in obj_strs.items():
+        if re.search(r"/Type\s*/Catalog\b", s):
+            m_p = re.search(r"/Pages\s+(\d+)\s+0\s+R", s)
+            if m_p:
+                root_pages_id = int(m_p.group(1))
+                break
+
+    if root_pages_id is None:
+        # Find top-level /Type /Pages without /Parent
+        for oid, s in obj_strs.items():
+            if re.search(r"/Type\s*/Pages\b", s) and "/Parent" not in s:
+                root_pages_id = oid
+                break
+
+    ordered_pages: list[tuple[int, str]] = []
+    visited: set[int] = set()
+
+    def _walk(node_id: int, inherited_res: str) -> None:
+        if node_id in visited or node_id not in obj_strs:
+            return
+        visited.add(node_id)
+        s = obj_strs[node_id]
+
+        # Check if this node defines /Resources
+        cur_res = inherited_res
+        if "/Resources" in s:
+            cur_res = s
+
+        if re.search(r"/Type\s*/Pages\b", s):
+            m_kids = re.search(r"/Kids\s*\[(.*?)\]", s, re.S)
+            if m_kids:
+                for kid_m in re.finditer(r"(\d+)\s+0\s+R", m_kids.group(1)):
+                    _walk(int(kid_m.group(1)), cur_res)
+        elif re.search(r"/Type\s*/Page\b", s):
+            eff_s = s
+            if "/Resources" not in s and cur_res:
+                eff_s = s + "\n" + cur_res
+            ordered_pages.append((node_id, eff_s))
+
+    if root_pages_id is not None:
+        _walk(root_pages_id, "")
+
+    if not ordered_pages:
+        # Fallback: scan all /Type /Page objects
+        for oid in sorted(obj_strs.keys()):
+            s = obj_strs[oid]
+            if re.search(r"/Type\s*/Page\b", s) and not re.search(r"/Type\s*/Pages\b", s):
+                ordered_pages.append((oid, s))
+
+    return ordered_pages
+
+
+def extract_pdf_spans_pure_python(pdf_path: Path) -> tuple[list[_PdfSpan], list[_PdfHBar]]:
+    """Extract 2D positioned text/math spans and horizontal fraction/radical bars from any PDF."""
+    data = pdf_path.read_bytes()
+    obj_re = re.compile(rb"(\d+)\s+(\d+)\s+obj\b(.*?)endobj", re.S)
     objects: dict[int, bytes] = {}
     streams: dict[int, bytes] = {}
 
     for m in obj_re.finditer(data):
         oid = int(m.group(1))
-        body = m.group(2)
+        body = m.group(3)
         objects[oid] = body
-        sm = re.search(rb"stream\r?\n(.*?)\r?\nendstream", body, re.S)
+        sm = re.search(rb"stream\r?\n(.*?)\r?\n?endstream", body, re.S)
         if sm:
             raw_s = sm.group(1)
-            if b"/FlateDecode" in body:
-                try:
-                    streams[oid] = zlib.decompressobj().decompress(raw_s)
-                except Exception:
-                    try:
-                        streams[oid] = zlib.decompress(raw_s.strip(b"\r\n"))
-                    except Exception:
-                        streams[oid] = raw_s
-            else:
-                streams[oid] = raw_s
+            dec = _decompress_pdf_stream(raw_s)
+            streams[oid] = dec if dec is not None else raw_s
 
-    cmaps: dict[int, dict[int, str]] = {}
-    for oid, st in streams.items():
-        if b"beginbfchar" in st or b"beginbfrange" in st:
-            txt = st.decode("latin1", errors="ignore")
-            cmap: dict[int, str] = {}
-            for block in re.findall(r"beginbfchar(.*?)endbfchar", txt, re.S):
-                for m_c in re.finditer(r"<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>", block):
-                    src_c = int(m_c.group(1), 16)
-                    dst_hex = m_c.group(2)
-                    chars = [
-                        chr(int(dst_hex[i : i + 4], 16))
-                        for i in range(0, len(dst_hex), 4)
-                        if len(dst_hex[i : i + 4]) == 4
-                    ]
-                    cmap[src_c] = "".join(chars).replace("\x00", "")
-            for block in re.findall(r"beginbfrange(.*?)endbfrange", txt, re.S):
-                for m_r in re.finditer(r"<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>", block):
-                    c1, c2, d_start = int(m_r.group(1), 16), int(m_r.group(2), 16), int(m_r.group(3), 16)
-                    for offset in range(max(0, min(256, c2 - c1 + 1))):
-                        cmap[c1 + offset] = chr(d_start + offset)
-                for m_arr in re.finditer(r"<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>\s*\[(.*?)\]", block, re.S):
-                    c1 = int(m_arr.group(1), 16)
-                    hex_list = re.findall(r"<([0-9A-Fa-f]+)>", m_arr.group(3))
-                    for offset, h_str in enumerate(hex_list):
-                        chars = [
-                            chr(int(h_str[i : i + 4], 16))
-                            for i in range(0, len(h_str), 4)
-                            if len(h_str[i : i + 4]) == 4
-                        ]
-                        cmap[c1 + offset] = "".join(chars).replace("\x00", "")
-            if cmap:
-                cmaps[oid] = cmap
+    # Unpack PDF 1.5+ /Type /ObjStm compressed object streams!
+    _unpack_pdf_object_streams(objects, streams)
 
-    enc_diffs: dict[int, dict[int, str]] = {}
+    # Build 4-layer font mapping per font object ID
+    font_maps: dict[int, dict[int, str]] = {}
+    font_names: dict[int, str] = {}
+
     for oid, body in objects.items():
-        if b"/Differences" in body:
-            txt = body.decode("latin1", errors="ignore")
-            m_d = re.search(r"/Differences\s*\[(.*?)\]", txt, re.S)
-            if m_d:
-                dmap: dict[int, str] = {}
-                cur_code = 0
-                for tok in re.findall(r"(\d+|/[A-Za-z0-9_.]+)", m_d.group(1)):
-                    if tok.isdigit():
-                        cur_code = int(tok)
-                    elif tok.startswith("/"):
-                        g_str = _resolve_glyph_name(tok[1:])
-                        if g_str:
-                            dmap[cur_code] = g_str
-                        cur_code += 1
-                if dmap:
-                    enc_diffs[oid] = dmap
-
-    font_info: dict[int, tuple[str, dict[int, str]]] = {}
-    for oid, body in objects.items():
-        if b"/Type" in body and b"/Font" in body:
-            txt = body.decode("latin1", errors="ignore")
-            m_bf = re.search(r"/BaseFont\s*/([A-Za-z0-9+_\-]+)", txt)
-            base_font = m_bf.group(1) if m_bf else f"Font_{oid}"
-            fmap: dict[int, str] = {}
-            m_enc = re.search(r"/Encoding\s+(\d+)\s+0\s+R", txt)
-            if m_enc and int(m_enc.group(1)) in enc_diffs:
-                fmap.update(enc_diffs[int(m_enc.group(1))])
-            m_tu = re.search(r"/ToUnicode\s+(\d+)\s+0\s+R", txt)
-            if m_tu and int(m_tu.group(1)) in cmaps:
-                fmap.update(cmaps[int(m_tu.group(1))])
-            font_info[oid] = (base_font, fmap)
-
-    def resolve_dict_text(raw_b: bytes) -> str:
-        t = raw_b.decode("latin1", errors="ignore")
-        for m_ref in re.finditer(r"/Resources\s+(\d+)\s+0\s+R", t):
-            rid = int(m_ref.group(1))
-            if rid in objects:
-                t += "\n" + objects[rid].decode("latin1", errors="ignore")
-        for m_fref in re.finditer(r"/Font\s+(\d+)\s+0\s+R", t):
-            fid = int(m_fref.group(1))
-            if fid in objects:
-                t += "\n" + objects[fid].decode("latin1", errors="ignore")
-        return t
-
-    global_fonts: dict[str, tuple[str, dict[int, str]]] = {}
-    for oid, body in objects.items():
-        txt = body.decode("latin1", errors="ignore")
-        for m_f in re.finditer(r"/(F\d+)\s+(\d+)\s+0\s+R", txt):
-            fn, f_oid = m_f.group(1), int(m_f.group(2))
-            if f_oid in font_info:
-                global_fonts[fn] = font_info[f_oid]
-
-    page_entries: list[tuple[int, list[int], dict[str, tuple[str, dict[int, str]]]]] = []
-    for oid in sorted(objects.keys()):
-        body = objects[oid]
-        if re.search(rb"/Type\s*/Page\b", body):
-            txt = resolve_dict_text(body)
-            p_fonts = dict(global_fonts)
-            for m_f in re.finditer(r"/(F\d+)\s+(\d+)\s+0\s+R", txt):
-                fn, f_oid = m_f.group(1), int(m_f.group(2))
-                if f_oid in font_info:
-                    p_fonts[fn] = font_info[f_oid]
-            c_oids: list[int] = []
-            m_c_arr = re.search(r"/Contents\s*\[(.*?)\]", txt, re.S)
-            if m_c_arr:
-                c_oids = [int(x) for x in re.findall(r"(\d+)\s+0\s+R", m_c_arr.group(1))]
-            else:
-                m_c_single = re.search(r"/Contents\s+(\d+)\s+0\s+R", txt)
-                if m_c_single:
-                    c_oids = [int(m_c_single.group(1))]
-            if c_oids:
-                page_entries.append((oid, c_oids, p_fonts))
-
-    pages_spans: list[list[PdfTextSpan]] = []
-    for _, c_oids, p_fonts in page_entries:
-        raw_stream = b"\n".join(streams.get(cid, b"") for cid in c_oids)
-        content = raw_stream.decode("latin1", errors="ignore")
-        spans = _parse_content_stream_spans(content, p_fonts)
-        if spans:
-            pages_spans.append(spans)
-    return pages_spans
-
-
-def _is_math_font(font_name: str, text: str) -> bool:
-    fn = font_name
-    t = text.strip()
-    if not t:
-        return False
-    if "CMEX" in fn or "CMSY" in fn or "CMMI" in fn or "CMR" in fn or "MSBM" in fn or "StandardSym" in fn:
-        return True
-    if "NimbusRomNo9L-ReguItal" in fn:
-        return True
-    if any(ch in t for ch in "−±∓×⋅·÷≤≥≠≈≡∈∉⊂⊆∪∩∅∀∃∞→⇒⇔∨∧αβγδεθλμπσφωΔΩ|{}[]"):
-        return True
-    if "VnNimbus" in fn:
-        if "Bold" in fn:
-            return False
-        if t in ("max", "min", "Max", "Min") or re.fullmatch(r"[\d.,;+\-*/=()\[\]|]+", t):
-            return True
-        return False
-    if "NimbusRomNo9L-Regu" in fn:
-        return True
-    return False
-
-
-def _span_to_math_latex(sp: PdfTextSpan) -> str:
-    t = sp.text
-    if "CMEX" in sp.font_name:
-        if "\x0c" in t or "|" in t:
-            return "|"
-        return ""
-    if "MSBM" in sp.font_name and t.strip() in ("R", "N", "Z", "Q", "C"):
-        return f"\\mathbb{{{t.strip()}}}"
-    out: list[str] = []
-    for ch in t:
-        if ch == "{":
-            out.append(r"\{")
-        elif ch == "}":
-            out.append(r"\}")
-        elif ch in MATH_SYMBOL_LATEX:
-            out.append(MATH_SYMBOL_LATEX[ch])
-        else:
-            out.append(ch)
-    s = "".join(out)
-    s = re.sub(r"\bmax\b", r"\\max", s)
-    s = re.sub(r"\bmin\b", r"\\min", s)
-    s = re.sub(r"\bMax\b", r"\\text{Max}", s)
-    s = re.sub(r"\bMin\b", r"\\text{Min}", s)
-    return s
-
-
-def _render_simple_math_seq(spans: list[PdfTextSpan], base_y: float) -> str:
-    parts: list[str] = []
-    i = 0
-    n = len(spans)
-    while i < n:
-        sp = spans[i]
-        dy = sp.y - base_y
-        if sp.font_size < 10.5 and 2.2 <= dy <= 6.5:
-            sup_s = [sp]
-            i += 1
-            while i < n and spans[i].font_size < 10.5 and abs(spans[i].y - sp.y) <= 1.8:
-                sup_s.append(spans[i])
-                i += 1
-            sup_ltx = "".join(_span_to_math_latex(x) for x in sup_s).strip()
-            parts.append(f"^{{{sup_ltx}}}")
+        b_str = body.decode("latin1", errors="ignore")
+        if "/Font" not in b_str and "/BaseFont" not in b_str:
             continue
-        if sp.font_size < 10.5 and -5.0 <= dy <= -1.2:
-            sub_s = [sp]
-            i += 1
-            while i < n and spans[i].font_size < 10.5 and abs(spans[i].y - sp.y) <= 1.8:
-                sub_s.append(spans[i])
-                i += 1
-            sub_ltx = "".join(_span_to_math_latex(x) for x in sub_s).strip()
-            parts.append(f"_{{{sub_ltx}}}")
+        m_bf = re.search(r"/BaseFont\s*/([^\s/\[\]<>()]+)", b_str)
+        if not m_bf:
             continue
-        if "VnNimbus" in sp.font_name and not _is_math_font(sp.font_name, sp.text):
-            parts.append(f"\\text{{ {sp.text.strip()} }}")
+        bf_raw = m_bf.group(1)
+        bf_clean = bf_raw.split("+")[-1]
+        font_names[oid] = bf_clean
+
+        # Layer 4: Built-in TeX math font fallback table
+        fmap: dict[int, str] = _builtin_font_fallback(bf_clean)
+
+        # Layer 3: Type 1 /FontFile cleartext encoding (`dup <code> /<glyph> put`)
+        m_desc = re.search(r"/FontDescriptor\s+(\d+)\s+0\s+R", b_str)
+        if m_desc:
+            desc_id = int(m_desc.group(1))
+            desc_str = objects.get(desc_id, b"").decode("latin1", errors="ignore")
+            m_ff = re.search(r"/FontFile[23]?\s+(\d+)\s+0\s+R", desc_str)
+            if m_ff:
+                ff_id = int(m_ff.group(1))
+                if ff_id in streams:
+                    fmap.update(_parse_type1_fontfile_encoding(streams[ff_id]))
+
+        # Layer 2: /Encoding /Differences
+        m_enc = re.search(r"/Encoding\s+(\d+)\s+0\s+R", b_str)
+        if m_enc:
+            enc_id = int(m_enc.group(1))
+            enc_body = objects.get(enc_id, b"").decode("latin1", errors="ignore")
+            m_diff = re.search(r"/Differences\s*\[(.*?)\]", enc_body, re.S)
+            if m_diff:
+                fmap.update(_parse_differences_array(m_diff.group(1)))
         else:
-            parts.append(_span_to_math_latex(sp))
-        i += 1
-    res = "".join(parts)
-    while re.search(r"\\text\{\s*([^{}]*?)\s*\}\s*\\text\{\s*([^{}]*?)\s*\}", res):
-        res = re.sub(r"\\text\{\s*([^{}]*?)\s*\}\s*\\text\{\s*([^{}]*?)\s*\}", r"\\text{ \1 \2 }", res)
-    res = re.sub(r"\s+", " ", res).strip()
-    return res
+            m_diff_inline = re.search(r"/Differences\s*\[(.*?)\]", b_str, re.S)
+            if m_diff_inline:
+                fmap.update(_parse_differences_array(m_diff_inline.group(1)))
 
+        # Layer 1: /ToUnicode CMap (highest priority, with CMEX radical & math operator protection)
+        m_tu = re.search(r"/ToUnicode\s+(\d+)\s+0\s+R", b_str)
+        if m_tu:
+            tu_id = int(m_tu.group(1))
+            if tu_id in streams:
+                tu_map = _parse_tounicode_cmap(streams[tu_id].decode("latin1", errors="ignore"))
+                for k_code, v_str in tu_map.items():
+                    # Preserve @@RAD@@, @@RAD_V@@, @@RAD_B@@ in CMEX and CMSY fonts
+                    if "CMEX" in bf_clean.upper() and k_code in (70, 71, 112, 113, 114, 115, 116, 117):
+                        continue
+                    if "CMSY" in bf_clean.upper() and k_code == 112:
+                        continue
+                    fmap[k_code] = v_str
 
-def reconstruct_page_lines(spans: list[PdfTextSpan]) -> list[str]:
-    """Reconstruct 2D positioned PDF spans into structured LaTeX paragraphs, math blocks, and choice tables."""
-    raw_spans = [
-        sp for sp in spans
-        if sp.y <= 785.0 and not (sp.y < 75.0 and sp.text.strip().isdigit())
-    ]
-    clean_spans: list[PdfTextSpan] = []
-    for sp in raw_spans:
-        if "CMEX" in sp.font_name and "\x0c" in sp.text:
-            if clean_spans and clean_spans[-1].text == "|" and abs(sp.x - clean_spans[-1].x) < 1.5:
+        font_maps[oid] = fmap
+
+    ordered_pages = _collect_ordered_page_ids(objects)
+
+    spans: list[_PdfSpan] = []
+    hbars: list[_PdfHBar] = []
+
+    for page_idx, (oid, page_dict_str) in enumerate(ordered_pages, start=1):
+        # Resolve page /Resources -> /Font mapping (/F1 -> font_oid)
+        page_fonts: dict[str, int] = {}
+
+        def _collect_fonts_from_str(src_str: str) -> None:
+            for fm in re.finditer(r"/(F\d+|T\d+|C\d+_?\d*)\s+(\d+)\s+0\s+R", src_str):
+                page_fonts[fm.group(1)] = int(fm.group(2))
+            for fdict_m in re.finditer(r"/Font\s*<<(.*?)>>", src_str, re.S):
+                for fm in re.finditer(r"/([A-Za-z0-9_.+-]+)\s+(\d+)\s+0\s+R", fdict_m.group(1)):
+                    page_fonts[fm.group(1)] = int(fm.group(2))
+            for fref_m in re.finditer(r"/Font\s+(\d+)\s+0\s+R", src_str):
+                fdict_id = int(fref_m.group(1))
+                fdict_body = objects.get(fdict_id, b"").decode("latin1", errors="ignore")
+                for fm in re.finditer(r"/([A-Za-z0-9_.+-]+)\s+(\d+)\s+0\s+R", fdict_body):
+                    page_fonts[fm.group(1)] = int(fm.group(2))
+
+        _collect_fonts_from_str(page_dict_str)
+        for res_m in re.finditer(r"/Resources\s+(\d+)\s+0\s+R", page_dict_str):
+            res_id = int(res_m.group(1))
+            res_str = objects.get(res_id, b"").decode("latin1", errors="ignore")
+            _collect_fonts_from_str(res_str)
+
+        # Resolve /Contents stream(s)
+        content_ids: list[int] = []
+        m_carr = re.search(r"/Contents\s*\[(.*?)\]", page_dict_str, re.S)
+        if m_carr:
+            content_ids = [int(x) for x in re.findall(r"(\d+)\s+0\s+R", m_carr.group(1))]
+        else:
+            m_csingle = re.search(r"/Contents\s+(\d+)\s+0\s+R", page_dict_str)
+            if m_csingle:
+                content_ids = [int(m_csingle.group(1))]
+
+        content_bytes = b"\n".join(streams.get(cid, b"") for cid in content_ids)
+        if not content_bytes:
+            continue
+        content_str = content_bytes.decode("latin1", errors="ignore")
+
+        # Extract horizontal fraction/radical bars (`x y w h re f` in xelatex AND `0 0 m <w> 0 l S` in pdflatex)
+        ctm_stack: list[tuple[float, float]] = []
+        cur_x, cur_y = 0.0, 0.0
+        for line in content_str.splitlines():
+            ls = line.strip()
+            if ls == "q":
+                ctm_stack.append((cur_x, cur_y))
                 continue
-            ref_y = clean_spans[-1].y if clean_spans else sp.y
-            clean_spans.append(PdfTextSpan(sp.x, ref_y, sp.font_size, "CMSY10", "|"))
-        else:
-            clean_spans.append(sp)
-    if not clean_spans:
+            if ls == "Q":
+                if ctm_stack:
+                    cur_x, cur_y = ctm_stack.pop()
+                else:
+                    cur_x, cur_y = 0.0, 0.0
+                continue
+            for m_cm in re.finditer(
+                r"1\s+0\s+0\s+1\s+([+-]?\d+(?:\.\d+)?)\s+([+-]?\d+(?:\.\d+)?)\s+cm\b",
+                ls,
+            ):
+                cur_x += float(m_cm.group(1))
+                cur_y += float(m_cm.group(2))
+            m_re = re.search(
+                r"([+-]?\d+(?:\.\d+)?)\s+([+-]?\d+(?:\.\d+)?)\s+([+-]?\d+(?:\.\d+)?)\s+([+-]?\d+(?:\.\d+)?)\s+re\s+f\b",
+                ls,
+            )
+            if m_re:
+                rx, ry, rw, rh = (
+                    float(m_re.group(1)),
+                    float(m_re.group(2)),
+                    float(m_re.group(3)),
+                    float(m_re.group(4)),
+                )
+                if 3.0 < rw < 260.0 and abs(rh) < 2.2:
+                    hbars.append(_PdfHBar(page=page_idx, x=cur_x + rx, y=cur_y + ry, w=rw))
+            for m_ln in re.finditer(
+                r"([+-]?\d+(?:\.\d+)?)\s+([+-]?\d+(?:\.\d+)?)\s+m\s+([+-]?\d+(?:\.\d+)?)\s+([+-]?\d+(?:\.\d+)?)\s+l\s+S\b",
+                ls,
+            ):
+                lx1, ly1, lx2, ly2 = (
+                    float(m_ln.group(1)),
+                    float(m_ln.group(2)),
+                    float(m_ln.group(3)),
+                    float(m_ln.group(4)),
+                )
+                rw = abs(lx2 - lx1)
+                if abs(ly2 - ly1) < 0.2 and 3.0 < rw < 240.0:
+                    hbars.append(_PdfHBar(page=page_idx, x=cur_x + min(lx1, lx2), y=cur_y + ly1, w=rw))
+
+        # Parse BT ... ET text blocks
+        for bt_block in re.findall(r"\bBT\b(.*?)\bET\b", content_str, re.S):
+            cur_font_key = ""
+            cur_font_size = 12.0
+            tm_x, tm_y = 0.0, 0.0
+            line_x, line_y = 0.0, 0.0
+            leading = 0.0
+
+            tok_pattern = re.compile(
+                r"/(F\d+|T\d+|C\d+_?\d*|[A-Za-z0-9_.+-]+)\s+([+-]?\d+(?:\.\d+)?)\s+Tf"
+                r"|([+-]?\d+(?:\.\d+)?)\s+([+-]?\d+(?:\.\d+)?)\s+([+-]?\d+(?:\.\d+)?)\s+([+-]?\d+(?:\.\d+)?)\s+([+-]?\d+(?:\.\d+)?)\s+([+-]?\d+(?:\.\d+)?)\s+Tm"
+                r"|([+-]?\d+(?:\.\d+)?)\s+([+-]?\d+(?:\.\d+)?)\s+Td"
+                r"|([+-]?\d+(?:\.\d+)?)\s+([+-]?\d+(?:\.\d+)?)\s+TD"
+                r"|([+-]?\d+(?:\.\d+)?)\s+TL"
+                r"|(T\*)"
+                r"|\[(.*?)\]\s*TJ"
+                r"|\(((?:\\.|[^\\()])*)\)\s*Tj"
+                r"|<([0-9A-Fa-f]+)>\s*Tj",
+                re.S,
+            )
+
+            def decode_str_token(raw_lit: str | None, raw_hex: str | None, font_key: str) -> str:
+                f_oid = page_fonts.get(font_key, -1)
+                fmap = font_maps.get(f_oid, {})
+                b_list: list[int] = []
+                if raw_lit is not None:
+                    b_list = _decode_pdf_literal_bytes(raw_lit)
+                elif raw_hex is not None:
+                    hx = re.sub(r"\s+", "", raw_hex)
+                    b_list = [int(hx[k : k + 2], 16) for k in range(0, len(hx), 2) if len(hx[k : k + 2]) == 2]
+                chars: list[str] = []
+                for b in b_list:
+                    if b in fmap:
+                        chars.append(fmap[b])
+                    elif 32 <= b <= 126:
+                        chars.append(chr(b))
+                    elif b >= 160:
+                        chars.append(chr(b))
+                    # Never append raw control bytes (0..31 or 127..159) — prevents XMLSyntaxError!
+                return sanitize_xml_text("".join(chars))
+
+            for tm in tok_pattern.finditer(bt_block):
+                if tm.group(1) is not None:
+                    cur_font_key = tm.group(1)
+                    cur_font_size = abs(float(tm.group(2))) or 12.0
+                elif tm.group(3) is not None:
+                    a_scale = abs(float(tm.group(3)))
+                    d_scale = abs(float(tm.group(6)))
+                    tm_x = float(tm.group(7))
+                    tm_y = float(tm.group(8))
+                    line_x, line_y = tm_x, tm_y
+                    if a_scale > 0.1 and cur_font_size <= 1.5:
+                        cur_font_size = d_scale or a_scale
+                elif tm.group(9) is not None:
+                    dx, dy = float(tm.group(9)), float(tm.group(10))
+                    line_x += dx
+                    line_y += dy
+                    tm_x, tm_y = line_x, line_y
+                elif tm.group(11) is not None:
+                    dx, dy = float(tm.group(11)), float(tm.group(12))
+                    leading = -dy
+                    line_x += dx
+                    line_y += dy
+                    tm_x, tm_y = line_x, line_y
+                elif tm.group(13) is not None:
+                    leading = float(tm.group(13))
+                elif tm.group(14) is not None:
+                    line_y -= leading
+                    tm_x, tm_y = line_x, line_y
+                elif tm.group(15) is not None:
+                    arr_body = tm.group(15)
+                    f_oid = page_fonts.get(cur_font_key, -1)
+                    fname = font_names.get(f_oid, cur_font_key)
+                    cursor_x = tm_x
+                    sub_pieces: list[Tuple[float, str, float]] = []
+                    cur_str_Accum: list[str] = []
+                    seg_start_x = cursor_x
+                    for sub_m in re.finditer(
+                        r"\(((?:\\.|[^\\()])*)\)|<([0-9A-Fa-f]+)>|([+-]?\d+(?:\.\d+)?)",
+                        arr_body,
+                    ):
+                        if sub_m.group(1) is not None or sub_m.group(2) is not None:
+                            piece = decode_str_token(sub_m.group(1), sub_m.group(2), cur_font_key)
+                            if not cur_str_Accum:
+                                seg_start_x = cursor_x
+                            cur_str_Accum.append(piece)
+                            vis_len = max(1, len(piece.strip()))
+                            cursor_x += vis_len * cur_font_size * 0.48
+                        else:
+                            kern = float(sub_m.group(3))
+                            shift_pt = -kern * 0.001 * cur_font_size
+                            if shift_pt > cur_font_size * 1.35 and cur_str_Accum:
+                                joined = "".join(cur_str_Accum)
+                                if joined:
+                                    spans.append(
+                                        _PdfSpan(
+                                            page=page_idx,
+                                            x=seg_start_x,
+                                            y=tm_y,
+                                            text=joined,
+                                            font_name=fname,
+                                            font_size=cur_font_size,
+                                            end_x=cursor_x,
+                                        )
+                                    )
+                                cur_str_Accum = []
+                            elif shift_pt > cur_font_size * 0.22:
+                                cur_str_Accum.append(" ")
+                            cursor_x += shift_pt
+                    if cur_str_Accum:
+                        joined = "".join(cur_str_Accum)
+                        if joined:
+                            spans.append(
+                                _PdfSpan(
+                                    page=page_idx,
+                                    x=seg_start_x,
+                                    y=tm_y,
+                                    text=joined,
+                                    font_name=fname,
+                                    font_size=cur_font_size,
+                                    end_x=cursor_x,
+                                )
+                            )
+                    tm_x = cursor_x
+                elif tm.group(16) is not None or tm.group(17) is not None:
+                    f_oid = page_fonts.get(cur_font_key, -1)
+                    fname = font_names.get(f_oid, cur_font_key)
+                    txt = decode_str_token(tm.group(16), tm.group(17), cur_font_key)
+                    if txt:
+                        w_est = max(1, len(txt.strip())) * cur_font_size * 0.48
+                        spans.append(
+                            _PdfSpan(
+                                page=page_idx,
+                                x=tm_x,
+                                y=tm_y,
+                                text=txt,
+                                font_name=fname,
+                                font_size=cur_font_size,
+                                end_x=tm_x + w_est,
+                            )
+                        )
+                        tm_x += w_est
+
+    return spans, hbars
+
+
+def _is_math_font(font_name: str) -> bool:
+    fn = font_name.upper()
+    return any(k in fn for k in ("CMMI", "CMSY", "CMEX", "CMR", "CMBX", "MSBM", "MSAM", "EUFM", "EUSM"))
+
+
+def _is_vietnamese_text_font(font_name: str) -> bool:
+    fn = font_name.upper()
+    if _is_math_font(fn):
+        return False
+    return any(
+        k in fn
+        for k in (
+            "VNNIMBUS",
+            "VNR",
+            "VNBX",
+            "VNTI",
+            "VNSL",
+            "VNTT",
+            "VNSS",
+            "PTM",
+            "PUT",
+            "PPL",
+            "PHV",
+            "TIMES",
+            "ARIAL",
+            "CALIBRI",
+            "CAMBRIA",
+            "CMU",
+            "LMROMAN",
+        )
+    )
+
+
+def _is_bold_text_font(font_name: str) -> bool:
+    fn = font_name.upper()
+    return any(k in fn for k in ("BOLD", "VNBX", "CMBX", "NIMBUSB", "-B", "BD"))
+
+
+def _reconstruct_page_latex_from_2d(
+    page_spans: list[_PdfSpan],
+    page_bars: list[_PdfHBar],
+) -> list[str]:
+    """Reconstruct LaTeX paragraphs and equations from 2D positioned spans on a single PDF page."""
+    if not page_spans:
         return []
 
-    raw_lines: list[str] = []
-    cur_tokens: list[tuple[str, str]] = []
+    # Separate header/footer noise (page numbers, top running headers, watermarks)
+    ys = [s.y for s in page_spans]
+    max_y = max(ys)
+    min_y = min(ys)
 
-    def flush_line() -> None:
-        nonlocal cur_tokens
-        if not cur_tokens:
-            return
-        merged: list[tuple[str, str]] = []
-        for kind, val in cur_tokens:
-            if not val:
-                continue
-            if merged and merged[-1][0] == kind:
-                sep = (
-                    " "
-                    if kind in ("text", "bold", "italic")
-                    and not merged[-1][1].endswith(" ")
-                    and not val.startswith((" ", ".", ",", ":", ";", ")", "?"))
-                    else ""
-                )
-                merged[-1] = (kind, merged[-1][1] + sep + val)
-            else:
-                merged.append((kind, val))
-        cur_tokens = []
-
-        out_parts: list[str] = []
-        for idx, (kind, val) in enumerate(merged):
-            v = val.strip()
-            if not v:
-                continue
-            if kind == "math":
-                trail = ""
-                if v.endswith(".") and not v.endswith(r"\right."):
-                    v = v[:-1].strip()
-                    trail = "."
-                elif v.endswith(";") and idx == len(merged) - 1:
-                    v = v[:-1].strip()
-                    trail = ";"
-                if v:
-                    out_parts.append(f"${v}${trail}")
-                elif trail:
-                    out_parts.append(trail)
-            elif kind == "bold":
-                out_parts.append(f"\\textbf{{{v}}}")
-            elif kind == "italic":
-                out_parts.append(f"\\textit{{{v}}}")
-            else:
-                out_parts.append(v)
-
-        line_str = " ".join(out_parts)
-        line_str = re.sub(r"\s+([.,:;?!])", r"\1", line_str)
-        if line_str.strip() and line_str.strip() != "@@@":
-            raw_lines.append(line_str.strip())
-
-    i = 0
-    n = len(clean_spans)
-    base_y = clean_spans[0].y
-
-    while i < n:
-        sp = clean_spans[i]
-        t_strip = sp.text.strip()
-        if not t_strip:
-            i += 1
+    filtered_spans: list[_PdfSpan] = []
+    for sp in page_spans:
+        t_clean = sp.text.strip()
+        if not t_clean:
             continue
-
-        # 1. Detect 2-row system delimiter in CMEX10 ('\x14' = '[' or '(' = '{')
-        if "CMEX" in sp.font_name and any(c in sp.text for c in ("\x14", "(")):
-            delim_cmd = r"\hoac" if "\x14" in sp.text else r"\heva"
-            i += 1
-            if i < n:
-                y_r1 = clean_spans[i].y
-                r1_spans: list[PdfTextSpan] = []
-                while i < n and abs(clean_spans[i].y - y_r1) <= 4.8:
-                    r1_spans.append(clean_spans[i])
-                    i += 1
-                r2_spans: list[PdfTextSpan] = []
-                if i < n and -20.0 <= (clean_spans[i].y - y_r1) <= -9.5:
-                    y_r2 = clean_spans[i].y
-                    while i < n and abs(clean_spans[i].y - y_r2) <= 4.8:
-                        if clean_spans[i].x < 88.0 and clean_spans[i].y < y_r2 - 2.0:
-                            break
-                        r2_spans.append(clean_spans[i])
-                        i += 1
-                r1_ltx = _render_simple_math_seq(r1_spans, y_r1)
-                r2_ltx = _render_simple_math_seq(r2_spans, r2_spans[0].y) if r2_spans else ""
-                sys_ltx = f"{delim_cmd}{{{r1_ltx} \\\\ {r2_ltx}}}" if r2_ltx else f"{delim_cmd}{{{r1_ltx}}}"
-                cur_tokens.append(("math", sys_ltx))
-                continue
-
-        # 2. Detect new line when Y drops significantly
-        dy = sp.y - base_y
-        if cur_tokens and dy < -11.5:
-            flush_line()
-            base_y = sp.y
-            dy = 0.0
-        elif not cur_tokens:
-            base_y = sp.y
-            dy = 0.0
-
-        # 3. Check for stacked fraction or overset/underset arrow when Y jumps UP by +6.0 .. +11.5
-        if 6.0 <= dy <= 11.5:
-            y_top = sp.y
-            top_spans: list[PdfTextSpan] = []
-            j = i
-            while j < n and abs(clean_spans[j].y - y_top) <= 3.5:
-                top_spans.append(clean_spans[j])
-                j += 1
-
-            # Case A: Overset/Underset Arrow: next span at base_y is '−−−→'
-            if (
-                j < n
-                and abs(clean_spans[j].y - base_y) <= 3.0
-                and "→" in clean_spans[j].text
-                and "−" in clean_spans[j].text
-            ):
-                j += 1
-                bot_spans: list[PdfTextSpan] = []
-                if j < n and -13.0 <= (clean_spans[j].y - base_y) <= -6.0:
-                    y_bot = clean_spans[j].y
-                    while j < n and abs(clean_spans[j].y - y_bot) <= 3.5:
-                        bot_spans.append(clean_spans[j])
-                        j += 1
-                top_ltx = _render_simple_math_seq(top_spans, y_top)
-                bot_ltx = _render_simple_math_seq(bot_spans, bot_spans[0].y) if bot_spans else ""
-                if bot_ltx:
-                    cur_tokens.append(("math", f"\\xrightarrow[{bot_ltx}]{{{top_ltx}}}"))
-                else:
-                    cur_tokens.append(("math", f"\\xrightarrow{{{top_ltx}}}"))
-                i = j
-                continue
-
-            # Case B: Stacked Fraction: next span is at y_den ≈ base_y - 8.2 (or y_top - 16.3)
-            if j < n and -19.5 <= (clean_spans[j].y - y_top) <= -12.5:
-                y_bot = clean_spans[j].y
-                bot_spans = []
-                while j < n and abs(clean_spans[j].y - y_bot) <= 3.5:
-                    bot_spans.append(clean_spans[j])
-                    j += 1
-                num_ltx = _render_simple_math_seq(top_spans, y_top)
-                den_ltx = _render_simple_math_seq(bot_spans, y_bot)
-                cur_tokens.append(("math", f"\\dfrac{{{num_ltx}}}{{{den_ltx}}}"))
-                i = j
-                continue
-
-        # 4. Check for max / min with underscript at y ≈ base_y - 8.8
-        if (
-            t_strip in ("max", "min")
-            and i + 1 < n
-            and -11.5 <= (clean_spans[i + 1].y - sp.y) <= -5.5
-            and clean_spans[i + 1].font_size < 10.5
+        # Skip giant background watermark (e.g. font_size > 40 or single 'K' at center)
+        if sp.font_size > 40.0:
+            continue
+        # Skip standalone page numbers at very bottom or top
+        if (sp.y > max_y - 18 or sp.y < min_y + 18) and (
+            t_clean.isdigit() or "Trang " in t_clean or "Page " in t_clean
         ):
-            op_cmd = f"\\{t_strip}"
-            y_sub = clean_spans[i + 1].y
-            j = i + 1
-            sub_spans: list[PdfTextSpan] = []
-            while j < n and abs(clean_spans[j].y - y_sub) <= 2.5 and clean_spans[j].font_size < 10.5:
-                sub_spans.append(clean_spans[j])
-                j += 1
-            sub_ltx = _render_simple_math_seq(sub_spans, y_sub)
-            cur_tokens.append(("math", f"{op_cmd}_{{{sub_ltx}}} "))
-            i = j
+            continue
+        filtered_spans.append(sp)
+
+    if not filtered_spans:
+        filtered_spans = [s for s in page_spans if s.text.strip()]
+
+    # Identify extensible tall brackets `[` or `{` built from CMEX pieces stacked vertically
+    cmex_brackets = [
+        sp
+        for sp in filtered_spans
+        if "CMEX" in sp.font_name.upper() and sp.text.strip() in ("[", "{")
+    ]
+    non_cmex = [sp for sp in filtered_spans if sp not in cmex_brackets]
+
+    # Group spans into logical horizontal lines (cluster by baseline y within 9pt,
+    # while keeping fraction numerators/denominators and radical bars attached to their parent line)
+    sorted_by_y = sorted(non_cmex, key=lambda s: (-s.y, s.x))
+
+    # Build primary text baselines from normal-sized spans (font_size >= 9.5)
+    clusters: list[list[_PdfSpan]] = []
+    cluster_ys: list[float] = []
+
+    for sp in sorted_by_y:
+        placed = False
+        tol = 7.5 if sp.font_size >= 9.5 else 11.5
+        for idx, cy in enumerate(cluster_ys):
+            if abs(sp.y - cy) <= tol:
+                clusters[idx].append(sp)
+                # Update baseline weighted toward normal font size
+                if sp.font_size >= 9.5:
+                    n_norm = sum(1 for x in clusters[idx] if x.font_size >= 9.5)
+                    cluster_ys[idx] = sum(
+                        x.y for x in clusters[idx] if x.font_size >= 9.5
+                    ) / max(1, n_norm)
+                placed = True
+                break
+        if not placed:
+            clusters.append([sp])
+            cluster_ys.append(sp.y)
+
+    # Sort clusters top-to-bottom
+    paired = sorted(zip(cluster_ys, clusters), key=lambda pair: -pair[0])
+    cluster_ys = [p[0] for p in paired]
+    clusters = [p[1] for p in paired]
+
+    # Merge fraction numerators & denominators across adjacent clusters when a horizontal fraction bar lies between them
+    used_bars: set[int] = set()
+    merged_away: set[int] = set()
+
+    for b_idx, bar in enumerate(page_bars):
+        # Check if this bar is a radical overline (has a @@RAD@@ immediately to its left)
+        is_rad_bar = any(
+            "@@RAD" in sp.text and abs(sp.x - bar.x) < 18.0 and abs(sp.y - bar.y) < 30.0
+            for sp in filtered_spans
+        )
+        if is_rad_bar:
             continue
 
-        # 5. Check for superscripts & subscripts on current math token
-        if sp.font_size < 10.5 and 2.2 <= dy <= 6.2 and cur_tokens:
-            y_sup = sp.y
-            sup_spans: list[PdfTextSpan] = []
-            while i < n and clean_spans[i].font_size < 10.5 and abs(clean_spans[i].y - y_sup) <= 1.8:
-                sup_spans.append(clean_spans[i])
-                i += 1
-            sup_ltx = _render_simple_math_seq(sup_spans, y_sup)
-            cur_tokens.append(("math", f"^{{{sup_ltx}}}"))
-            continue
-
-        if sp.font_size < 10.5 and -5.0 <= dy <= -1.2 and cur_tokens:
-            y_sub = sp.y
-            sub_spans = []
-            while i < n and clean_spans[i].font_size < 10.5 and abs(clean_spans[i].y - y_sub) <= 1.8:
-                sub_spans.append(clean_spans[i])
-                i += 1
-            sub_ltx = _render_simple_math_seq(sub_spans, y_sub)
-            cur_tokens.append(("math", f"_{{{sub_ltx}}}"))
-            continue
-
-        # Update base_y smoothly if near baseline
-        if abs(dy) <= 2.2 and sp.font_size >= 10.5:
-            base_y = sp.y
-
-        # Classify span as bold, italic, text, or math
-        if "VnNimbus" in sp.font_name and not _is_math_font(sp.font_name, sp.text):
-            if "Bold" in sp.font_name:
-                cur_tokens.append(("bold", t_strip))
-            elif "Italic" in sp.font_name:
-                cur_tokens.append(("italic", t_strip))
+        # Find math spans just above bar (numerator) and just below bar (denominator)
+        num_spans = [
+            sp
+            for sp in non_cmex
+            if (bar.x - 3.0 <= sp.x <= bar.x + bar.w - 0.5)
+            and (0.5 <= sp.y - bar.y <= 15.0)
+            and not _is_vietnamese_text_font(sp.font_name)
+        ]
+        den_spans = [
+            sp
+            for sp in non_cmex
+            if (bar.x - 3.0 <= sp.x <= bar.x + bar.w - 0.5)
+            and (0.5 <= bar.y - sp.y <= 15.0)
+            and not _is_vietnamese_text_font(sp.font_name)
+        ]
+        if num_spans and den_spans:
+            used_bars.add(b_idx)
+            num_tex = _render_span_sequence_to_latex(num_spans, page_bars, math_context=True)
+            den_tex = _render_span_sequence_to_latex(den_spans, page_bars, math_context=True)
+            frac_span = _PdfSpan(
+                page=bar.page,
+                x=bar.x,
+                y=bar.y - 2.5,
+                text=f"\\dfrac{{{num_tex}}}{{{den_tex}}}",
+                font_name="CMMI10",
+                font_size=11.9,
+                end_x=bar.x + bar.w,
+            )
+            # Remove num_spans and den_spans from clusters and insert frac_span into the cluster closest to bar.y
+            num_den_set = set(id(x) for x in num_spans + den_spans)
+            for c_i in range(len(clusters)):
+                clusters[c_i] = [x for x in clusters[c_i] if id(x) not in num_den_set]
+            # Find best cluster for frac_span
+            best_ci = None
+            best_dist = 999.0
+            for c_i, cy in enumerate(cluster_ys):
+                if clusters[c_i] and abs(cy - (bar.y - 2.5)) < best_dist:
+                    best_dist = abs(cy - (bar.y - 2.5))
+                    best_ci = c_i
+            if best_ci is not None and best_dist <= 15.0:
+                clusters[best_ci].append(frac_span)
             else:
-                cur_tokens.append(("text", t_strip))
-        else:
-            m_ltx = _span_to_math_latex(sp)
-            if m_ltx:
-                cur_tokens.append(("math", m_ltx))
+                clusters.append([frac_span])
+                cluster_ys.append(bar.y - 2.5)
 
+    # Re-sort non-empty clusters top-to-bottom
+    valid_pairs = [
+        (cy, cl) for cy, cl in zip(cluster_ys, clusters) if cl
+    ]
+    valid_pairs.sort(key=lambda p: -p[0])
+
+    # Detect multi-line CMEX bracket groups (\hoac / \heva) spanning 2+ vertical lines
+    cmex_groups: list[tuple[str, float, float, float]] = []
+    if cmex_brackets:
+        # Cluster cmex_brackets by x coordinate
+        for br in sorted(cmex_brackets, key=lambda b: b.x):
+            placed_g = False
+            for g_i, (g_chr, gx, gy_min, gy_max) in enumerate(cmex_groups):
+                if abs(br.x - gx) < 8.0 and g_chr == br.text.strip():
+                    cmex_groups[g_i] = (
+                        g_chr,
+                        gx,
+                        min(gy_min, br.y - 14.0),
+                        max(gy_max, br.y + 6.0),
+                    )
+                    placed_g = True
+                    break
+            if not placed_g:
+                cmex_groups.append((br.text.strip(), br.x, br.y - 14.0, br.y + 6.0))
+
+    raw_lines: list[tuple[float, float, str]] = []
+    for cy, cl in valid_pairs:
+        cl_sorted = sorted(cl, key=lambda s: s.x)
+        first_x = cl_sorted[0].x
+        line_str = _render_cluster_line_to_latex(cl_sorted, cy, page_bars)
+        if line_str.strip():
+            raw_lines.append((cy, first_x, line_str.strip()))
+
+    # Combine lines that fall inside a multi-line CMEX `[` or `{` group into \hoac{...} or \heva{...}
+    out_paragraphs: list[str] = []
+    i = 0
+    while i < len(raw_lines):
+        cy, fx, l_str = raw_lines[i]
+        matched_group = None
+        for g_chr, gx, gy_min, gy_max in cmex_groups:
+            if gy_min - 8.0 <= cy <= gy_max + 8.0 and fx >= gx - 5.0:
+                matched_group = (g_chr, gx, gy_min, gy_max)
+                break
+
+        if matched_group is not None:
+            g_chr, gx, gy_min, gy_max = matched_group
+            group_rows: list[str] = []
+            while i < len(raw_lines):
+                cy2, fx2, l_str2 = raw_lines[i]
+                if gy_min - 8.0 <= cy2 <= gy_max + 8.0 and fx2 >= gx - 5.0:
+                    clean_row = l_str2.replace("$", "").strip()
+                    if clean_row:
+                        group_rows.append(clean_row)
+                    i += 1
+                else:
+                    break
+            if len(group_rows) >= 2:
+                macro = r"\hoac" if g_chr == "[" else r"\heva"
+                joined_rows = r" \\ ".join(group_rows)
+                if out_paragraphs and out_paragraphs[-1].endswith(("$", r"\Leftrightarrow$", r"\Rightarrow$")):
+                    prev = out_paragraphs[-1]
+                    if prev.endswith("$"):
+                        out_paragraphs[-1] = prev[:-1] + f" {macro}{{{joined_rows}}}$"
+                    else:
+                        out_paragraphs.append(f"${macro}{{{joined_rows}}}$")
+                else:
+                    out_paragraphs.append(f"\\[\n{macro}{{{joined_rows}}}\n\\]")
+                continue
+            elif len(group_rows) == 1:
+                out_paragraphs.append(f"${group_rows[0]}$")
+                continue
+
+        # Check if this line is a 4-option multiple choice line (e.g. "A. ... B. ... C. ... D. ...")
+        mc_converted = _try_convert_multiple_choice_line(l_str, raw_lines, i)
+        if mc_converted is not None:
+            mc_tex, consumed = mc_converted
+            out_paragraphs.append(mc_tex)
+            i += consumed
+            continue
+
+        out_paragraphs.append(l_str)
         i += 1
 
-    flush_line()
+    return out_paragraphs
 
-    # Merge wrapped continuation lines while preserving distinct logical paragraphs
-    merged_lines: list[str] = []
-    new_para_re = re.compile(
-        r"^(?:\\textbf\{(?:Dạng|Phương pháp|Cách|TH\d|BT\d|Câu|Bài|Ví dụ|[A-D]\.?)|[A-D]\.\s|Vậy\b|Kiểm tra\b|Để\b|Trước tiên\b)"
+
+def _try_convert_multiple_choice_line(
+    line_str: str,
+    all_lines: list[tuple[float, float, str]],
+    idx: int,
+) -> tuple[str, int] | None:
+    """Detect 1-row (A. B. C. D.) or 2-row (A. B. / C. D.) multiple choice options extracted from PDF."""
+    s = re.sub(r"\\textbf\{\s*([A-D]\.)\s*\}", r"\1", line_str).strip()
+    # 1-row pattern: A. ... B. ... C. ... D. ...
+    m4 = re.match(
+        r"^(?:\\textbf\{)?A\.(?:\})?\s*(.+?)\s*(?:\\textbf\{)?B\.(?:\})?\s*(.+?)\s*(?:\\textbf\{)?C\.(?:\})?\s*(.+?)\s*(?:\\textbf\{)?D\.(?:\})?\s*(.+)$",
+        s,
     )
-    for ln in raw_lines:
-        if not merged_lines:
-            merged_lines.append(ln)
-            continue
-        if new_para_re.match(ln):
-            merged_lines.append(ln)
-        else:
-            prev = merged_lines[-1]
-            if prev.endswith("$") and ln.startswith("$"):
-                merged_lines[-1] = prev[:-1] + " " + ln[1:]
-            elif prev.endswith("}") and ln.startswith(r"\textbf{"):
-                merged_lines[-1] = prev[:-1] + " " + ln[len(r"\textbf{") :]
-            else:
-                merged_lines[-1] = prev + " " + ln
+    if m4:
+        opts = [m4.group(1).strip(), m4.group(2).strip(), m4.group(3).strip(), m4.group(4).strip()]
+        return (f"\\choice{{{opts[0]}}}{{{opts[1]}}}{{{opts[2]}}}{{{opts[3]}}}", 1)
 
-    # Convert consecutive A., B., C., D. option lines into \choice{...}{...}{...}{...}
-    final_lines: list[str] = []
-    idx = 0
-    opt_re = re.compile(r"^(?:\\textbf\{([A-D])\}\.?|\\textbf\{([A-D])\.\}|([A-D])\.)\s*(.*)$")
-    while idx < len(merged_lines):
-        if idx + 3 < len(merged_lines):
-            m_a = opt_re.match(merged_lines[idx])
-            m_b = opt_re.match(merged_lines[idx + 1])
-            m_c = opt_re.match(merged_lines[idx + 2])
-            m_d = opt_re.match(merged_lines[idx + 3])
-            if (
-                m_a
-                and (m_a.group(1) or m_a.group(2) or m_a.group(3)) == "A"
-                and m_b
-                and (m_b.group(1) or m_b.group(2) or m_b.group(3)) == "B"
-                and m_c
-                and (m_c.group(1) or m_c.group(2) or m_c.group(3)) == "C"
-                and m_d
-                and (m_d.group(1) or m_d.group(2) or m_d.group(3)) == "D"
-            ):
-                final_lines.append(
-                    f"\\choice{{{m_a.group(4).strip()}}}{{{m_b.group(4).strip()}}}{{{m_c.group(4).strip()}}}{{{m_d.group(4).strip()}}}"
-                )
-                idx += 4
-                continue
-        final_lines.append(merged_lines[idx])
-        idx += 1
+    # 2-row pattern: Line idx has A. ... B. ..., Line idx+1 has C. ... D. ...
+    if idx + 1 < len(all_lines):
+        s2 = re.sub(r"\\textbf\{\s*([A-D]\.)\s*\}", r"\1", all_lines[idx + 1][2]).strip()
+        m_ab = re.match(r"^(?:\\textbf\{)?A\.(?:\})?\s*(.+?)\s*(?:\\textbf\{)?B\.(?:\})?\s*(.+)$", s)
+        m_cd = re.match(r"^(?:\\textbf\{)?C\.(?:\})?\s*(.+?)\s*(?:\\textbf\{)?D\.(?:\})?\s*(.+)$", s2)
+        if m_ab and m_cd:
+            opts = [
+                m_ab.group(1).strip(),
+                m_ab.group(2).strip(),
+                m_cd.group(1).strip(),
+                m_cd.group(2).strip(),
+            ]
+            return (f"\\choice{{{opts[0]}}}{{{opts[1]}}}{{{opts[2]}}}{{{opts[3]}}}", 2)
 
-    return final_lines
-
-
-def _extract_pdf_text_pages(pdf_path: Path) -> list[str]:
-    """Extract text page by page using Pure-Python 2D Span Extractor, pdftotext, pypdf, or pdfplumber."""
-    _refresh_windows_path_once()
-    pages_spans = extract_pdf_spans_pure_python(pdf_path)
-    if pages_spans:
-        pages_text = ["\n".join(sp.text for sp in p_spans if sp.text.strip()) for p_spans in pages_spans]
-        if any(p.strip() for p in pages_text):
-            return pages_text
-
-    pages: list[str] = []
-    pdftotext = shutil.which("pdftotext")
-    if pdftotext:
-        try:
-            res = subprocess.run(
-                [pdftotext, str(pdf_path), "-"],
-                capture_output=True,
-                text=True,
-                encoding="utf-8",
-                errors="replace",
-                timeout=30,
-            )
-            if res.stdout.strip():
-                return [p for p in res.stdout.split("\x0c") if p.strip()]
-        except Exception:
-            pass
-
-    try:
-        from pypdf import PdfReader
-
-        reader = PdfReader(str(pdf_path))
-        for page in reader.pages:
-            pages.append(page.extract_text() or "")
-        if any(p.strip() for p in pages):
-            return pages
-    except Exception:
-        pass
-
-    try:
-        import pdfplumber
-
-        pages = []
-        with pdfplumber.open(str(pdf_path)) as pdf:
-            for page in pdf.pages:
-                pages.append(page.extract_text() or "")
-        if any(p.strip() for p in pages):
-            return pages
-    except Exception:
-        pass
-
-    return pages
-
-
-def _normalize_fingerprint_words(text: str) -> set[str]:
-    s = re.sub(r"\\[a-zA-Z@]+\*?", " ", text)
-    s = re.sub(r"[^0-9a-zA-ZÀ-ỹ]+", " ", s.lower())
-    return {w for w in s.split() if len(w) >= 3 and not w.isdigit()}
-
-
-def _find_matching_tex_source(pdf_path: Path, pdf_text: str, search_dirs: list[Path]) -> Path | None:
-    same_stem = pdf_path.with_suffix(".tex")
-    if same_stem.is_file() and same_stem.resolve() != pdf_path.resolve():
-        # Verify the same_stem .tex was not merely a previously generated output with a different content
-        try:
-            stem_tex_words = _normalize_fingerprint_words(same_stem.read_text(encoding="utf-8", errors="replace"))
-            pdf_words_check = _normalize_fingerprint_words(pdf_text)
-            if stem_tex_words and pdf_words_check:
-                jacc = len(stem_tex_words & pdf_words_check) / float(max(1, len(stem_tex_words | pdf_words_check)))
-                if jacc >= 0.72:
-                    return same_stem
-        except Exception:
-            pass
-
-    pdf_words = _normalize_fingerprint_words(pdf_text)
-    if len(pdf_words) < 25:
-        return None
-
-    best_match: Path | None = None
-    best_score = 0.0
-    seen_files: set[Path] = set()
-
-    for sdir in search_dirs:
-        if not sdir or not sdir.exists():
-            continue
-        for tex_cand in sdir.rglob("*.tex"):
-            if "clean_source.tex" in tex_cand.name or "document_sanitized.tex" in tex_cand.name:
-                continue
-            resolved = tex_cand.resolve()
-            if resolved in seen_files:
-                continue
-            seen_files.add(resolved)
-            try:
-                raw_tex = resolved.read_text(encoding="utf-8", errors="replace")
-            except Exception:
-                continue
-            tex_words = _normalize_fingerprint_words(raw_tex)
-            if not tex_words:
-                continue
-            inter = len(pdf_words & tex_words)
-            union = len(pdf_words | tex_words)
-            jaccard = inter / float(max(1, union))
-            pdf_cov = inter / float(max(1, len(pdf_words)))
-            tex_cov = inter / float(max(1, len(tex_words)))
-            if pdf_cov >= 0.82 and tex_cov >= 0.72 and jaccard > best_score:
-                best_score = jaccard
-                best_match = resolved
-
-    if best_match is not None and best_score >= 0.70:
-        return best_match
     return None
 
 
-def _reconstruct_math_in_line(line: str) -> str:
-    s = line.strip()
-    if not s:
+def _render_span_sequence_to_latex(
+    spans: list[_PdfSpan],
+    page_bars: list[_PdfHBar],
+    *,
+    math_context: bool = False,
+) -> str:
+    """Render an x-sorted list of spans (such as inside a radicand, numerator, or denominator) into LaTeX math."""
+    if not spans:
         return ""
-    for uni, ltx in UNICODE_TO_LATEX_MATH:
-        if uni in s:
-            s = s.replace(uni, f"${ltx.strip()}$")
-    s = re.sub(r"\$\s*\$", " ", s)
+    s_sorted = sorted(spans, key=lambda x: x.x)
+    base_y = s_sorted[0].y
+    for sp in s_sorted:
+        if sp.font_size >= 9.5 and "@@RAD" not in sp.text:
+            base_y = sp.y
+            break
 
-    def _wrap_eq(m: re.Match[str]) -> str:
-        expr = m.group(0)
-        if "$" in expr:
-            return expr
-        return f"${expr}$"
-
-    s = re.sub(
-        r"\b(?:[fghy]\s*(?:'|′)?\s*\([a-zA-Z0-9+\-*/^_,\s]+\)|[xy]\s*=\s*[0-9a-zA-Z+\-*/^_().,\s]+)",
-        _wrap_eq,
-        s,
-    )
-    return s
-
-
-def _convert_extracted_pdf_text_to_latex(pages: list[str]) -> str:
-    full_text = "\n".join(pages)
-    lines = [ln.strip() for ln in full_text.splitlines()]
-    cleaned_lines: list[str] = []
-    for ln in lines:
-        if not ln:
-            cleaned_lines.append("")
+    out: list[str] = []
+    i = 0
+    n = len(s_sorted)
+    while i < n:
+        sp = s_sorted[i]
+        txt = sp.text
+        if "@@RAD_V@@" in txt or "@@RAD_B@@" in txt:
+            i += 1
             continue
-        if re.fullmatch(r"\d{1,3}", ln):
+        if "@@RAD@@" in txt:
+            # Find matching overline bar starting near sp.x
+            rad_bar = None
+            for b in page_bars:
+                if abs(b.x - sp.x) < 18.0 and abs(b.y - sp.y) < 32.0:
+                    rad_bar = b
+                    break
+            if rad_bar is not None:
+                rad_end_x = rad_bar.x + rad_bar.w + 1.5
+                inner_spans: list[_PdfSpan] = []
+                j = i + 1
+                while j < n and s_sorted[j].x < rad_end_x:
+                    inner_spans.append(s_sorted[j])
+                    j += 1
+                inner_tex = _render_span_sequence_to_latex(inner_spans, page_bars, math_context=True)
+                out.append(f"\\sqrt{{{inner_tex}}}")
+                i = j
+                continue
+            else:
+                # Fallback if no bar found: take next span as radicand
+                if i + 1 < n:
+                    inner_tex = _render_span_sequence_to_latex([s_sorted[i + 1]], page_bars, math_context=True)
+                    out.append(f"\\sqrt{{{inner_tex}}}")
+                    i += 2
+                    continue
+                i += 1
+                continue
+
+        # Check superscript / subscript relative to base_y
+        dy = sp.y - base_y
+        if sp.font_size < 9.8 and abs(dy) > 1.8 and out:
+            script_group = [sp]
+            j = i + 1
+            while (
+                j < n
+                and s_sorted[j].font_size < 9.8
+                and abs(s_sorted[j].y - sp.y) < 2.2
+                and (s_sorted[j].x - script_group[-1].end_x) < 8.0
+            ):
+                script_group.append(s_sorted[j])
+                j += 1
+            script_str = "".join(x.text.strip() for x in script_group)
+            if dy > 1.8:
+                out.append(f"^{{{script_str}}}")
+            else:
+                out.append(f"_{{{script_str}}}")
+            i = j
             continue
-        cleaned_lines.append(ln)
 
-    joined = "\n".join(cleaned_lines)
-    q_splits = re.split(r"(?=\bCâu\s+\d+\s*[.:])", joined)
-    out_blocks: list[str] = [
-        r"\documentclass[12pt,a4paper]{article}",
-        r"\usepackage{amsmath,amssymb}",
-        r"\begin{document}",
-        "",
-    ]
+        out.append(txt)
+        i += 1
 
-    choice_pattern = re.compile(
-        r"(?:^|\s)A\.\s*(.+?)\s+B\.\s*(.+?)\s+C\.\s*(.+?)\s+D\.\s*(.+?)\s*$",
-        re.S,
-    )
+    res = "".join(out).strip()
+    return sanitize_xml_text(res)
 
-    for blk in q_splits:
-        b = blk.strip()
-        if not b:
+
+def _render_cluster_line_to_latex(
+    cl_sorted: list[_PdfSpan],
+    baseline_y: float,
+    page_bars: list[_PdfHBar],
+) -> str:
+    """Convert a horizontal line cluster of 2D PDF spans into mixed Vietnamese text and `$...$` LaTeX math."""
+    # First resolve any radicals (`@@RAD@@`) and arrow-with-label (`\xrightarrow`) inside the cluster
+    processed: list[_PdfSpan] = []
+    i = 0
+    n = len(cl_sorted)
+    while i < n:
+        sp = cl_sorted[i]
+        if "@@RAD_V@@" in sp.text or "@@RAD_B@@" in sp.text:
+            i += 1
             continue
-        b = re.sub(r"^(\s*Câu\s+\d+\s*[.:])", r"\\textbf{\1}", b, count=1)
-        m_ch = choice_pattern.search(b)
-        if m_ch:
-            stem = b[: m_ch.start()].strip()
-            opts = [m_ch.group(i).strip() for i in range(1, 5)]
-            stem_ltx = " ".join(_reconstruct_math_in_line(ln) for ln in stem.splitlines() if ln.strip())
-            opts_ltx = [_reconstruct_math_in_line(o) for o in opts]
-            out_blocks.append(stem_ltx)
-            out_blocks.append(
-                f"\\choice{{{opts_ltx[0]}}}{{{opts_ltx[1]}}}{{{opts_ltx[2]}}}{{{opts_ltx[3]}}}"
+
+        if "@@RAD@@" in sp.text:
+            rad_bar = None
+            for b in page_bars:
+                if abs(b.x - sp.x) < 18.0 and abs(b.y - sp.y) < 32.0:
+                    rad_bar = b
+                    break
+            if rad_bar is not None:
+                rad_end_x = rad_bar.x + rad_bar.w + 1.5
+                inner_spans: list[_PdfSpan] = []
+                j = i + 1
+                while j < n and cl_sorted[j].x < rad_end_x:
+                    inner_spans.append(cl_sorted[j])
+                    j += 1
+                inner_tex = _render_span_sequence_to_latex(inner_spans, page_bars, math_context=True)
+                processed.append(
+                    _PdfSpan(
+                        page=sp.page,
+                        x=sp.x,
+                        y=baseline_y,
+                        text=f"\\sqrt{{{inner_tex}}}",
+                        font_name="CMMI10",
+                        font_size=11.9,
+                        end_x=rad_end_x,
+                    )
+                )
+                i = j
+                continue
+
+        # Check superscript / subscript attachment to previous math span
+        dy = sp.y - baseline_y
+        if sp.font_size < 9.8 and abs(dy) > 1.8 and processed:
+            script_group = [sp]
+            j = i + 1
+            while (
+                j < n
+                and cl_sorted[j].font_size < 9.8
+                and abs(cl_sorted[j].y - sp.y) < 2.2
+                and (cl_sorted[j].x - script_group[-1].end_x) < 8.0
+            ):
+                script_group.append(cl_sorted[j])
+                j += 1
+            script_str = "".join(x.text.strip() for x in script_group)
+            # Check if followed by an extensible arrow `-\to` (i.e. \xrightarrow{label})
+            has_arrow_ahead = any(
+                "\\to" in cl_sorted[m_idx].text for m_idx in range(j, min(n, j + 4))
             )
-            out_blocks.append("")
+            if (
+                dy > 1.8
+                and j < n
+                and has_arrow_ahead
+                and ("\\to" in cl_sorted[j].text or cl_sorted[j].text.strip() in ("-", "−"))
+            ):
+                # Consume arrow pieces
+                k = j
+                while k < n and (
+                    cl_sorted[k].text.strip() in ("-", "−", r"\to")
+                    or "\\to" in cl_sorted[k].text
+                ):
+                    k += 1
+                processed.append(
+                    _PdfSpan(
+                        page=sp.page,
+                        x=sp.x,
+                        y=baseline_y,
+                        text=f"\\xrightarrow{{{script_str}}}",
+                        font_name="CMSY10",
+                        font_size=11.9,
+                        end_x=cl_sorted[k - 1].end_x if k > j else sp.end_x,
+                    )
+                )
+                i = k
+                continue
+
+            prev = processed[-1]
+            op_char = "^" if dy > 1.8 else "_"
+            prev.text = f"{prev.text.rstrip()}{op_char}{{{script_str}}}"
+            prev.font_name = "CMMI10"
+            prev.end_x = script_group[-1].end_x
+            i = j
+            continue
+
+        processed.append(sp)
+        i += 1
+
+    # Now segment `processed` into Vietnamese text runs vs `$...$` math runs
+    pieces: list[str] = []
+    in_math = False
+    math_buf: list[str] = []
+    prev_end_x: float | None = None
+
+    def flush_math() -> None:
+        nonlocal in_math
+        if not in_math:
+            return
+        m_str = "".join(math_buf).strip()
+        math_buf.clear()
+        in_math = False
+        if m_str:
+            # Clean redundant spaces around operators
+            m_str = re.sub(r"\s+", " ", m_str)
+            if m_str in (",", ".", ";", ":", "?", "!"):
+                pieces.append(m_str)
+            else:
+                pieces.append(f"${m_str}$")
+
+    for idx, sp in enumerate(processed):
+        txt = sp.text
+        if not txt:
+            continue
+
+        gap = (sp.x - prev_end_x) if prev_end_x is not None else 0.0
+        prev_end_x = max(sp.end_x, sp.x + 2.0)
+
+        is_vn = _is_vietnamese_text_font(sp.font_name)
+        is_m = _is_math_font(sp.font_name) or any(
+            k in txt for k in ("\\sqrt", "\\dfrac", "\\xrightarrow", "^", "_")
+        )
+
+        # Digits/punctuation in CMR10 right after Vietnamese words like "Bài 1.", "Câu 12:", "(1)"
+        if (
+            is_m
+            and "CMR" in sp.font_name.upper()
+            and not in_math
+            and re.fullmatch(r"[\d.,:;()\[\]+-]+", txt.strip())
+            and pieces
+            and re.search(r"(?:Bài|Câu|Ví dụ|Đề|Phần|Chương|Cách|Bước|Từ|Thay|Vậy)\s*$", "".join(pieces))
+        ):
+            is_m = False
+            is_vn = True
+
+        if is_vn and not is_m:
+            was_math = in_math
+            flush_math()
+            if (gap > 1.5 or (was_math and txt[:1].isalnum())) and pieces and not pieces[-1].endswith((" ", "\n", "(")):
+                pieces.append(" ")
+            if _is_bold_text_font(sp.font_name) and txt.strip():
+                pieces.append(f"\\textbf{{{txt.strip()}}} ")
+            else:
+                pieces.append(txt)
         else:
-            paras = re.split(r"\n\s*\n+", b)
-            for p in paras:
-                p_clean = " ".join(_reconstruct_math_in_line(ln) for ln in p.splitlines() if ln.strip())
-                if p_clean:
-                    out_blocks.append(p_clean)
-                    out_blocks.append("")
+            if not in_math:
+                if pieces and not pieces[-1].endswith((" ", "\n", "(")):
+                    pieces.append(" ")
+                in_math = True
+            elif gap > 14.0:
+                # Separate distinct equations on the same line
+                flush_math()
+                pieces.append("   ")
+                in_math = True
+            elif gap > 3.5 and math_buf and not math_buf[-1].endswith(" "):
+                math_buf.append(" ")
+            math_buf.append(txt)
 
-    out_blocks.append(r"\end{document}")
-    return "\n".join(out_blocks)
+    flush_math()
+    line_out = "".join(pieces).strip()
+    # Merge adjacent math blocks `$a$ $b$` if separated only by comma/semicolon or space when appropriate
+    line_out = re.sub(r"\$\s*([=+-])\s*\$", r" \1 ", line_out)
+    line_out = re.sub(r"[ \t]{2,}", " ", line_out)
+    return sanitize_xml_text(line_out)
 
 
-def decompile_pdf_to_latex(pdf_path: Path, search_dirs: list[Path] | None = None) -> str:
-    """Convert a `.pdf` file into structured LaTeX ready for `build_native_docx_from_latex()`."""
-    _refresh_windows_path_once()
+def _extract_pdf_plain_probe(pdf_path: Path) -> str:
+    """Extract a quick plain-text probe from a PDF for optional matching against existing `.tex` sources."""
+    try:
+        spans, _ = extract_pdf_spans_pure_python(pdf_path)
+        if spans:
+            return " ".join(s.text for s in spans[:250])
+    except Exception:
+        pass
+    return ""
+
+
+def _find_matching_tex_source(pdf_path: Path, search_dirs: list[Path] | None = None) -> Path | None:
+    """Check if the uploaded PDF has an exact matching `.tex` source file in the workspace."""
+    same_stem = pdf_path.with_suffix(".tex")
+    if same_stem.is_file():
+        return same_stem
+
+    dirs: list[Path] = []
+    if search_dirs:
+        dirs.extend(search_dirs)
+    dirs.append(pdf_path.parent)
+    base_root = Path(__file__).resolve().parent.parent
+    dirs.extend([base_root, base_root / "jobs"])
+
+    pdf_probe = _extract_pdf_plain_probe(pdf_path)
+    pdf_words = set(re.findall(r"[A-Za-zÀ-ỹ]{4,}", pdf_probe))
+
+    candidates: list[Path] = []
+    seen: set[Path] = set()
+    for d in dirs:
+        if not d.exists():
+            continue
+        for p in d.rglob("*.tex"):
+            rp = p.resolve()
+            if rp not in seen and "visual_build" not in rp.parts:
+                seen.add(rp)
+                candidates.append(rp)
+
+    if not candidates or len(pdf_words) < 8:
+        return None
+
+    best_path: Path | None = None
+    best_score = 0.0
+    for cand in candidates:
+        try:
+            raw_tex = cand.read_text(encoding="utf-8", errors="ignore")
+        except Exception:
+            continue
+        tex_words = set(re.findall(r"[A-Za-zÀ-ỹ]{4,}", raw_tex))
+        if not tex_words:
+            continue
+        overlap = len(pdf_words & tex_words) / max(len(pdf_words), 1)
+        if overlap > best_score:
+            best_score = overlap
+            best_path = cand
+
+    if best_path is not None and best_score >= 0.65:
+        return best_path
+    return None
+
+
+def decompile_pdf_to_latex(
+    pdf_path: Path,
+    *,
+    search_dirs: list[Path] | None = None,
+    allow_tex_cache: bool = True,
+) -> str:
+    """Universal 2D Pure-Python Math PDF Decompiler (`decompile_pdf_to_latex`).
+
+    Converts any Math PDF file into structured LaTeX (with `\\dfrac`, `\\sqrt`, `\\hoac`, `\\heva`,
+    `\\xrightarrow`, `\\choice`, and Vietnamese Unicode) ready for `build_native_docx_from_latex`.
+    """
     pdf_path = pdf_path.resolve()
+    if not pdf_path.is_file():
+        raise RuntimeError(f"PDF file not found: {pdf_path}")
 
-    # 1. Extract 2D positioned spans using our Pure-Python PDF parser (zero external dependencies)
-    pages_spans = extract_pdf_spans_pure_python(pdf_path)
-    raw_pdf_text = "\n".join(
-        " ".join(sp.text for sp in p_spans if sp.text.strip()) for p_spans in pages_spans
+    if allow_tex_cache:
+        matched_tex = _find_matching_tex_source(pdf_path, search_dirs=search_dirs)
+        if matched_tex is not None:
+            return clean_newlines(matched_tex.read_text(encoding="utf-8", errors="replace"))
+
+    spans, hbars = extract_pdf_spans_pure_python(pdf_path)
+    if not spans:
+        # Fallback to pypdf text extraction if PDF uses non-standard filters
+        try:
+            import pypdf
+
+            reader = pypdf.PdfReader(str(pdf_path))
+            pages_txt = [sanitize_xml_text(pg.extract_text() or "") for pg in reader.pages]
+            body_txt = "\n\n".join(p.strip() for p in pages_txt if p.strip())
+            if body_txt:
+                return (
+                    "\\documentclass[12pt,a4paper]{article}\n"
+                    "\\usepackage{amsmath,amssymb}\n"
+                    "\\begin{document}\n\n"
+                    + body_txt
+                    + "\n\n\\end{document}\n"
+                )
+        except Exception:
+            pass
+
+    max_page = max((s.page for s in spans), default=1)
+    all_paragraphs: list[str] = []
+
+    for pg in range(1, max_page + 1):
+        pg_spans = [s for s in spans if s.page == pg]
+        pg_bars = [b for b in hbars if b.page == pg]
+        pg_paras = _reconstruct_page_latex_from_2d(pg_spans, pg_bars)
+        all_paragraphs.extend(pg_paras)
+
+    body_content = "\n\n".join(p for p in all_paragraphs if p.strip())
+    latex_doc = (
+        "\\documentclass[12pt,a4paper]{article}\n"
+        "\\usepackage[utf8]{vietnam}\n"
+        "\\usepackage{amsmath,amssymb}\n"
+        "\\begin{document}\n\n"
+        f"{body_content}\n\n"
+        "\\end{document}\n"
     )
-
-    # 2. Check if an exact matching .tex source file exists in the workspace
-    dirs = list(search_dirs or [])
-    dirs.extend([pdf_path.parent, pdf_path.parent.parent])
-    if raw_pdf_text.strip():
-        matched_tex = _find_matching_tex_source(pdf_path, raw_pdf_text, dirs)
-        if matched_tex is not None and matched_tex.is_file():
-            return matched_tex.read_text(encoding="utf-8", errors="replace")
-
-    # 3. Reconstruct 2D math & text layout directly from the Pure-Python 2D spans
-    if pages_spans:
-        out_blocks: list[str] = [
-            r"\documentclass[12pt,a4paper]{article}",
-            r"\usepackage{amsmath,amssymb}",
-            r"\begin{document}",
-            "",
-        ]
-        reconstructed_count = 0
-        for p_spans in pages_spans:
-            p_lines = reconstruct_page_lines(p_spans)
-            for ln in p_lines:
-                out_blocks.append(ln)
-                out_blocks.append("")
-                reconstructed_count += 1
-        out_blocks.append(r"\end{document}")
-        if reconstructed_count > 0:
-            return "\n".join(out_blocks)
-
-    # 4. Fallback to plain-text extractors (pdftotext / pypdf / pdfplumber)
-    pages = _extract_pdf_text_pages(pdf_path)
-    raw_pdf_text = "\n".join(pages)
-    if raw_pdf_text.strip():
-        matched_tex = _find_matching_tex_source(pdf_path, raw_pdf_text, dirs)
-        if matched_tex is not None and matched_tex.is_file():
-            return matched_tex.read_text(encoding="utf-8", errors="replace")
-        return _convert_extracted_pdf_text_to_latex(pages)
-
-    raise RuntimeError(
-        f"Không thể trích xuất văn bản từ file PDF '{pdf_path.name}' (PDF dạng ảnh quét chưa có lớp text OCR)."
-    )
+    return clean_newlines(latex_doc)
 
 
-def clean_newlines(s: str) -> str:
-    """Normalize line endings to standard LF."""
-    return s.replace("\r\r\n", "\n").replace("\r\n", "\n").replace("\r", "\n")
-
-
+# ==============================================================================
+# UNIFIED LATEX / STRUCTURAL ENVIRONMENT PARSER & DOCX BUILDER
+# ==============================================================================
 def expand_tex_includes(main: Path, stack: tuple[Path, ...] = ()) -> tuple[str, int]:
     """Resolve simple literal braced \\input / \\include commands recursively."""
     main = main.resolve()
@@ -1154,26 +1939,20 @@ def expand_tex_includes(main: Path, stack: tuple[Path, ...] = ()) -> tuple[str, 
 
 def convert_docx_to_pdf(docx_path: Path, pdf_path: Path) -> bool:
     """Convert DOCX to PDF using LibreOffice or docx2pdf (MS Word COM)."""
-    import tempfile
-
-    _refresh_windows_path_once()
     pdf_path.parent.mkdir(parents=True, exist_ok=True)
     lo = shutil.which("soffice") or shutil.which("libreoffice")
     if lo:
         try:
-            with tempfile.TemporaryDirectory(prefix="l2w_pdf_") as tmp_d:
-                tmp_dir = Path(tmp_d)
-                safe_docx = tmp_dir / "render_input.docx"
-                shutil.copy2(str(docx_path), str(safe_docx))
-                subprocess.run(
-                    [lo, "--headless", "--convert-to", "pdf", "--outdir", str(tmp_dir), str(safe_docx)],
-                    capture_output=True,
-                    timeout=90,
-                )
-                expected = tmp_dir / "render_input.pdf"
-                if expected.exists():
-                    shutil.copy2(str(expected), str(pdf_path))
-                    return True
+            subprocess.run(
+                [lo, "--headless", "--convert-to", "pdf", "--outdir", str(pdf_path.parent), str(docx_path)],
+                capture_output=True,
+                timeout=90,
+            )
+            expected = pdf_path.parent / (docx_path.stem + ".pdf")
+            if expected.exists():
+                if expected != pdf_path:
+                    shutil.move(str(expected), str(pdf_path))
+                return True
         except Exception:
             pass
 
@@ -1241,12 +2020,11 @@ def _extract_braced_args(text: str, start_pos: int, num_args: int) -> tuple[list
     return args, pos
 
 
-def _int_to_roman(n: int) -> str:
+def _int_to_roman(num: int) -> str:
     val = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1]
     syb = ["m", "cm", "d", "cd", "c", "xc", "l", "xl", "x", "ix", "v", "iv", "i"]
     roman_num = ""
     i = 0
-    num = max(1, n)
     while num > 0 and i < len(val):
         for _ in range(num // val[i]):
             roman_num += syb[i]
@@ -1779,7 +2557,7 @@ def _render_text_block(doc, text_block: str, *, base_dir: Path | None = None) ->
     m_item = re.match(r"^@@L2W_ITEM::(\d+)::(.*?)@@\s*(.*)$", s, re.S)
     if m_item:
         level = max(1, int(m_item.group(1)))
-        marker = m_item.group(2).strip()
+        marker = sanitize_xml_text(m_item.group(2).strip())
         item_body = m_item.group(3).strip()
         lp = doc.add_paragraph()
         lp.paragraph_format.left_indent = Cm(0.65 * level)
@@ -1903,7 +2681,7 @@ def convert_latex_file_unified(
         "input_type": "pdf" if input_is_pdf else "tex",
         "output": str(output),
         "mode": mode,
-        "engine": "Native DrawingML + OMML + MathTables + Pure-Python 2D PDF Decompiler Engine",
+        "engine": "Native DrawingML + OMML + MathTables + Universal 2D PDF Decompiler Engine v2.4",
         "rendered_figures": build_stats.get("rendered_figures", 0),
         "drawingml_groups": build_stats.get("drawingml_groups", 0),
         "drawingml_shapes": build_stats.get("drawingml_shapes", 0),

@@ -2,6 +2,7 @@
 
 Converts inline ($...$) and display (\\[...\\], $$...$$, equation/align/cases/matrix/binom/xrightarrow) LaTeX math
 directly into native Microsoft Word <m:oMath> / <m:oMathPara> XML elements.
+Includes strict XML 1.0 character sanitization so malformed or decompiled PDF/LaTeX strings never trigger XMLSyntaxError.
 """
 from __future__ import annotations
 
@@ -14,6 +15,20 @@ W_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 
 ET.register_namespace("m", M_NS)
 ET.register_namespace("w", W_NS)
+
+# Matches all characters forbidden in XML 1.0 (NULL \x00, control chars \x01-\x1f except \t\n\r,
+# DEL/C1 control chars \x7f-\x9f, surrogates, non-characters, and Unicode Variation Selectors \ufe00-\ufe0f)
+_ILLEGAL_XML_CHARS_RE = re.compile(
+    r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f\ud800-\udfff\ufdd0-\ufdef\ufffe\uffff\ufe00-\ufe0f]"
+)
+
+
+def sanitize_xml_text(s: str) -> str:
+    """Strip all characters illegal in XML 1.0 so lxml.etree.fromstring / python-docx never raises XMLSyntaxError."""
+    if not s:
+        return ""
+    return _ILLEGAL_XML_CHARS_RE.sub("", s)
+
 
 LATEX_SYMBOLS: dict[str, str] = {
     r"\infty": "∞",
@@ -238,6 +253,7 @@ def _w(tag: str) -> ET.Element:
 
 
 def _make_run(text: str, *, normal_text: bool = False, bold: bool = False, italic: bool | None = None) -> ET.Element:
+    text = sanitize_xml_text(text)
     r = _m("r")
     rPr_m = _m("rPr")
     has_m_pr = False
@@ -276,6 +292,8 @@ def _make_run(text: str, *, normal_text: bool = False, bold: bool = False, itali
 
 def _wrap_in_delimiter(inner_elements: list[ET.Element], beg_chr: str, end_chr: str) -> ET.Element:
     """Wrap one or more OMML elements in an <m:d> delimiter element."""
+    beg_chr = sanitize_xml_text(beg_chr)
+    end_chr = sanitize_xml_text(end_chr)
     d = _m("d")
     dPr = _m("dPr")
     b_el = _m("begChr")
@@ -294,7 +312,7 @@ def _wrap_in_delimiter(inner_elements: list[ET.Element], beg_chr: str, end_chr: 
 
 class _LatexMathParser:
     def __init__(self, src: str) -> None:
-        s = src.strip()
+        s = sanitize_xml_text(src).strip()
         # Extract \tag{...} or \tag*{...} if present
         self.tag: str | None = None
         m_tag = re.search(r"\\tag\*?\{([^{}]*)\}", s)
@@ -991,7 +1009,7 @@ class _LatexMathParser:
 
 def latex_to_omml_element(latex_math: str, display: bool = False):
     """Convert a LaTeX math string into a python-docx OxmlElement (<m:oMath> or <m:oMathPara>)."""
-    clean = latex_math.strip()
+    clean = sanitize_xml_text(latex_math).strip()
     if clean.startswith("$$") and clean.endswith("$$"):
         clean = clean[2:-2].strip()
         display = True
@@ -1008,7 +1026,7 @@ def latex_to_omml_element(latex_math: str, display: bool = False):
         parser = _LatexMathParser(clean)
         children = parser.parse_all()
         if not children:
-            omath.append(_make_run(clean))
+            omath.append(_make_run(clean or " "))
         else:
             for ch in children:
                 omath.append(ch)
@@ -1016,15 +1034,15 @@ def latex_to_omml_element(latex_math: str, display: bool = False):
     if display:
         para = _m("oMathPara")
         para.append(omath)
-        xml_str = ET.tostring(para, encoding="unicode")
+        xml_str = sanitize_xml_text(ET.tostring(para, encoding="unicode"))
     else:
-        xml_str = ET.tostring(omath, encoding="unicode")
+        xml_str = sanitize_xml_text(ET.tostring(omath, encoding="unicode"))
     return parse_xml(xml_str)
 
 
 def latex_to_omml_xml_string(latex_math: str, display: bool = False) -> str:
     """Return raw XML string of <m:oMath> suitable for embedding inside DrawingML textboxes."""
-    clean = latex_math.strip()
+    clean = sanitize_xml_text(latex_math).strip()
     if clean.startswith("$") and clean.endswith("$"):
         clean = clean[1:-1].strip()
     omath = _m("oMath")
@@ -1034,15 +1052,15 @@ def latex_to_omml_xml_string(latex_math: str, display: bool = False) -> str:
         parser = _LatexMathParser(clean)
         children = parser.parse_all()
         if not children:
-            omath.append(_make_run(clean))
+            omath.append(_make_run(clean or " "))
         else:
             for ch in children:
                 omath.append(ch)
     if display:
         para = _m("oMathPara")
         para.append(omath)
-        return ET.tostring(para, encoding="unicode")
-    return ET.tostring(omath, encoding="unicode")
+        return sanitize_xml_text(ET.tostring(para, encoding="unicode"))
+    return sanitize_xml_text(ET.tostring(omath, encoding="unicode"))
 
 
 def _extract_braced_content(s: str, open_brace_idx: int) -> tuple[str, int] | None:
@@ -1094,7 +1112,7 @@ def append_rich_latex_text_to_paragraph(
     """Parse mixed Vietnamese text, nested formatting (\\textbf, \\underline, \\textit, {\\LARGE ...}), line breaks (\\\\), and $...$ math."""
     from docx.shared import Pt
 
-    s = text.replace(r"\(", "$").replace(r"\)", "$")
+    s = sanitize_xml_text(text).replace(r"\(", "$").replace(r"\)", "$")
     s = re.sub(r"\\hspace\*?\s*\{([^{}]*)\}", _hspace_to_nbsp, s)
     s = s.replace(r"\textbackslash ", "\\").replace(r"\textbackslash", "\\")
 
@@ -1154,8 +1172,9 @@ def append_rich_latex_text_to_paragraph(
             end_m = s.find(r"\]", i + 2)
             if end_m != -1:
                 _flush_plain()
-                math_src = s[i + 2 : end_m].strip()
-                paragraph._p.append(latex_to_omml_element(math_src, display=True))
+                math_src = sanitize_xml_text(s[i + 2 : end_m]).strip()
+                if math_src:
+                    paragraph._p.append(latex_to_omml_element(math_src, display=True))
                 i = end_m + 2
                 continue
 
@@ -1163,8 +1182,9 @@ def append_rich_latex_text_to_paragraph(
             end_m = s.find("$$", i + 2)
             if end_m != -1:
                 _flush_plain()
-                math_src = s[i + 2 : end_m].strip()
-                paragraph._p.append(latex_to_omml_element(math_src, display=True))
+                math_src = sanitize_xml_text(s[i + 2 : end_m]).strip()
+                if math_src:
+                    paragraph._p.append(latex_to_omml_element(math_src, display=True))
                 i = end_m + 2
                 continue
 
@@ -1180,8 +1200,9 @@ def append_rich_latex_text_to_paragraph(
                 end_m += 1
             if end_m < n and s[end_m] == "$":
                 _flush_plain()
-                math_src = s[i + 1 : end_m].strip()
-                paragraph._p.append(latex_to_omml_element(math_src, display=False))
+                math_src = sanitize_xml_text(s[i + 1 : end_m]).strip()
+                if math_src:
+                    paragraph._p.append(latex_to_omml_element(math_src, display=False))
                 i = end_m + 1
                 continue
 
@@ -1248,6 +1269,7 @@ def append_rich_latex_text_to_paragraph(
 
 
 def _clean_plain_tex_fragment(s: str) -> str:
+    s = sanitize_xml_text(s)
     s = re.sub(r"\\(?:dots|ldots|cdots)\b\s*", "…", s)
     s = re.sub(r"\\(?:par|noindent|centering|raggedright|raggedleft|hfill|vfill|hrulefill)\b\s*", "", s)
     s = re.sub(r"\\(?:vspace|hspace)\*?\s*\{[^{}]*\}", "", s)
@@ -1257,4 +1279,4 @@ def _clean_plain_tex_fragment(s: str) -> str:
     s = re.sub(r"\\item(?:\s*\[[^\]]*\])?\s*", "", s)
     s = s.replace("``", "“").replace("''", "”").replace("~", " ").replace(r"\&", "&").replace(r"\%", "%")
     s = re.sub(r"[ \t]+", " ", s)
-    return s
+    return sanitize_xml_text(s)
