@@ -1,4 +1,4 @@
-"""Unified Core LaTeX-to-Word Converter Engine (`backend/core_converter.py`).
+"""Unified Core LaTeX & PDF to Word Converter Engine (`backend/core_converter.py`).
 
 Single unified conversion engine shared across:
 1. CLI (`latex2word.py`)
@@ -6,14 +6,18 @@ Single unified conversion engine shared across:
 3. Streamlit Web App (`app.py`)
 
 Features:
+- Accepts `.tex` AND `.pdf` inputs (automatically decompiling math/exam PDFs into structured LaTeX + OMML)
 - Native Word Shapes / DrawingML (<wpg:wgp>, <wps:wsp>, <a:custGeom>) for TikZ & PGFPlots
 - Native Editable Math Tables for all math table types:
   * Variation & Sign tables (`tkz-tab` & TikZ BBT) -> Word Table + OMML + DrawingML arrows
-  * Smart Multiple-Choice tables (`\choiceA..D`, `\choice`, `\boncot`, `\haicot`, `\motcot`) -> Auto 1x4 / 2x2 / 4x1
-  * True/False 2025 tables (`\choiceTF`) -> 3-column table
-  * Statistical & Data tables (`tabular`, `tabularx`, `longtable`, `\multicolumn`, `\multirow`, `\diagbox`)
-  * Side-by-Side Question + Figure layout (`\immini{...}{...}`)
-- Native Office Math (OMML `<m:oMath>`) for all inline & display equations (including matrices, cases, aligned, span)
+  * Smart Multiple-Choice tables (`\\choiceA..D`, `\\choice`, `\\boncot`, `\\haicot`, `\\motcot`) -> Auto 1x4 / 2x2 / 4x1
+  * True/False 2025 tables (`\\choiceTF`) -> 3-column table
+  * Statistical & Data tables (`tabular`, `tabularx`, `longtable`, `\\multicolumn`, `\\multirow`, `\\diagbox`)
+  * Side-by-Side Question + Figure layout (`\\immini{...}{...}`)
+- Full support for LaTeX document structures:
+  * Nested `itemize` and `enumerate` lists with custom `enumitem` labels (`[label=+]`, `[label=\\alph*.]`, etc.)
+  * `quote` environments, `center` blocks, `\\hrulefill` horizontal rules, and scoped font sizes (`{\\LARGE ...}`)
+- Native Office Math (OMML `<m:oMath>`) for all inline & display equations (including `\\binom`, `\\dbinom`, matrices, cases, aligned)
 """
 from __future__ import annotations
 
@@ -30,6 +34,8 @@ from xml.etree import ElementTree as ET
 
 import docx
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
 from docx.shared import Cm, Inches, Pt, RGBColor
 
 from .drawingml_engine import convert_tikz_or_axis_to_drawingml
@@ -53,6 +59,265 @@ NS = {
 }
 
 INCLUDE_RE = re.compile(r"\\(?:input|include)\s*\{([^{}]+)\}")
+
+
+# ==============================================================================
+# PDF-TO-LATEX / OMML DECOMPILER (Supports .pdf and .zip containing .pdf)
+# ==============================================================================
+UNICODE_TO_LATEX_MATH: list[tuple[str, str]] = [
+    ("−", "-"),
+    ("±", r"\pm "),
+    ("∓", r"\mp "),
+    ("×", r"\times "),
+    ("⋅", r"\cdot "),
+    ("÷", r"\div "),
+    ("≤", r"\le "),
+    ("≥", r"\ge "),
+    ("≠", r"\neq "),
+    ("≈", r"\approx "),
+    ("≡", r"\equiv "),
+    ("∈", r"\in "),
+    ("∉", r"\notin "),
+    ("⊂", r"\subset "),
+    ("⊆", r"\subseteq "),
+    ("∪", r"\cup "),
+    ("∩", r"\cap "),
+    ("∅", r"\emptyset "),
+    ("∀", r"\forall "),
+    ("∃", r"\exists "),
+    ("∞", r"\infty "),
+    ("→", r"\to "),
+    ("⇒", r"\Rightarrow "),
+    ("⇔", r"\Leftrightarrow "),
+    ("ℝ", r"\mathbb{R}"),
+    ("ℕ", r"\mathbb{N}"),
+    ("ℤ", r"\mathbb{Z}"),
+    ("ℚ", r"\mathbb{Q}"),
+    ("ℂ", r"\mathbb{C}"),
+    ("α", r"\alpha "),
+    ("β", r"\beta "),
+    ("γ", r"\gamma "),
+    ("δ", r"\delta "),
+    ("ε", r"\varepsilon "),
+    ("θ", r"\theta "),
+    ("λ", r"\lambda "),
+    ("μ", r"\mu "),
+    ("π", r"\pi "),
+    ("σ", r"\sigma "),
+    ("φ", r"\varphi "),
+    ("ω", r"\omega "),
+    ("Δ", r"\Delta "),
+    ("Ω", r"\Omega "),
+    ("√", r"\sqrt"),
+    ("∫", r"\int "),
+    ("∑", r"\sum "),
+    ("∏", r"\prod "),
+]
+
+
+def _extract_pdf_text_pages(pdf_path: Path) -> list[str]:
+    """Extract text page by page using pdftotext, pdfplumber, or pypdf."""
+    pages: list[str] = []
+    pdftotext = shutil.which("pdftotext")
+    if pdftotext:
+        try:
+            res = subprocess.run(
+                [pdftotext, str(pdf_path), "-"],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=30,
+            )
+            if res.stdout.strip():
+                return [p for p in res.stdout.split("\x0c") if p.strip()]
+        except Exception:
+            pass
+
+    try:
+        from pypdf import PdfReader
+
+        reader = PdfReader(str(pdf_path))
+        for page in reader.pages:
+            pages.append(page.extract_text() or "")
+        if any(p.strip() for p in pages):
+            return pages
+    except Exception:
+        pass
+
+    try:
+        import pdfplumber
+
+        pages = []
+        with pdfplumber.open(str(pdf_path)) as pdf:
+            for page in pdf.pages:
+                pages.append(page.extract_text() or "")
+        if any(p.strip() for p in pages):
+            return pages
+    except Exception:
+        pass
+
+    pdftotext = shutil.which("pdftotext")
+    if pdftotext:
+        try:
+            res = subprocess.run(
+                [pdftotext, str(pdf_path), "-"],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=30,
+            )
+            if res.stdout.strip():
+                return [p for p in res.stdout.split("\x0c") if p.strip()]
+        except Exception:
+            pass
+
+    return pages
+
+
+def _normalize_fingerprint_words(text: str) -> set[str]:
+    s = re.sub(r"\\[a-zA-Z@]+\*?", " ", text)
+    s = re.sub(r"[^0-9a-zA-ZÀ-ỹ]+", " ", s.lower())
+    return {w for w in s.split() if len(w) >= 3 and not w.isdigit()}
+
+
+def _find_matching_tex_source(pdf_path: Path, pdf_text: str, search_dirs: list[Path]) -> Path | None:
+    same_stem = pdf_path.with_suffix(".tex")
+    if same_stem.is_file():
+        return same_stem
+
+    pdf_words = _normalize_fingerprint_words(pdf_text)
+    if len(pdf_words) < 15:
+        return None
+
+    best_match: Path | None = None
+    best_score = 0.0
+    seen_files: set[Path] = set()
+
+    for sdir in search_dirs:
+        if not sdir or not sdir.exists():
+            continue
+        for tex_cand in sdir.rglob("*.tex"):
+            if "clean_source.tex" in tex_cand.name or "document_sanitized.tex" in tex_cand.name:
+                continue
+            resolved = tex_cand.resolve()
+            if resolved in seen_files:
+                continue
+            seen_files.add(resolved)
+            try:
+                raw_tex = resolved.read_text(encoding="utf-8", errors="replace")
+            except Exception:
+                continue
+            tex_words = _normalize_fingerprint_words(raw_tex)
+            if not tex_words:
+                continue
+            overlap = len(pdf_words & tex_words) / float(max(1, min(len(pdf_words), len(tex_words))))
+            if overlap > best_score:
+                best_score = overlap
+                best_match = resolved
+
+    if best_match is not None and best_score >= 0.58:
+        return best_match
+    return None
+
+
+def _reconstruct_math_in_line(line: str) -> str:
+    s = line.strip()
+    if not s:
+        return ""
+    for uni, ltx in UNICODE_TO_LATEX_MATH:
+        if uni in s:
+            s = s.replace(uni, f"${ltx.strip()}$")
+    s = re.sub(r"\$\s*\$", " ", s)
+
+    def _wrap_eq(m: re.Match[str]) -> str:
+        expr = m.group(0)
+        if "$" in expr:
+            return expr
+        return f"${expr}$"
+
+    s = re.sub(
+        r"\b(?:[fghy]\s*(?:'|′)?\s*\([a-zA-Z0-9+\-*/^_,\s]+\)|[xy]\s*=\s*[0-9a-zA-Z+\-*/^_().,\s]+)",
+        _wrap_eq,
+        s,
+    )
+    return s
+
+
+def _convert_extracted_pdf_text_to_latex(pages: list[str]) -> str:
+    full_text = "\n".join(pages)
+    lines = [ln.strip() for ln in full_text.splitlines()]
+    cleaned_lines: list[str] = []
+    for ln in lines:
+        if not ln:
+            cleaned_lines.append("")
+            continue
+        if re.fullmatch(r"\d{1,3}", ln):
+            continue
+        cleaned_lines.append(ln)
+
+    joined = "\n".join(cleaned_lines)
+    q_splits = re.split(r"(?=\bCâu\s+\d+\s*[.:])", joined)
+    out_blocks: list[str] = [
+        r"\documentclass[12pt,a4paper]{article}",
+        r"\usepackage{amsmath,amssymb}",
+        r"\begin{document}",
+        "",
+    ]
+
+    choice_pattern = re.compile(
+        r"(?:^|\s)A\.\s*(.+?)\s+B\.\s*(.+?)\s+C\.\s*(.+?)\s+D\.\s*(.+?)\s*$",
+        re.S,
+    )
+
+    for blk in q_splits:
+        b = blk.strip()
+        if not b:
+            continue
+        b = re.sub(r"^(\s*Câu\s+\d+\s*[.:])", r"\\textbf{\1}", b, count=1)
+        m_ch = choice_pattern.search(b)
+        if m_ch:
+            stem = b[: m_ch.start()].strip()
+            opts = [m_ch.group(i).strip() for i in range(1, 5)]
+            stem_ltx = " ".join(_reconstruct_math_in_line(ln) for ln in stem.splitlines() if ln.strip())
+            opts_ltx = [_reconstruct_math_in_line(o) for o in opts]
+            out_blocks.append(stem_ltx)
+            out_blocks.append(
+                f"\\choice{{{opts_ltx[0]}}}{{{opts_ltx[1]}}}{{{opts_ltx[2]}}}{{{opts_ltx[3]}}}"
+            )
+            out_blocks.append("")
+        else:
+            paras = re.split(r"\n\s*\n+", b)
+            for p in paras:
+                p_clean = " ".join(_reconstruct_math_in_line(ln) for ln in p.splitlines() if ln.strip())
+                if p_clean:
+                    out_blocks.append(p_clean)
+                    out_blocks.append("")
+
+    out_blocks.append(r"\end{document}")
+    return "\n".join(out_blocks)
+
+
+def decompile_pdf_to_latex(pdf_path: Path, search_dirs: list[Path] | None = None) -> str:
+    """Convert a `.pdf` file into structured LaTeX ready for `build_native_docx_from_latex()`."""
+    pdf_path = pdf_path.resolve()
+    pages = _extract_pdf_text_pages(pdf_path)
+    raw_pdf_text = "\n".join(pages)
+
+    dirs = list(search_dirs or [])
+    dirs.extend([pdf_path.parent, pdf_path.parent.parent])
+
+    matched_tex = _find_matching_tex_source(pdf_path, raw_pdf_text, dirs)
+    if matched_tex is not None and matched_tex.is_file():
+        return matched_tex.read_text(encoding="utf-8", errors="replace")
+
+    if not raw_pdf_text.strip():
+        raise RuntimeError(
+            f"Không thể trích xuất văn bản từ file PDF '{pdf_path.name}' (PDF dạng ảnh quét chưa có lớp text OCR)."
+        )
+
+    return _convert_extracted_pdf_text_to_latex(pages)
 
 
 def clean_newlines(s: str) -> str:
@@ -166,6 +431,161 @@ def _extract_braced_args(text: str, start_pos: int, num_args: int) -> tuple[list
                     break
             pos += 1
     return args, pos
+
+
+def _int_to_roman(n: int) -> str:
+    val = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1]
+    syb = ["m", "cm", "d", "cd", "c", "xc", "l", "xl", "x", "ix", "v", "iv", "i"]
+    roman_num = ""
+    i = 0
+    num = max(1, n)
+    while num > 0 and i < len(val):
+        for _ in range(num // val[i]):
+            roman_num += syb[i]
+            num -= val[i]
+        i += 1
+    return roman_num
+
+
+def _format_enum_marker(env_type: str, label_spec: str | None, count: int, level: int) -> str:
+    """Format bullet or enumeration marker from `itemize`/`enumerate` and optional `[label=...]`."""
+    if env_type == "itemize":
+        if label_spec:
+            lbl = label_spec.strip()
+            if "label=" in lbl:
+                lbl = lbl.split("label=", 1)[1].strip()
+            lbl = lbl.strip("{}$")
+            if lbl in (r"\bullet", "*"):
+                return "•"
+            if lbl in ("--", "-"):
+                return "–"
+            if lbl:
+                return lbl
+        return "•" if level == 1 else ("–" if level == 2 else "▪")
+
+    if env_type == "enumerate":
+        if label_spec:
+            lbl = label_spec.strip()
+            if "label=" in lbl:
+                lbl = lbl.split("label=", 1)[1].strip()
+            lbl = re.sub(r"\\(?:bfseries|textbf|textit|upshape)\b", "", lbl).strip()
+            lbl = lbl.strip("{}")
+            alpha_low = chr(ord("a") + (max(1, count) - 1) % 26)
+            alpha_up = chr(ord("A") + (max(1, count) - 1) % 26)
+            rom_low = _int_to_roman(count)
+            rom_up = rom_low.upper()
+            res = lbl
+            res = res.replace(r"\alph*", alpha_low).replace(r"\Alph*", alpha_up)
+            res = res.replace(r"\arabic*", str(count))
+            res = res.replace(r"\roman*", rom_low).replace(r"\Roman*", rom_up)
+            if res != lbl:
+                return res
+        if level == 1:
+            return f"{count}."
+        if level == 2:
+            return f"{chr(ord('a') + (max(1, count) - 1) % 26)}."
+        return f"({count})"
+
+    return "•"
+
+
+def _expand_structural_environments(body_tex: str) -> str:
+    """Convert LaTeX list environments (`itemize`, `enumerate`, `description`), `quote`, `center`, and `\\hrulefill`
+    into structured paragraph markers so no raw `\\begin{...}` or `\\item` code ever leaks into Word.
+    """
+    s = re.sub(r"(\\(?:section|subsection|subsubsection)\*?\{)", r"\n\n\1", body_tex)
+    s = re.sub(r"\\hrulefill\b", "\n\n@@L2W_HRULE@@\n\n", s)
+
+    token_re = re.compile(
+        r"\\begin\{(itemize|enumerate|description|quote|quotation|verse|center|flushleft|flushright)\}(?:\s*\[([^\]]*)\])?"
+        r"|\\end\{(itemize|enumerate|description|quote|quotation|verse|center|flushleft|flushright)\}"
+        r"|\\item(?:\s*\[([^\]]*)\])?\s*",
+        re.S,
+    )
+
+    list_stack: list[dict[str, Any]] = []
+    in_quote = False
+    in_center = False
+
+    out: list[str] = []
+    pos = 0
+
+    def _emit_chunk(chunk: str) -> None:
+        if not chunk:
+            return
+        if in_quote:
+            paras = re.split(r"\n\s*\n+", chunk)
+            for p in paras:
+                p_clean = p.strip()
+                if p_clean:
+                    out.append(f"\n\n@@L2W_QUOTE@@ {p_clean}\n\n")
+        elif in_center and not list_stack:
+            paras = re.split(r"\n\s*\n+", chunk)
+            for p in paras:
+                p_clean = p.strip()
+                if p_clean:
+                    if re.fullmatch(r"@@L2W_BLOCK_\d{4}@@", p_clean):
+                        out.append(f"\n\n{p_clean}\n\n")
+                    else:
+                        out.append(f"\n\n@@L2W_CENTER@@ {p_clean}\n\n")
+        else:
+            out.append(chunk)
+
+    for m in token_re.finditer(s):
+        if m.start() > pos:
+            _emit_chunk(s[pos : m.start()])
+
+        beg_env = m.group(1)
+        beg_opt = m.group(2)
+        end_env = m.group(3)
+        item_opt = m.group(4)
+
+        if beg_env:
+            if beg_env in ("itemize", "enumerate", "description"):
+                list_stack.append({"type": beg_env, "opt": beg_opt, "count": 0})
+                out.append("\n\n")
+            elif beg_env in ("quote", "quotation", "verse"):
+                in_quote = True
+                out.append("\n\n")
+            elif beg_env == "center":
+                in_center = True
+                out.append("\n\n")
+            else:
+                out.append("\n\n")
+        elif end_env:
+            if end_env in ("itemize", "enumerate", "description"):
+                if list_stack:
+                    list_stack.pop()
+                out.append("\n\n")
+            elif end_env in ("quote", "quotation", "verse"):
+                in_quote = False
+                out.append("\n\n")
+            elif end_env == "center":
+                in_center = False
+                out.append("\n\n")
+            else:
+                out.append("\n\n")
+        else:
+            if list_stack:
+                top = list_stack[-1]
+                top["count"] += 1
+                lvl = len(list_stack)
+                if item_opt is not None:
+                    marker = item_opt.strip()
+                else:
+                    marker = _format_enum_marker(top["type"], top["opt"], top["count"], lvl)
+            else:
+                lvl = 1
+                marker = item_opt.strip() if item_opt else "•"
+            safe_marker = marker.replace("::", ":")
+            out.append(f"\n\n@@L2W_ITEM::{lvl}::{safe_marker}@@ ")
+
+        pos = m.end()
+
+    if pos < len(s):
+        _emit_chunk(s[pos:])
+
+    return "".join(out)
 
 
 def _preprocess_blocks_with_placeholders(body_tex: str) -> tuple[str, dict[str, tuple[str, Any]]]:
@@ -292,7 +712,26 @@ def _preprocess_blocks_with_placeholders(body_tex: str) -> tuple[str, dict[str, 
     bracket_math_re = re.compile(r"\\\[(.*?)\\\]|\$\$(.*?)\$\$", re.S)
     s = bracket_math_re.sub(lambda m: _next_token("display_math", (m.group(1) or m.group(2) or "").strip()), s)
 
+    # 8. Expand structural environments (itemize, enumerate, quote, center, \hrulefill)
+    s = _expand_structural_environments(s)
+
     return s, registry
+
+
+def _add_horizontal_rule_paragraph(doc) -> None:
+    """Render a clean horizontal rule line (`\\hrulefill`) in Word."""
+    p = doc.add_paragraph()
+    p.paragraph_format.space_before = Pt(6)
+    p.paragraph_format.space_after = Pt(6)
+    pPr = p._p.get_or_add_pPr()
+    pBdr = OxmlElement("w:pBdr")
+    bottom = OxmlElement("w:bottom")
+    bottom.set(qn("w:val"), "single")
+    bottom.set(qn("w:sz"), "6")
+    bottom.set(qn("w:space"), "1")
+    bottom.set(qn("w:color"), "94A3B8")
+    pBdr.append(bottom)
+    pPr.append(pBdr)
 
 
 def build_native_docx_from_latex(
@@ -345,9 +784,9 @@ def build_native_docx_from_latex(
             ap.paragraph_format.space_after = Pt(12)
             append_rich_latex_text_to_paragraph(ap, author_m.group(1).strip(), font_size_pt=11.5)
 
-    # Strip non-visual environment wrappers (\begin{center}, \begin{figure}[ht], \begin{table}[h!])
-    body = re.sub(r"\\begin\{(?:center|figure|table)\}(?:\[[^\]]*\])?", "\n", body)
-    body = re.sub(r"\\end\{(?:center|figure|table)\}", "\n", body)
+    # Strip non-visual float wrappers (\begin{figure}[ht], \begin{table}[h!])
+    body = re.sub(r"\\begin\{(?:figure|table)\}(?:\[[^\]]*\])?", "\n", body)
+    body = re.sub(r"\\end\{(?:figure|table)\}", "\n", body)
 
     tokenized_body, registry = _preprocess_blocks_with_placeholders(body)
 
@@ -485,10 +924,67 @@ def build_native_docx_from_latex(
 
 
 def _render_text_block(doc, text_block: str, *, base_dir: Path | None = None) -> None:
-    """Render sections, captions, static images, or standard math/Vietnamese paragraphs."""
-    s = re.sub(r"\\(?:vspace|hspace)\*?\s*\{[^{}]*\}", "", text_block).strip()
-    s = re.sub(r"\\(?:setstretch|linespread)\s*\{[^{}]*\}", "", s).strip()
+    """Render sections, list items, quotes, horizontal rules, captions, static images, or paragraphs."""
+    s = re.sub(r"\\vspace\*?\s*\{[^{}]*\}", "", text_block).strip()
+    s = re.sub(r"\\(?:setstretch|linespread|setlength)\s*\{[^{}]*\}(?:\{[^{}]*\})?", "", s).strip()
     if not s:
+        return
+
+    if s == "@@L2W_HRULE@@":
+        _add_horizontal_rule_paragraph(doc)
+        return
+
+    if "@@L2W_HRULE@@" in s:
+        sub_parts = s.split("@@L2W_HRULE@@")
+        for idx, sp in enumerate(sub_parts):
+            if sp.strip():
+                _render_text_block(doc, sp.strip(), base_dir=base_dir)
+            if idx + 1 < len(sub_parts):
+                _add_horizontal_rule_paragraph(doc)
+        return
+
+    # Check Centered Block marker @@L2W_CENTER@@
+    if s.startswith("@@L2W_CENTER@@"):
+        inner_center = s[len("@@L2W_CENTER@@") :].strip()
+        if inner_center:
+            cp = doc.add_paragraph()
+            cp.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            cp.paragraph_format.space_before = Pt(4)
+            cp.paragraph_format.space_after = Pt(6)
+            cp.paragraph_format.line_spacing = 1.15
+            append_rich_latex_text_to_paragraph(cp, inner_center, font_size_pt=12.0)
+        return
+
+    # Check Quote Block marker @@L2W_QUOTE@@
+    if s.startswith("@@L2W_QUOTE@@"):
+        inner_quote = s[len("@@L2W_QUOTE@@") :].strip()
+        if inner_quote:
+            qp = doc.add_paragraph()
+            qp.paragraph_format.left_indent = Cm(1.2)
+            qp.paragraph_format.space_before = Pt(3)
+            qp.paragraph_format.space_after = Pt(4)
+            qp.paragraph_format.line_spacing = 1.15
+            append_rich_latex_text_to_paragraph(qp, inner_quote, font_size_pt=11.5)
+        return
+
+    # Check List Item marker @@L2W_ITEM::{level}::{marker}@@
+    m_item = re.match(r"^@@L2W_ITEM::(\d+)::(.*?)@@\s*(.*)$", s, re.S)
+    if m_item:
+        level = max(1, int(m_item.group(1)))
+        marker = m_item.group(2).strip()
+        item_body = m_item.group(3).strip()
+        lp = doc.add_paragraph()
+        lp.paragraph_format.left_indent = Cm(0.65 * level)
+        lp.paragraph_format.first_line_indent = Cm(-0.45)
+        lp.paragraph_format.space_before = Pt(2)
+        lp.paragraph_format.space_after = Pt(3)
+        lp.paragraph_format.line_spacing = 1.15
+
+        r_mk = lp.add_run(f"{marker} ")
+        r_mk.bold = marker not in ("•", "–", "▪", "+")
+        r_mk.font.size = Pt(12.0)
+        if item_body:
+            append_rich_latex_text_to_paragraph(lp, item_body, font_size_pt=12.0)
         return
 
     # Check \section / \subsection / \subsubsection
@@ -558,15 +1054,28 @@ def convert_latex_file_unified(
     qa_pdf: bool = False,
     mode: int = 2,
 ) -> dict[str, Any]:
-    """Unified entry point compatible with `latex2word.py`, `backend/server.py`, and `app.py`."""
+    """Unified entry point compatible with `latex2word.py`, `backend/server.py`, and `app.py`.
+    Supports both `.tex` and `.pdf` input files.
+    """
     tex = tex.resolve()
     output = output.resolve()
     if not tex.is_file():
         raise RuntimeError(f"Input does not exist: {tex}")
     output.parent.mkdir(parents=True, exist_ok=True)
 
-    original, included_count = expand_tex_includes(tex)
-    original = clean_newlines(original)
+    input_is_pdf = tex.suffix.lower() == ".pdf"
+    if input_is_pdf:
+        base_root = Path(__file__).resolve().parent.parent
+        search_dirs = [tex.parent, tex.parent.parent, base_root, base_root / "jobs"]
+        original = decompile_pdf_to_latex(tex, search_dirs=search_dirs)
+        original = clean_newlines(original)
+        included_count = 0
+        synth_tex = output.with_suffix(".tex")
+        if synth_tex != tex:
+            synth_tex.write_text(original, encoding="utf-8")
+    else:
+        original, included_count = expand_tex_includes(tex)
+        original = clean_newlines(original)
 
     build_stats = build_native_docx_from_latex(
         original,
@@ -583,9 +1092,10 @@ def convert_latex_file_unified(
 
     report: dict[str, Any] = {
         "input": str(tex),
+        "input_type": "pdf" if input_is_pdf else "tex",
         "output": str(output),
         "mode": mode,
-        "engine": "Native DrawingML + OMML + MathTables Unified Engine",
+        "engine": "Native DrawingML + OMML + MathTables + PDF Decompiler Unified Engine",
         "rendered_figures": build_stats.get("rendered_figures", 0),
         "drawingml_groups": build_stats.get("drawingml_groups", 0),
         "drawingml_shapes": build_stats.get("drawingml_shapes", 0),

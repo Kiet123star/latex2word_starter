@@ -1,15 +1,15 @@
 # ─── Core Engine (latex2word.py) ───
-# External tools: pandoc, xelatex (or pdflatex/lualatex), pdftocairo
-# Optional for --qa-pdf: libreoffice
+# External tools (optional for Layer 5 PDF preview): libreoffice / soffice, xelatex, pdftocairo
 
 # ─── Backend REST API ───
 fastapi>=0.104.0
 uvicorn[standard]>=0.24.0
 python-multipart>=0.0.6
 
-# ─── OOXML Post-Processor (Mode 2) ───
+# ─── OOXML & PDF Processing ───
 python-docx>=1.0.0
 lxml>=4.9.0
+pypdf>=3.17.0
 
 # ─── Visual Comparison (Layer 5) ───
 Pillow>=10.0.0

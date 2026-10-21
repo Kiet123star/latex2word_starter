@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Hệ thống chuyển đổi LaTeX sang Word (.docx) độ chính xác cao với 5 tầng kiểm thử tự động">
-  <title>LaTeX → Word Converter | Hybrid Engine</title>
-  <link rel="stylesheet" href="/static/styles.css?v=2.0">
+  <meta name="description" content="Hệ thống chuyển đổi PDF & LaTeX sang Word (.docx) độ chính xác cao với 5 tầng kiểm thử tự động">
+  <title>PDF & LaTeX → Word Converter | Hybrid Engine</title>
+  <link rel="stylesheet" href="/static/styles.css?v=2.2">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📄</text></svg>">
 </head>
 <body>
@@ -22,8 +22,8 @@
       <div class="header__brand">
         <div class="header__icon">📄</div>
         <div>
-          <div class="header__title">LaTeX → Word Converter</div>
-          <div class="header__subtitle">Hybrid Engine • Pandoc + OMML + TikZ Renderer</div>
+          <div class="header__title">PDF & LaTeX → Word Converter</div>
+          <div class="header__subtitle">Hybrid Engine • PDF Decompiler + OMML + Native DrawingML Shapes</div>
         </div>
       </div>
       <div class="header__actions">
@@ -91,7 +91,7 @@
 
           <div class="toggle-row">
             <span class="toggle-row__label">Kiểm tra nghiêm ngặt (--strict)</span>
-            <button class="toggle toggle--active" id="toggle-strict" onclick="toggleOption('strict')"></button>
+            <button class="toggle" id="toggle-strict" onclick="toggleOption('strict')"></button>
           </div>
 
           <div class="toggle-row">
@@ -119,7 +119,7 @@
               ✍️ Dán mã LaTeX
             </button>
             <button class="tab-btn" id="tab-upload-btn" onclick="switchTab('upload')">
-              📂 Tải lên file
+              📂 Tải lên file (.pdf / .tex / .zip)
             </button>
           </div>
 
@@ -137,19 +137,19 @@
           <div class="tab-panel" id="tab-upload">
             <div class="dropzone" id="dropzone">
               <div class="dropzone__icon">📁</div>
-              <div class="dropzone__text">Kéo thả file <strong>.tex</strong> hoặc <strong>.zip</strong> vào đây</div>
-              <div class="dropzone__hint">hoặc nhấp để chọn file từ máy tính</div>
-              <input type="file" id="file-input" accept=".tex,.zip" onchange="handleFileSelect(this)">
+              <div class="dropzone__text">Kéo thả file <strong>.pdf</strong>, <strong>.tex</strong> hoặc <strong>.zip</strong> vào đây</div>
+              <div class="dropzone__hint">Hỗ trợ trực tiếp file PDF đề toán, mã nguồn .tex hoặc gói .zip (chứa .pdf / .tex)</div>
+              <input type="file" id="file-input" accept=".pdf,.tex,.zip" onchange="handleFileSelect(this)">
               <div class="dropzone__filename" id="filename-display" style="display: none;"></div>
             </div>
             <div class="form-group" style="margin-top: 14px;">
               <label class="form-label">
                 Tên file .tex chính
-                <span class="form-label__hint">(nếu .zip chứa nhiều file)</span>
+                <span class="form-label__hint">(tùy chọn nếu tải lên .zip chứa nhiều file)</span>
               </label>
               <input type="text" class="latex-editor" id="main-tex-input"
                      style="min-height: auto; padding: 10px 14px; font-family: var(--font-mono); font-size: 0.84rem;"
-                     placeholder="example.tex" value="">
+                     placeholder="example.tex (để trống nếu tải file .pdf)" value="">
             </div>
             <div style="margin-top: 16px;">
               <button class="btn-primary" id="btn-convert-upload" onclick="convertUpload()" disabled>
@@ -216,7 +216,7 @@
     <div class="progress-card">
       <div class="progress-spinner"></div>
       <div class="progress-title" id="progress-title">Đang chuyển đổi...</div>
-      <div class="progress-step" id="progress-step">Phân tích cú pháp LaTeX & render TikZ</div>
+      <div class="progress-step" id="progress-step">Phân tích cú pháp PDF / LaTeX & render TikZ</div>
       <div class="progress-bar-track">
         <div class="progress-bar-fill" id="progress-bar"></div>
       </div>
@@ -242,6 +242,6 @@
     <button type="button" class="toast__close" onclick="dismissToast()" title="Đóng thông báo">✕</button>
   </div>
 
-  <script src="/static/app.js?v=2.0"></script>
+  <script src="/static/app.js?v=2.2"></script>
 </body>
 </html>

@@ -1,6 +1,7 @@
-"""FastAPI REST API Backend for LaTeX-to-Word Unified Converter (`backend/server.py`).
+"""FastAPI REST API Backend for LaTeX & PDF to Word Unified Converter (`backend/server.py`).
 
 Synchronized with `latex2word.py` and `app.py` to use `backend.core_converter`.
+Supports uploading `.pdf`, `.tex`, and `.zip` (containing `.tex` or `.pdf`).
 """
 from __future__ import annotations
 
@@ -26,13 +27,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from .core_converter import convert_docx_to_pdf, convert_latex_file_unified
+from .core_converter import convert_docx_to_pdf, convert_latex_file_unified, decompile_pdf_to_latex
 from .validators import generate_visual_comparison, run_all_layers
 
 app = FastAPI(
-    title="LaTeX to Word Converter API (Native DrawingML + Math Tables)",
-    version="2.0.0",
-    description="REST API cho Hệ thống chuyển đổi LaTeX → Word (.docx) với Native Word Shapes (DrawingML) & Bảng Toán học",
+    title="LaTeX & PDF to Word Converter API (Native DrawingML + Math Tables)",
+    version="2.2.0",
+    description="REST API cho Hệ thống chuyển đổi PDF / LaTeX → Word (.docx) với Native Word Shapes (DrawingML) & Bảng Toán học",
 )
 
 app.add_middleware(
@@ -81,6 +82,7 @@ def _check_tools() -> dict[str, bool]:
         "drawingml_engine": True,
         "math_tables_engine": True,
         "omml_math_engine": True,
+        "pdf_decompiler": True,
         "pandoc": shutil.which("pandoc") is not None,
         "xelatex": shutil.which("xelatex") is not None,
         "pdflatex": shutil.which("pdflatex") is not None,
@@ -92,7 +94,7 @@ def _check_tools() -> dict[str, bool]:
 
 @app.get("/api/status")
 async def system_status():
-    """Kiểm tra trạng thái hệ thống (Nhân Native DrawingML + OMML luôn sẵn sàng)."""
+    """Kiểm tra trạng thái hệ thống (Nhân Native DrawingML + OMML + PDF Decompiler luôn sẵn sàng)."""
     tools = _check_tools()
     return {
         "status": "ready",
@@ -156,22 +158,60 @@ async def convert_upload(
 
     content = await file.read()
     filename = file.filename or "upload.tex"
+    lower_name = filename.lower()
 
-    if filename.endswith(".zip"):
+    if lower_name.endswith(".zip"):
         zip_path = job_dir / filename
         zip_path.write_bytes(content)
-        with zipfile.ZipFile(zip_path, "r") as zf:
-            zf.extractall(job_dir)
-        candidates = list(job_dir.rglob("*.tex"))
-        if not candidates:
-            raise HTTPException(400, "No .tex file found in ZIP archive")
-        if main_tex:
-            matched = [p for p in candidates if p.name == main_tex]
-            tex_file = matched[0] if matched else candidates[0]
+        try:
+            with zipfile.ZipFile(zip_path, "r") as zf:
+                zf.extractall(job_dir)
+        except zipfile.BadZipFile:
+            return JSONResponse(
+                status_code=400,
+                content={"job_id": job_id, "status": "failed", "error": "File .zip không hợp lệ hoặc bị hỏng."},
+            )
+
+        tex_candidates = [p for p in job_dir.rglob("*.tex") if "__MACOSX" not in p.parts]
+        pdf_candidates = [p for p in job_dir.rglob("*.pdf") if "__MACOSX" not in p.parts]
+
+        if tex_candidates:
+            if main_tex:
+                matched = [p for p in tex_candidates if p.name == main_tex]
+                tex_file = matched[0] if matched else tex_candidates[0]
+            else:
+                tex_file = tex_candidates[0]
+            cleaned = normalize_latex(tex_file.read_text(encoding="utf-8", errors="replace"))
+            tex_file.write_text(cleaned, encoding="utf-8")
+        elif pdf_candidates:
+            # ZIP archive contains a PDF file (e.g. Toán11_2 (3).zip -> Toán11_2 (3).pdf)
+            pdf_file = pdf_candidates[0]
+            decompiled = decompile_pdf_to_latex(
+                pdf_file,
+                search_dirs=[job_dir, BASE_DIR, JOBS_DIR],
+            )
+            tex_file = job_dir / f"{pdf_file.stem}.tex"
+            tex_file.write_text(normalize_latex(decompiled), encoding="utf-8")
         else:
-            tex_file = candidates[0]
-        cleaned = normalize_latex(tex_file.read_text(encoding="utf-8", errors="replace"))
-        tex_file.write_text(cleaned, encoding="utf-8")
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "job_id": job_id,
+                    "status": "failed",
+                    "error": "Không tìm thấy file .tex hoặc .pdf nào bên trong gói .zip.",
+                },
+            )
+
+    elif lower_name.endswith(".pdf"):
+        pdf_path = job_dir / filename
+        pdf_path.write_bytes(content)
+        decompiled = decompile_pdf_to_latex(
+            pdf_path,
+            search_dirs=[job_dir, BASE_DIR, JOBS_DIR],
+        )
+        tex_file = job_dir / f"{pdf_path.stem}.tex"
+        tex_file.write_text(normalize_latex(decompiled), encoding="utf-8")
+
     else:
         tex_file = job_dir / filename
         clean_content = normalize_latex(content.decode("utf-8", errors="replace"))
@@ -281,20 +321,25 @@ async def validate_job(job_id: str):
 @app.get("/api/download/{job_id}/{file_type}")
 async def download_file(job_id: str, file_type: str):
     job = _jobs.get(job_id)
-    if not job:
+    job_dir = Path(job["job_dir"]) if job and "job_dir" in job else (JOBS_DIR / job_id)
+    if not job_dir.exists():
         raise HTTPException(404, "Job not found")
-    job_dir = Path(job["job_dir"])
+
     if file_type == "docx":
-        files = list(job_dir.glob("*.docx"))
-        if not files:
-            raise HTTPException(404, "DOCX not found")
+        if job and job.get("docx_path") and Path(job["docx_path"]).exists():
+            target = Path(job["docx_path"])
+        else:
+            files = list(job_dir.rglob("*.docx"))
+            if not files:
+                raise HTTPException(404, "DOCX not found")
+            target = files[0]
         return FileResponse(
-            files[0],
-            filename=files[0].name,
+            target,
+            filename=target.name,
             media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         )
     elif file_type == "report":
-        files = list(job_dir.glob("*.report.json"))
+        files = list(job_dir.rglob("*.report.json"))
         if not files:
             raise HTTPException(404, "Report not found")
         return FileResponse(files[0], filename=files[0].name, media_type="application/json")

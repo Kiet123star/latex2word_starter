@@ -1,6 +1,6 @@
 """Pure-Python LaTeX Math to Office Math Markup Language (OMML) Converter (`backend/omml_math.py`).
 
-Converts inline ($...$) and display (\\[...\\], $$...$$, equation/align/cases/matrix) LaTeX math
+Converts inline ($...$) and display (\\[...\\], $$...$$, equation/align/cases/matrix/binom) LaTeX math
 directly into native Microsoft Word <m:oMath> / <m:oMathPara> XML elements.
 """
 from __future__ import annotations
@@ -32,9 +32,11 @@ LATEX_SYMBOLS: dict[str, str] = {
     r"\equiv": "≡",
     r"\sim": "∼",
     r"\simeq": "≃",
+    r"\cong": "≅",
     r"\propto": "∝",
     r"\in": "∈",
     r"\notin": "∉",
+    r"\ni": "∋",
     r"\subset": "⊂",
     r"\subseteq": "⊆",
     r"\supset": "⊃",
@@ -97,7 +99,7 @@ LATEX_SYMBOLS: dict[str, str] = {
     r"\Pi": "Π",
     r"\Sigma": "Σ",
     r"\Upsilon": "Υ",
-    r"\Phi": "Phi",
+    r"\Phi": "Φ",
     r"\Psi": "Ψ",
     r"\Omega": "Ω",
     r"\ell": "ℓ",
@@ -150,6 +152,7 @@ FUNC_NAMES: dict[str, str] = {
     r"\exp": "exp",
     r"\det": "det",
     r"\gcd": "gcd",
+    r"\lcm": "lcm",
     r"\deg": "deg",
     r"\dim": "dim",
     r"\ker": "ker",
@@ -187,7 +190,6 @@ ACCENT_MAP: dict[str, str] = {
     r"\hat": "^",
     r"\widehat": "^",
     r"\bar": "¯",
-    r"\overline": "¯",
     r"\tilde": "~",
     r"\widetilde": "~",
     r"\dot": "˙",
@@ -205,6 +207,19 @@ MATRIX_DELIMS: dict[str, tuple[str, str]] = {
     "vmatrix*": ("|", "|"),
     "Vmatrix": ("‖", "‖"),
     "Vmatrix*": ("‖", "‖"),
+}
+
+FONT_SIZE_CMDS: dict[str, float] = {
+    "Huge": 22.0,
+    "huge": 19.0,
+    "LARGE": 17.0,
+    "Large": 15.0,
+    "large": 13.5,
+    "normalsize": 12.0,
+    "small": 11.0,
+    "footnotesize": 10.0,
+    "scriptsize": 9.0,
+    "tiny": 8.0,
 }
 
 
@@ -280,6 +295,9 @@ class _LatexMathParser:
         if m_tag:
             self.tag = m_tag.group(1).strip()
             s = (s[: m_tag.start()] + s[m_tag.end() :]).strip()
+
+        # Convert legacy {n \choose k} to \binom{n}{k}
+        s = re.sub(r"\{\s*([^{}]+?)\s*\\choose\s*([^{}]+?)\s*\}", r"\\binom{\1}{\2}", s)
 
         s = re.sub(r"\\(?:displaystyle|textstyle|scriptstyle|scriptscriptstyle)\b", "", s)
         s = re.sub(r"\\(?:quad|qquad)\b", "  ", s)
@@ -385,7 +403,7 @@ class _LatexMathParser:
         return [_make_run(open_ch, normal_text=True)]
 
     def _parse_escaped_brace_group(self) -> list[ET.Element]:
-        """Parse a balanced \\{ ... \\} set or span group into a native <m:d> curly brace delimiter."""
+        """Parse a balanced \\{ ... \\} set or span group into crisp brace runs."""
         start_pos = self.pos
         depth = 1
         inner_start = self.pos
@@ -457,6 +475,25 @@ class _LatexMathParser:
                 f.append(den)
                 return [f]
 
+            if cmd in (r"\binom", r"\dbinom", r"\tbinom"):
+                num_els = self.parse_group_elements()
+                den_els = self.parse_group_elements()
+                f = _m("f")
+                fPr = _m("fPr")
+                t_el = _m("type")
+                t_el.set(f"{{{M_NS}}}val", "noBar")
+                fPr.append(t_el)
+                f.append(fPr)
+                num = _m("num")
+                for el in num_els or [_make_run("")]:
+                    num.append(el)
+                den = _m("den")
+                for el in den_els or [_make_run("")]:
+                    den.append(el)
+                f.append(num)
+                f.append(den)
+                return [_wrap_in_delimiter([f], "(", ")")]
+
             if cmd == r"\sqrt":
                 deg_raw = self.read_bracket_raw()
                 body_els = self.parse_group_elements()
@@ -476,6 +513,20 @@ class _LatexMathParser:
                     e.append(el)
                 rad.append(e)
                 return [rad]
+
+            if cmd in (r"\overline", r"\underline"):
+                body_els = self.parse_group_elements()
+                bar = _m("bar")
+                barPr = _m("barPr")
+                pos_el = _m("pos")
+                pos_el.set(f"{{{M_NS}}}val", "top" if cmd == r"\overline" else "bot")
+                barPr.append(pos_el)
+                bar.append(barPr)
+                e = _m("e")
+                for el in body_els or [_make_run("")]:
+                    e.append(el)
+                bar.append(e)
+                return [bar]
 
             if cmd == r"\mathbb":
                 arg = self.read_braced_raw().strip()
@@ -524,7 +575,6 @@ class _LatexMathParser:
 
             if cmd in LATEX_SYMBOLS:
                 sym = LATEX_SYMBOLS[cmd]
-                # Emit relational arrows and mid with normal_text=True so StarMath never flags missing operands
                 use_nor = cmd in (r"\mid", r"\Rightarrow", r"\Leftarrow", r"\Leftrightarrow", r"\iff", r"\implies")
                 return [_make_run(sym, normal_text=use_nor, italic=False)]
 
@@ -538,6 +588,8 @@ class _LatexMathParser:
             return [_make_run("−")]
         if ch == "=":
             return [_make_run("=", normal_text=True)]
+        if ch == "*":
+            return [_make_run("∗", italic=False)]
         return [_make_run(ch)]
 
     def _parse_left_right(self) -> list[ET.Element]:
@@ -673,7 +725,6 @@ class _LatexMathParser:
         if "matrix" in env_name or env_name == "array":
             return self._build_matrix(env_name, body)
 
-        # Aligned / multi-line environments: aligned, align, align*, gather, gather*, split, eqnarray
         return self._build_aligned(body)
 
     def _build_cases(self, body: str, left_chr: str = "{") -> ET.Element:
@@ -684,7 +735,6 @@ class _LatexMathParser:
             if "&" in r_str:
                 cols = [c.strip() for c in r_str.split("&")]
             else:
-                # Also split trailing \quad (1) into a second aligned column if present
                 m_eqnum = re.match(r"^(.*?)(?:\\quad|\\qquad|\s{2,})(\(\d+\))\s*$", r_str)
                 if m_eqnum:
                     cols = [m_eqnum.group(1).strip(), m_eqnum.group(2).strip()]
@@ -964,6 +1014,22 @@ def _extract_braced_content(s: str, open_brace_idx: int) -> tuple[str, int] | No
     return s[open_brace_idx + 1 :], n
 
 
+def _hspace_to_nbsp(match: re.Match[str]) -> str:
+    """Convert \\hspace*{0.5cm} or \\hspace{2em} into proportional non-breaking spaces."""
+    arg = match.group(1).strip()
+    m_num = re.search(r"(\d+(?:\.\d+)?)", arg)
+    val = float(m_num.group(1)) if m_num else 0.5
+    if "cm" in arg:
+        spaces = max(2, int(round(val * 6)))
+    elif "em" in arg:
+        spaces = max(2, int(round(val * 3)))
+    elif "pt" in arg:
+        spaces = max(1, int(round(val / 3.0)))
+    else:
+        spaces = 4
+    return "\u00A0" * min(spaces, 32)
+
+
 def append_rich_latex_text_to_paragraph(
     paragraph,
     text: str,
@@ -973,11 +1039,11 @@ def append_rich_latex_text_to_paragraph(
     default_italic: bool = False,
     font_size_pt: float = 12.0,
 ) -> None:
-    """Parse mixed Vietnamese text, nested formatting (\\textbf, \\underline, \\textit), line breaks (\\\\), and $...$ math."""
+    """Parse mixed Vietnamese text, nested formatting (\\textbf, \\underline, \\textit, {\\LARGE ...}), line breaks (\\\\), and $...$ math."""
     from docx.shared import Pt
 
     s = text.replace(r"\(", "$").replace(r"\)", "$")
-    s = re.sub(r"\\texttt\{([^{}]*)\}", r"\1", s)
+    s = re.sub(r"\\hspace\*?\s*\{([^{}]*)\}", _hspace_to_nbsp, s)
     s = s.replace(r"\textbackslash ", "\\").replace(r"\textbackslash", "\\")
 
     i = 0
@@ -1010,7 +1076,6 @@ def append_rich_latex_text_to_paragraph(
                     i = end_b + 1
             if i < n and s[i] == "\n":
                 i += 1
-            # Only add a line break if there is more content following in this paragraph
             if s[i:].strip():
                 paragraph.add_run().add_break()
             continue
@@ -1022,7 +1087,17 @@ def append_rich_latex_text_to_paragraph(
                 paragraph.add_run().add_break()
             continue
 
-        # 2. Display math \[ ... \] or $$ ... $$
+        # 2. Escaped literal braces \{ and \} in text mode
+        if s.startswith(r"\{", i):
+            plain_buf.append("{")
+            i += 2
+            continue
+        if s.startswith(r"\}", i):
+            plain_buf.append("}")
+            i += 2
+            continue
+
+        # 3. Display math \[ ... \] or $$ ... $$
         if s.startswith(r"\[", i):
             end_m = s.find(r"\]", i + 2)
             if end_m != -1:
@@ -1041,7 +1116,7 @@ def append_rich_latex_text_to_paragraph(
                 i = end_m + 2
                 continue
 
-        # 3. Inline math $ ... $
+        # 4. Inline math $ ... $
         if s[i] == "$":
             end_m = i + 1
             while end_m < n:
@@ -1058,8 +1133,8 @@ def append_rich_latex_text_to_paragraph(
                 i = end_m + 1
                 continue
 
-        # 4. Formatting commands \textbf{...}, \underline{...}, \textit{...}, \emph{...} (with arbitrary nested braces)
-        m_fmt = re.match(r"^\\(textbf|underline|textit|emph)\s*\{", s[i:])
+        # 5. Formatting commands \textbf{...}, \underline{...}, \textit{...}, \emph{...}, \texttt{...}
+        m_fmt = re.match(r"^\\(textbf|underline|textit|emph|texttt)\s*\{", s[i:])
         if m_fmt:
             cmd_name = m_fmt.group(1)
             open_idx = i + m_fmt.end() - 1
@@ -1078,6 +1153,42 @@ def append_rich_latex_text_to_paragraph(
                 i = next_i
                 continue
 
+        # 6. Braced group in text mode, e.g. {\LARGE \textbf{Bài toán đếm}} or {\large ...} or {\bf ...}
+        if s[i] == "{":
+            extracted = _extract_braced_content(s, i)
+            if extracted is not None:
+                _flush_plain()
+                inner_str, next_i = extracted
+                sub_sz = font_size_pt
+                sub_bold = default_bold
+                sub_italic = default_italic
+                # Check leading size/style switches inside the group
+                while True:
+                    m_sw = re.match(
+                        r"^\s*\\(Huge|huge|LARGE|Large|large|normalsize|small|footnotesize|scriptsize|tiny|bfseries|bf|itshape|it|em)\b\s*",
+                        inner_str,
+                    )
+                    if not m_sw:
+                        break
+                    sw = m_sw.group(1)
+                    if sw in FONT_SIZE_CMDS:
+                        sub_sz = FONT_SIZE_CMDS[sw]
+                    elif sw in ("bfseries", "bf"):
+                        sub_bold = True
+                    elif sw in ("itshape", "it", "em"):
+                        sub_italic = True
+                    inner_str = inner_str[m_sw.end() :]
+                append_rich_latex_text_to_paragraph(
+                    paragraph,
+                    inner_str,
+                    default_bold=sub_bold,
+                    default_underline=default_underline,
+                    default_italic=sub_italic,
+                    font_size_pt=sub_sz,
+                )
+                i = next_i
+                continue
+
         plain_buf.append(s[i])
         i += 1
 
@@ -1085,10 +1196,13 @@ def append_rich_latex_text_to_paragraph(
 
 
 def _clean_plain_tex_fragment(s: str) -> str:
-    s = re.sub(r"\\(?:par|noindent|centering|raggedright|raggedleft|hfill|vfill)\b\s*", "", s)
+    s = re.sub(r"\\(?:dots|ldots|cdots)\b\s*", "…", s)
+    s = re.sub(r"\\(?:par|noindent|centering|raggedright|raggedleft|hfill|vfill|hrulefill)\b\s*", "", s)
     s = re.sub(r"\\(?:vspace|hspace)\*?\s*\{[^{}]*\}", "", s)
     s = re.sub(r"\\(?:setstretch|linespread)\s*\{[^{}]*\}", "", s)
-    s = re.sub(r"\\(?:small|footnotesize|scriptsize|large|Large|LARGE|huge|Huge|normalsize)\b\s*", "", s)
+    s = re.sub(r"\\(?:small|footnotesize|scriptsize|tiny|large|Large|LARGE|huge|Huge|normalsize|bfseries|itshape)\b\s*", "", s)
+    s = re.sub(r"\\(?:begin|end)\{(?:itemize|enumerate|description|quote|quotation|center)\}(?:\[[^\]]*\])?", "", s)
+    s = re.sub(r"\\item(?:\s*\[[^\]]*\])?\s*", "", s)
     s = s.replace("``", "“").replace("''", "”").replace("~", " ").replace(r"\&", "&").replace(r"\%", "%")
     s = re.sub(r"[ \t]+", " ", s)
     return s

@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """Giao diện Web (Streamlit) đồng bộ với Nhân Xử Lý Duy Nhất (`backend/core_converter.py`).
 
+Hỗ trợ chuyển đổi trực tiếp cả:
+- File `.pdf` (Đề thi Toán, tài liệu Toán học PDF)
+- File `.tex` (Mã nguồn LaTeX / TikZ / PGFPlots / tkz-tab)
+- Gói `.zip` (chứa `.pdf` hoặc `.tex`)
+
 Chạy ứng dụng bằng lệnh:
     streamlit run app.py
 """
@@ -15,7 +20,7 @@ from pathlib import Path
 
 import streamlit as st
 
-from backend.core_converter import convert_latex_file_unified
+from backend.core_converter import convert_latex_file_unified, decompile_pdf_to_latex
 from backend.validators import generate_visual_comparison, run_all_layers
 
 os.environ["PYTHONUTF8"] = "1"
@@ -30,7 +35,7 @@ DEFAULT_LATEX_TEMPLATE = r"""\documentclass[12pt,a4paper]{article}
 \usepackage{booktabs,multirow}
 \pgfplotsset{compat=1.18}
 
-\title{Mẫu Kiểm Thử LaTeX sang Word (Native DrawingML Shapes \& Bảng Toán)}
+\title{Mẫu Kiểm Thử PDF \& LaTeX sang Word (Native DrawingML Shapes \& Bảng Toán)}
 \author{Nhân Xử Lý Hợp Nhất (Unified Core Engine)}
 \date{\today}
 
@@ -41,7 +46,7 @@ DEFAULT_LATEX_TEMPLATE = r"""\documentclass[12pt,a4paper]{article}
 \immini{
 Khảo sát hàm số hợp $g(x) = f(f(x))$ dựa trên đồ thị hàm số $y = f(x)$:
 \[
-x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}, \quad I = \int_{0}^{1} (x^3 - 3x)\,dx
+x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}, \quad \binom{n}{k} = \frac{n!}{k!(n-k)!}
 \]
 \choiceB{$3$.}{$7$.}{$9$.}{$5$.}
 }{
@@ -87,15 +92,15 @@ Tần số ($n_i$) & $5$ & $12$ & $18$ & $7$ \\
 
 def main() -> None:
     st.set_page_config(
-        page_title="LaTeX to Word Unified Converter (Native DrawingML & Math Tables)",
+        page_title="PDF & LaTeX to Word Unified Converter (Native DrawingML & Math Tables)",
         page_icon="📐",
         layout="wide",
     )
 
-    st.title("📐 Hệ Thống Chuyển Đổi LaTeX → Word (.docx) (Native DrawingML & Bảng Toán)")
+    st.title("📐 Hệ Thống Chuyển Đổi PDF & LaTeX → Word (.docx)")
     st.caption(
         "Đồng bộ chung một nhân xử lý `backend/core_converter.py` cho cả CLI, FastAPI và Streamlit — "
-        "Chuyển hình học TikZ/PGFPlots thành **Word Shapes (DrawingML)** chỉnh sửa từng nét và hỗ trợ đầy đủ **Bảng Biến Thiên, Bảng Trắc Nghiệm, Bảng Dữ Liệu Gộp Ô**."
+        "Hỗ trợ tải trực tiếp **file `.pdf`**, **`.tex`** hoặc **`.zip`**, chuyển hình học TikZ/PGFPlots thành **Word Shapes (DrawingML)** và hỗ trợ đầy đủ **Bảng Biến Thiên, Bảng Trắc Nghiệm, Công thức Tổ hợp `\\binom{n}{k}`**."
     )
 
     has_soffice = bool(shutil.which("soffice") or shutil.which("libreoffice"))
@@ -125,17 +130,18 @@ def main() -> None:
         st.divider()
         st.subheader("🔍 Trạng thái Nhân Xử Lý")
         st.write("✅ **Unified Core Engine (`backend/core_converter.py`)**")
+        st.write("✅ **PDF Decompiler (`.pdf` & `.zip`)**")
         st.write("✅ **Native DrawingML Shape Compiler (`<wpg:wgp>`)**")
         st.write("✅ **Native Math Tables (`tkz-tab`, `\\choice`, `tabular`, `\\immini`)**")
-        st.write("✅ **Native OMML Math (`<m:oMath>`)**")
+        st.write("✅ **Native OMML Math (`<m:oMath>`, `\\binom{n}{k}`)**")
 
     tab_paste, tab_upload = st.tabs(
-        ["✍️ Cách 1: Dán trực tiếp mã LaTeX / TikZ", "📂 Cách 2: Tải lên file .tex hoặc gói .zip"]
+        ["✍️ Cách 1: Dán trực tiếp mã LaTeX / TikZ", "📂 Cách 2: Tải lên file .pdf, .tex hoặc gói .zip"]
     )
 
     with tab_paste:
         tex_input_code = st.text_area(
-            "Dán mã LaTeX có chứa hình học TikZ, đồ thị PGFPlots, bảng biến thiên `tkz-tab`, trắc nghiệm `\\choice`:",
+            "Dán mã LaTeX có chứa hình học TikZ, đồ thị PGFPlots, bảng biến thiên `tkz-tab`, trắc nghiệm `\\choice`, tổ hợp `\\binom{n}{k}`:",
             value=DEFAULT_LATEX_TEMPLATE,
             height=380,
         )
@@ -143,12 +149,13 @@ def main() -> None:
 
     with tab_upload:
         uploaded_file = st.file_uploader(
-            "Chọn file `.tex` đơn lẻ hoặc gói `.zip`:",
-            type=["tex", "zip"],
+            "Chọn file `.pdf`, `.tex` đơn lẻ hoặc gói `.zip` (chứa `.pdf` / `.tex`):",
+            type=["pdf", "tex", "zip"],
         )
         main_tex_name = st.text_input(
-            "Tên file .tex chính (nếu tải lên gói .zip):",
-            value="document.tex",
+            "Tên file .tex chính (tùy chọn nếu tải lên gói .zip chứa nhiều file):",
+            value="",
+            placeholder="document.tex (để trống nếu tải file .pdf)",
         )
         convert_from_upload = st.button(
             "🚀 Chuyển đổi File tải lên sang Word",
@@ -166,17 +173,37 @@ def main() -> None:
                 target_tex.write_text(tex_input_code, encoding="utf-8")
             else:
                 assert uploaded_file is not None
-                if uploaded_file.name.endswith(".zip"):
+                lower_name = uploaded_file.name.lower()
+                if lower_name.endswith(".zip"):
                     zip_path = workdir / uploaded_file.name
                     zip_path.write_bytes(uploaded_file.getvalue())
                     with zipfile.ZipFile(zip_path, "r") as zf:
                         zf.extractall(workdir)
-                    tex_candidates = list(workdir.rglob("*.tex"))
-                    if not tex_candidates:
-                        st.error("Không tìm thấy file `.tex` trong gói `.zip`.")
+                    tex_candidates = [p for p in workdir.rglob("*.tex") if "__MACOSX" not in p.parts]
+                    pdf_candidates = [p for p in workdir.rglob("*.pdf") if "__MACOSX" not in p.parts]
+                    if tex_candidates:
+                        matched = [p for p in tex_candidates if p.name == main_tex_name] if main_tex_name else []
+                        target_tex = matched[0] if matched else tex_candidates[0]
+                    elif pdf_candidates:
+                        pdf_file = pdf_candidates[0]
+                        decompiled = decompile_pdf_to_latex(
+                            pdf_file,
+                            search_dirs=[workdir, BASE_DIR, BASE_DIR / "jobs"],
+                        )
+                        target_tex = workdir / f"{pdf_file.stem}.tex"
+                        target_tex.write_text(decompiled, encoding="utf-8")
+                    else:
+                        st.error("Không tìm thấy file `.tex` hoặc `.pdf` nào trong gói `.zip`.")
                         return
-                    matched = [p for p in tex_candidates if p.name == main_tex_name]
-                    target_tex = matched[0] if matched else tex_candidates[0]
+                elif lower_name.endswith(".pdf"):
+                    pdf_path = workdir / uploaded_file.name
+                    pdf_path.write_bytes(uploaded_file.getvalue())
+                    decompiled = decompile_pdf_to_latex(
+                        pdf_path,
+                        search_dirs=[workdir, BASE_DIR, BASE_DIR / "jobs"],
+                    )
+                    target_tex = workdir / f"{pdf_path.stem}.tex"
+                    target_tex.write_text(decompiled, encoding="utf-8")
                 else:
                     target_tex = workdir / uploaded_file.name
                     target_tex.write_bytes(uploaded_file.getvalue())
@@ -184,7 +211,7 @@ def main() -> None:
             output_docx = workdir / f"{target_tex.stem}.docx"
             raw_tex_source = target_tex.read_text(encoding="utf-8", errors="replace")
 
-            with st.status("Đang thực thi Nhân Xử Lý Hợp Nhất (DrawingML + OMML + Math Tables)...", expanded=True) as status_box:
+            with st.status("Đang thực thi Nhân Xử Lý Hợp Nhất (PDF/LaTeX → DrawingML + OMML + Math Tables)...", expanded=True) as status_box:
                 report = convert_latex_file_unified(
                     target_tex,
                     output_docx,

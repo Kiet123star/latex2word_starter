@@ -1,5 +1,5 @@
 /**
- * LaTeX to Word Converter — Frontend Application Logic (Unified DrawingML & Math Tables Engine)
+ * PDF & LaTeX to Word Converter — Frontend Application Logic (Unified DrawingML, OMML & PDF Decompiler Engine)
  * Communicates with FastAPI backend via REST API
  */
 
@@ -118,7 +118,7 @@ function loadDefaultTemplate() {
 \\immini{
 Khảo sát hàm số hợp $g(x) = f(f(x))$:
 \\[
-x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}
+x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}, \\quad \\binom{n}{k} = \\frac{n!}{k!(n-k)!}
 \\]
 \\choiceB{$3$.}{$7$.}{$9$.}{$5$.}
 }{
@@ -178,9 +178,10 @@ function showSystemStatus() {
   const tools = window._systemTools || {};
   const container = document.getElementById('modal-tools');
   const toolLabels = {
+    'pdf_decompiler': 'PDF to LaTeX/OMML Decompiler (.pdf / .zip)',
     'drawingml_engine': 'Native Word Shapes (DrawingML Engine)',
     'math_tables_engine': 'Math Tables (tkz-tab, Choice, Tabular)',
-    'omml_math_engine': 'Native OMML Math Engine',
+    'omml_math_engine': 'Native OMML Math Engine (Binom, Cases, Matrix)',
     'latex2word_py': 'latex2word.py (Unified Core)',
     'libreoffice': 'MS Word / LibreOffice (QA PDF)',
   };
@@ -229,7 +230,7 @@ function startProgressTimer() {
     bar.style.width = pct + '%';
 
     if (seconds < 2) {
-      step.textContent = `1️⃣ Phân tích cú pháp LaTeX & công thức OMML (⏱️ ${seconds}s)...`;
+      step.textContent = `1️⃣ Phân tích cấu trúc tài liệu PDF / LaTeX & công thức OMML (⏱️ ${seconds}s)...`;
     } else if (seconds < 5) {
       step.textContent = `2️⃣ Dựng hình học & đồ thị sang Word DrawingML Shapes (⏱️ ${seconds}s)...`;
     } else {
@@ -264,6 +265,12 @@ function showToast(message, type = 'success') {
   }, type === 'error' ? 8000 : 4000);
 }
 
+function _cleanDocxFilename(rawName) {
+  if (!rawName) return 'document.docx';
+  const base = rawName.replace(/\.(pdf|tex|zip)$/i, '');
+  return `${base}.docx`;
+}
+
 // ─── Conversion: Paste ───────────────────────────────────────────
 async function convertPaste() {
   const source = document.getElementById('latex-editor').value.trim();
@@ -293,12 +300,12 @@ async function convertPaste() {
 
       const dlLink = document.createElement('a');
       dlLink.href = `${API_BASE}/api/download/${data.job_id}/docx`;
-      dlLink.download = `${data.filename || 'document'}.docx`;
+      dlLink.download = _cleanDocxFilename(data.filename);
       document.body.appendChild(dlLink);
       dlLink.click();
       document.body.removeChild(dlLink);
     } else {
-      showToast(data.error || 'Chuyển đổi thất bại.', 'error');
+      showToast(data.error || data.detail || 'Chuyển đổi thất bại.', 'error');
     }
   } catch (err) {
     finishProgress();
@@ -309,11 +316,11 @@ async function convertPaste() {
 // ─── Conversion: Upload ──────────────────────────────────────────
 async function convertUpload() {
   if (!state.selectedFile) {
-    showToast('Vui lòng chọn file trước khi chuyển đổi.', 'error');
+    showToast('Vui lòng chọn file (.pdf, .tex hoặc .zip) trước khi chuyển đổi.', 'error');
     return;
   }
 
-  showProgress('Đang chuyển đổi File → Word...', 'Tải lên file...');
+  showProgress('Đang chuyển đổi File → Word...', 'Tải lên & phân tích file...');
 
   const formData = new FormData();
   formData.append('file', state.selectedFile);
@@ -335,12 +342,12 @@ async function convertUpload() {
 
       const dlLink = document.createElement('a');
       dlLink.href = `${API_BASE}/api/download/${data.job_id}/docx`;
-      dlLink.download = `${data.filename || 'document'}.docx`;
+      dlLink.download = _cleanDocxFilename(data.filename);
       document.body.appendChild(dlLink);
       dlLink.click();
       document.body.removeChild(dlLink);
     } else {
-      showToast(data.error || 'Chuyển đổi thất bại.', 'error');
+      showToast(data.error || data.detail || 'Chuyển đổi thất bại.', 'error');
     }
   } catch (err) {
     finishProgress();
