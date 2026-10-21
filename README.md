@@ -50,5 +50,5 @@ python latex2word.py example.tex -o example.docx --qa-pdf
 python run_server.py
 
 # 3. Hoặc chạy giao diện Streamlit:
-streamlit run app.py
+py -m streamlit run app.py
 ```
