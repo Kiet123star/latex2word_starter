@@ -57,6 +57,7 @@ if sys.platform == "win32":
         pass
 
 from backend.core_converter import convert_latex_file_unified, decompile_pdf_to_latex
+from backend.smart_paste import convert_pasted_latex_unified  # chỉ dùng cho nhánh "Dán mã LaTeX"
 from backend.validators import generate_visual_comparison, run_all_layers
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -246,7 +247,10 @@ def main() -> None:
             raw_tex_source = target_tex.read_text(encoding="utf-8", errors="replace")
 
             with st.status("Đang thực thi Nhân Xử Lý Hợp Nhất (PDF/LaTeX → DrawingML + OMML + Math Tables)...", expanded=True) as status_box:
-                report = convert_latex_file_unified(
+                # Nhánh dán mã → tiền xử lý thông minh (macro lạ, \cau, \bonpa, môi trường lạ...).
+                # Nhánh tải file → giữ nguyên engine gốc, không thay đổi gì.
+                convert_fn = convert_pasted_latex_unified if convert_from_paste else convert_latex_file_unified
+                report = convert_fn(
                     target_tex,
                     output_docx,
                     dpi=dpi,
@@ -270,6 +274,23 @@ def main() -> None:
                     state="complete",
                     expanded=False,
                 )
+
+            smart_info = report.get("smart_paste") or {}
+            if smart_info.get("status") == "ok":
+                auto_cmds = smart_info.get("unknown_commands_auto_handled") or {}
+                auto_envs = smart_info.get("unknown_environments_auto_handled") or {}
+                with st.expander(
+                    f"🧠 Tiền xử lý thông minh: {smart_info.get('stats', {}).get('macros_expanded', 0)} macro được mở rộng, "
+                    f"{len(auto_cmds)} lệnh lạ + {len(auto_envs)} môi trường lạ được xử lý tự động"
+                ):
+                    if auto_cmds or auto_envs:
+                        st.write("Lệnh/môi trường lạ (đã giữ nội dung, bỏ tên lệnh):",
+                                 ", ".join(f"\\{k}" for k in auto_cmds), ", ".join(auto_envs))
+                    for w in smart_info.get("warnings", [])[:20]:
+                        st.write("⚠️ " + w)
+                    st.json(smart_info.get("stats", {}))
+            elif smart_info.get("status") == "fallback_original_engine":
+                st.warning("Tiền xử lý thông minh gặp lỗi nên đã dùng engine gốc: " + str(smart_info.get("error", "")))
 
             st.success(
                 f"✅ Đã tạo thành công `{output_docx.name}` với **{report.get('equation_nodes', 0)}** công thức toán OMML chỉnh sửa trực tiếp, "
@@ -310,3 +331,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+

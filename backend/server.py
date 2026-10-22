@@ -28,6 +28,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from .core_converter import convert_docx_to_pdf, convert_latex_file_unified, decompile_pdf_to_latex
+from .smart_paste import convert_pasted_latex_unified  # chỉ dùng cho /api/convert/paste
 from .validators import generate_visual_comparison, run_all_layers
 
 app = FastAPI(
@@ -140,7 +141,7 @@ async def convert_from_paste(
     clean_src = normalize_latex(latex_source)
     tex_file.write_text(clean_src, encoding="utf-8")
 
-    return await _run_conversion(job_id, job_dir, tex_file, "document.tex", mode, dpi, strict, qa_pdf)
+    return await _run_conversion(job_id, job_dir, tex_file, "document.tex", mode, dpi, strict, qa_pdf, smart=True)
 
 
 @app.post("/api/convert")
@@ -229,6 +230,7 @@ async def _run_conversion(
     dpi: int,
     strict: bool,
     qa_pdf: bool,
+    smart: bool = False,
 ) -> JSONResponse:
     output_docx = job_dir / f"{tex_file.stem}.docx"
 
@@ -245,7 +247,9 @@ async def _run_conversion(
         qa_pdf = False
 
     try:
-        engine_report = convert_latex_file_unified(
+        # smart=True chỉ khi dán mã; tải file lên vẫn dùng đúng engine gốc như trước.
+        convert_fn = convert_pasted_latex_unified if smart else convert_latex_file_unified
+        engine_report = convert_fn(
             tex_file,
             output_docx,
             dpi=dpi,
@@ -358,3 +362,5 @@ async def serve_frontend():
     if index.exists():
         return FileResponse(index)
     return {"message": "Frontend not found. Place files in /frontend directory."}
+
+

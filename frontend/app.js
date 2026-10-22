@@ -447,6 +447,7 @@ function renderEngineStats(report) {
     { key: 'choice_tables', label: 'Bảng Trắc Nghiệm' },
     { key: 'word_tables', label: 'Tổng Bảng Word' },
     { key: 'equation_nodes', label: 'Công Thức OMML' },
+    { key: 'smart_paste_status', label: 'Tiền Xử Lý Thông Minh (dán mã)' },
   ];
 
   const hasData = fields.some(f => report[f.key] !== undefined);
@@ -465,3 +466,5 @@ function renderEngineStats(report) {
       </div>`)
     .join('');
 }
+
+
