@@ -14,3 +14,8 @@ pypdf>=3.17.0
 # ─── Visual Comparison (Layer 5) ───
 Pillow>=10.0.0
 numpy>=1.24.0
+
+# ─── Lớp bảo hiểm phủ 100% (nhánh dán mã) ───
+# pypdfium2: bộ dựng ảnh từ PDF thuần Python — KHÔNG cần Poppler/Ghostscript/Inkscape.
+# Thiếu nó trên Windows là nguyên nhân phổ biến nhất khiến hình TikZ không dựng được.
+pypdfium2>=4.30.0

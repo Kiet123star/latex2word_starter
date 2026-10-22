@@ -7,6 +7,7 @@ file .tex thì nó kiểm tra chính file đó.
     python kiem_tra_universal.py                      # dùng mẫu có sẵn
     python kiem_tra_universal.py de_cua_toi.tex       # dùng file của bạn
     python kiem_tra_universal.py de_cua_toi.tex safe  # ép chính sách an toàn tuyệt đối
+    python kiem_tra_universal.py --chan-doan          # CHẨN ĐOÁN: chỉ đúng chỗ đang hỏng
 """
 from __future__ import annotations
 
@@ -71,11 +72,89 @@ Số điểm cực trị của $y=|f(x)|$ là
 """
 
 
+def chan_doan() -> int:
+    """Chạy thử từng bước một và chỉ đúng chỗ đang hỏng."""
+    import shutil
+    import subprocess
+    import tempfile
+
+    print("=" * 70)
+    print(" CHẨN ĐOÁN TỪNG BƯỚC ".center(70, "="))
+    print("=" * 70)
+    from backend.tex_truth import TexTruth, describe_toolchain
+
+    tc = describe_toolchain()
+    def row(ok, nhan, chi_tiet=""):
+        print(f"  [{'✓' if ok else '✗'}] {nhan:34s} {chi_tiet}")
+
+    print("\n1) CÔNG CỤ TRÊN MÁY")
+    row(tc["tex_engine"], "pdflatex / xelatex", tc["tex_engine"] or "(không thấy)")
+    row(tc["latex_dvi"], "latex (chế độ DVI)", tc["latex_dvi"] or "(không thấy)")
+    row(tc["dvisvgm"], "dvisvgm  → SVG vector", tc["dvisvgm"] or "(không thấy)")
+    row(tc["dvipng"], "dvipng   → PNG", tc["dvipng"] or "(không thấy)")
+    row(tc["pypdfium2"], "pypdfium2 (thư viện pip)", "đã cài" if tc["pypdfium2"] else "pip install pypdfium2")
+    row(tc["pymupdf"], "PyMuPDF (thư viện pip)", "đã cài" if tc["pymupdf"] else "(không bắt buộc)")
+    row(tc["pdftocairo"], "pdftocairo (Poppler)", tc["pdftocairo"] or "(không bắt buộc)")
+    row(tc["inkscape"], "inkscape", tc["inkscape"] or "(không bắt buộc)")
+    row(tc["soffice"], "LibreOffice", tc["soffice"] or "(không bắt buộc)")
+
+    print("\n2) TUYẾN DỰNG ẢNH DÙNG ĐƯỢC")
+    if tc["tuyen_dung_duoc"]:
+        for r in tc["tuyen_dung_duoc"]:
+            print(f"  [✓] tuyến {r}" + ("  (chỉ cần bản TeX — không cần công cụ ngoài)" if r == "dvi" else ""))
+    else:
+        print("  [✗] KHÔNG CÓ TUYẾN NÀO — đây chính là lý do hiện 0/N.")
+
+    print("\n3) THỬ DỰNG MỘT HÌNH THẬT")
+    mau = r"\begin{tikzpicture}\draw[thick](0,0)rectangle(2,1);\node at (1,0.5){$x^2$};\end{tikzpicture}"
+    tt = TexTruth(r"\usepackage{amsmath,amssymb}" + "\n" + r"\usepackage{tikz}" + "\n",
+                  workdir=Path(tempfile.mkdtemp(prefix="l2w_chandoan_")),
+                  cache_dir=Path(tempfile.mkdtemp(prefix="l2w_cache_")))
+    key = tt.add(mau)
+    t0 = time.time()
+    res = tt.build()
+    a = res.get(key)
+    dt = time.time() - t0
+    if a is not None and a.ok:
+        print(f"  [✓] DỰNG ĐƯỢC trong {dt:.1f}s — định dạng {a.ext.upper()}, "
+              f"{a.width_pt:.0f}x{a.height_pt:.0f}pt, {len(a.data):,} byte"
+              + (f", kèm PNG {len(a.png_data):,} byte" if a.png_data else ""))
+        print(f"      tuyến đã dùng: {', '.join(tt.stats.get('tuyen_da_thu', [])) or '?'}")
+    else:
+        print(f"  [✗] KHÔNG DỰNG ĐƯỢC ({dt:.1f}s)")
+        if a is not None and a.error:
+            print(f"      lý do: {a.error}")
+        for e in (tt.stats.get("tex_errors") or [])[:6]:
+            print(f"      TeX báo: {e}")
+
+    print("\n4) KẾT LUẬN")
+    if a is not None and a.ok:
+        print("  ✓ Mọi thứ sẵn sàng. Nếu giao diện vẫn hiện 0/N thì gửi lại file .report.json.")
+        ma = 0
+    else:
+        print("  ✗ CHƯA CHẠY ĐƯỢC. Làm theo đúng một trong các cách sau:")
+        if not (tc["tex_engine"] or tc["latex_dvi"]):
+            print("     • Cài MiKTeX: https://miktex.org/download  (chọn 'Install missing packages: Yes')")
+        else:
+            print("     • Cách nhanh nhất, một lệnh:        pip install pypdfium2")
+            print("     • Hoặc mở MiKTeX Console → Packages → cài 'dvipng' và 'dvisvgm'")
+            print("     • Hoặc cài Poppler cho Windows rồi thêm thư mục bin vào PATH")
+        ma = 2
+    print("=" * 70)
+    try:
+        shutil.rmtree(tt.workdir, ignore_errors=True)
+    except Exception:
+        pass
+    return ma
+
+
 def main() -> int:
     print("=" * 70)
     print(" TỰ KIỂM TRA LỚP BẢO HIỂM PHỦ 100% ".center(70, "="))
     print("=" * 70)
     args = [a for a in sys.argv[1:] if a]
+    if args and args[0] in ("--chan-doan", "--chandoan", "--diag", "-d"):
+        return chan_doan()
     if len(args) > 1 and args[1] in ("safe", "balanced", "native_first"):
         os.environ["L2W_TRUTH_POLICY"] = args[1]
     try:

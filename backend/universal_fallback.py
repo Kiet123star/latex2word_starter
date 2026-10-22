@@ -444,12 +444,16 @@ class ProtectContext:
     coverage: CoverageReport | None = None
     warnings: list[str] = field(default_factory=list)
     reason: str = ""
+    loi_khuyen: str = ""          # câu hướng dẫn cụ thể khi thiếu công cụ trên máy
+    tong_khoi_can_dung: int = 0   # số khối ĐÁNG LẼ phải dựng (kể cả khối hỏng)
 
     def summary(self) -> dict[str, Any]:
         out: dict[str, Any] = {
             "bat": self.enabled,
             "ly_do": self.reason,
             "so_khoi_giao_cho_tex": len(self.blocks),
+            "tong_khoi_can_dung": self.tong_khoi_can_dung,
+            "loi_khuyen": self.loi_khuyen,
             "canh_bao": self.warnings[:30],
         }
         if self.coverage is not None:
@@ -484,11 +488,12 @@ def protect(src: str, *, base_dir: Path | None = None, workdir: Path | None = No
             ctx.reason = "tắt bằng L2W_UNIVERSAL=0"
             return src, ctx
         ctx.coverage = scan_coverage(src)
-        if not tex_engine_available():
-            ctx.reason = "máy chưa có pdflatex/xelatex → giữ nguyên engine gốc"
-            ctx.warnings.append(
-                "Chưa tìm thấy trình biên dịch LaTeX (MiKTeX/TeX Live). Cài đặt rồi dán lại "
-                "để các hình TikZ/đồ thị/cấu trúc lạ được dựng giống bản gốc 100%.")
+        tc = describe_toolchain()
+        if not tc.get("tuyen_dung_duoc"):
+            ctx.reason = "máy thiếu công cụ dựng ảnh → giữ nguyên engine gốc"
+            ctx.loi_khuyen = tc.get("loi_khuyen", "")
+            ctx.tong_khoi_can_dung = ctx.coverage.picture_blocks if ctx.coverage else 0
+            ctx.warnings.append(ctx.loi_khuyen or "Máy thiếu công cụ dựng ảnh từ LaTeX.")
             return src, ctx
         policy = _policy()
         masked = _mask(src)
@@ -588,6 +593,11 @@ def protect(src: str, *, base_dir: Path | None = None, workdir: Path | None = No
         new_src = "".join(pieces)
 
         ctx.enabled = True
+        ctx.tong_khoi_can_dung = len(chosen)
+        ctx.loi_khuyen = str(renderer.stats.get("loi_khuyen") or "")
+        if assets and kept == 0 and chosen:
+            ctx.warnings.insert(0, "KHÔNG dựng được khối hình nào. " + (ctx.loi_khuyen or
+                                "Xem mục cảnh báo bên dưới để biết TeX báo lỗi gì."))
         ctx.reason = (f"giao {kept}/{len(chosen)} khối cho TeX dựng "
                       f"(chính sách: {policy}{', chạy song song' if optimistic else ''})")
         _log(ctx.reason)
@@ -637,7 +647,9 @@ def _standalone_picture_commands(src: str, masked: str, body_start: int,
 # ─────────────────────── đổi chỗ đánh dấu thành ảnh ───────────────────────
 def restore(docx_path: Path, ctx: ProtectContext, *, timeout: float = 600.0) -> dict[str, Any]:
     """Mở .docx, đổi mọi chỗ đánh dấu thành ảnh vector. Không bao giờ ném lỗi ra ngoài."""
-    stats: dict[str, Any] = {"bat": ctx.enabled, "so_anh_chen": 0, "so_khoi_hong": 0, "canh_bao": []}
+    stats: dict[str, Any] = {"bat": ctx.enabled, "so_anh_chen": 0, "so_khoi_hong": 0,
+                             "tong_khoi_can_dung": ctx.tong_khoi_can_dung,
+                             "loi_khuyen": ctx.loi_khuyen, "canh_bao": list(ctx.warnings[:10])}
     if not ctx.enabled or not ctx.blocks:
         _strip_leftover_markers(docx_path)
         return stats

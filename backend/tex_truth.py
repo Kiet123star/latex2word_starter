@@ -49,7 +49,8 @@ _FORMAT_ENV = "L2W_TEX_TRUTH_FORMAT"    # emf | svg | png
 _DPI_ENV = "L2W_TEX_TRUTH_DPI"
 
 _PREVIEW_LOG_RE = re.compile(r"^Preview:\s+Snippet\s+(\d+)\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)", re.M)
-_MISSING_FILE_RE = re.compile(r"(?:File|file)\s+[`'\"]([A-Za-z0-9@_\-.]+?)(?:\.sty)?['\"`]\s+not found")
+_MISSING_FILE_RE = re.compile(r"(?:File|file)\s+[`'\"]([A-Za-z0-9@_\-.]+?)['\"`]\s+not found")
+_MISSING_ANY_RE = re.compile(r"[`'\"]([A-Za-z0-9@_\-]+\.(?:sty|ldf|def|cfg|clo|cls))['\"`]\s+not found")
 _MISSING_PKG_RE = re.compile(r"LaTeX Error: File [`'\"]([^'\"`]+)['\"`] not found")
 
 
@@ -61,6 +62,24 @@ def _log(msg: str) -> None:
 
 
 # ───────────────────────── dò tìm công cụ ngoài ─────────────────────────
+_MIKTEX_CACHE: dict[str, bool] = {}
+
+
+def _is_miktex(exe: str) -> bool:
+    """MiKTeX nhận cờ --enable-installer; TeX Live thì không, truyền vào là lỗi."""
+    if exe in _MIKTEX_CACHE:
+        return _MIKTEX_CACHE[exe]
+    ok = False
+    try:
+        out = subprocess.run([exe, "--version"], timeout=30,
+                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout
+        ok = b"MiKTeX" in out or b"miktex" in out
+    except Exception:
+        ok = False
+    _MIKTEX_CACHE[exe] = ok
+    return ok
+
+
 def _which(*names: str) -> str | None:
     for n in names:
         p = shutil.which(n)
@@ -91,34 +110,64 @@ def _pick_engine(preamble: str) -> str | None:
     return tex_engine_available()
 
 
+def _py_module(name: str) -> bool:
+    try:
+        __import__(name)
+        return True
+    except Exception:
+        return False
+
+
 def describe_toolchain() -> dict[str, Any]:
-    """Báo cáo công cụ sẵn có — dùng để hiện trạng thái trên giao diện."""
-    engine = tex_engine_available()
-    soffice = _which("soffice", "libreoffice")
-    inkscape = _which("inkscape")
-    pdftocairo = _which("pdftocairo")
-    pdftoppm = _which("pdftoppm")
-    magick = _which("magick", "convert")
-    dvisvgm = _which("dvisvgm")
-    if pdftocairo or dvisvgm:
-        best = "svg"          # vector, chữ đã thành đường path → không phụ thuộc font máy
-    elif inkscape or soffice:
+    """Báo cáo mọi công cụ có thể dùng để biến TeX thành ảnh — dùng cho chẩn đoán."""
+    tc: dict[str, Any] = {
+        "tex_engine": tex_engine_available(),
+        "latex_dvi": _which("latex"),
+        "dvisvgm": _which("dvisvgm"),
+        "dvipng": _which("dvipng"),
+        "pdftocairo": _which("pdftocairo"),
+        "pdftoppm": _which("pdftoppm"),
+        "inkscape": _which("inkscape"),
+        "soffice": _which("soffice", "libreoffice"),
+        "magick": _which("magick", "convert"),
+        "pypdfium2": _py_module("pypdfium2"),
+        "pymupdf": _py_module("fitz"),
+    }
+    tc["co_the_ra_png"] = bool(tc["pypdfium2"] or tc["pdftocairo"] or tc["pdftoppm"]
+                               or tc["pymupdf"] or tc["magick"] or (tc["latex_dvi"] and tc["dvipng"]))
+    tc["co_the_ra_svg"] = bool(tc["pymupdf"] or tc["dvisvgm"] or tc["pdftocairo"] or tc["inkscape"])
+    tc["co_the_ra_emf"] = bool(tc["inkscape"] or tc["soffice"])
+    if tc["co_the_ra_svg"]:
+        best = "svg"
+    elif tc["co_the_ra_emf"]:
         best = "emf"
-    elif pdftoppm or magick:
+    elif tc["co_the_ra_png"]:
         best = "png"
     else:
         best = "none"
-    return {
-        "tex_engine": engine,
-        "soffice": soffice,
-        "inkscape": inkscape,
-        "dvisvgm": dvisvgm,
-        "pdftocairo": pdftocairo,
-        "pdftoppm": pdftoppm,
-        "magick": magick,
-        "best_vector_format": best,
-        "ready": bool(engine) and best != "none",
-    }
+    tc["best_vector_format"] = best
+    tc["tuyen_dung_duoc"] = [r for r in ("dvi", "pdf") if _route_available(r, tc)]
+    tc["ready"] = bool(tc["tex_engine"] or tc["latex_dvi"]) and bool(tc["tuyen_dung_duoc"])
+    tc["loi_khuyen"] = _toolchain_advice(tc)
+    return tc
+
+
+def _route_available(route: str, tc: dict[str, Any]) -> bool:
+    if route == "dvi":
+        return bool(tc["latex_dvi"]) and bool(tc["dvipng"] or tc["dvisvgm"])
+    return bool(tc["tex_engine"]) and bool(tc["co_the_ra_png"] or tc["co_the_ra_svg"] or tc["co_the_ra_emf"])
+
+
+def _toolchain_advice(tc: dict[str, Any]) -> str:
+    """Câu hướng dẫn NGẮN, NÓI THẲNG phải làm gì — hiện lên giao diện khi thiếu đồ."""
+    if not (tc["tex_engine"] or tc["latex_dvi"]):
+        return ("Máy chưa có LaTeX. Cài MiKTeX (miktex.org) hoặc TeX Live, mở lại ứng dụng. "
+                "Thiếu nó thì hình lạ vẫn chuyển như cũ.")
+    if not tc["tuyen_dung_duoc"]:
+        return ("Có LaTeX nhưng chưa có công cụ nào biến PDF/DVI thành ảnh. "
+                "Cách nhanh nhất — chạy một lệnh duy nhất:  pip install pypdfium2   "
+                "(hoặc cài gói 'dvipng' trong MiKTeX Console).")
+    return ""
 
 
 # ───────────────────────────── mô hình dữ liệu ─────────────────────────────
@@ -220,7 +269,16 @@ class TexTruth:
 
     # ---------- dựng ----------
     def build(self) -> dict[str, RenderedAsset]:
-        """Biên dịch tất cả khối đã đăng ký. Không bao giờ ném lỗi ra ngoài."""
+        """Biên dịch tất cả khối đã đăng ký. Không bao giờ ném lỗi ra ngoài.
+
+        Thử lần lượt nhiều TUYẾN cho tới khi ra được ảnh:
+
+        * tuyến ``pdf`` — pdflatex/xelatex → PDF → SVG/EMF/PNG (cần 1 công cụ chuyển);
+        * tuyến ``dvi`` — latex → DVI → ``dvisvgm`` / ``dvipng`` (**chỉ cần bản TeX**,
+          không cần Poppler, Ghostscript, Inkscape hay LibreOffice).
+
+        Khối nào tuyến đầu không ra thì tự động thử tuyến sau, nên máy chỉ cài MiKTeX
+        trần vẫn chạy được."""
         out: dict[str, RenderedAsset] = {}
         if not self._snippets:
             return out
@@ -234,36 +292,154 @@ class TexTruth:
                 pending.append(sn)
         if not pending:
             return out
-        if not self.engine:
+
+        tc = describe_toolchain()
+        self.stats["toolchain"] = tc
+        routes = self._route_order(tc)
+        self.stats["tuyen_da_thu"] = []
+        if not routes:
             for sn in pending:
                 out[sn.key] = RenderedAsset(key=sn.key, inline=sn.inline, ok=False,
-                                            error="Không tìm thấy trình biên dịch TeX (pdflatex/xelatex).")
+                                            error=tc.get("loi_khuyen") or "Máy thiếu công cụ dựng ảnh từ TeX.")
                 self.stats["failed"] += 1
+            self.stats["loi_khuyen"] = tc.get("loi_khuyen", "")
             return out
-        # bước 1 — gộp một lần biên dịch cho tất cả
-        batch = self._compile_batch(pending)
-        if batch is not None:
-            pdf, boxes = batch
-            got = self._slice_pdf(pdf, pending, boxes)
-            out.update(got)
-            missing = [sn for sn in pending if not got.get(sn.key, RenderedAsset(key=sn.key)).ok]
-        else:
-            missing = list(pending)
-        # bước 2 — khối nào hỏng thì biên dịch riêng (chậm hơn nhưng cứu được phần còn lại)
-        for sn in missing:
-            single = self._compile_batch([sn], tag=f"solo_{sn.key}")
-            asset = RenderedAsset(key=sn.key, inline=sn.inline, ok=False, error="Biên dịch TeX thất bại.")
-            if single is not None:
-                pdf, boxes = single
-                got = self._slice_pdf(pdf, [sn], boxes)
-                asset = got.get(sn.key, asset)
-            out[sn.key] = asset
-            if not asset.ok:
-                self.stats["failed"] += 1
-        for key, asset in out.items():
+
+        for route in routes:
+            if not pending:
+                break
+            self.stats["tuyen_da_thu"].append(route)
+            try:
+                got = self._render_route(route, pending)
+            except Exception as exc:
+                _log(f"tuyến {route} lỗi: {type(exc).__name__}: {exc}")
+                got = {}
+            for sn in list(pending):
+                a = got.get(sn.key)
+                if a is not None and a.ok:
+                    out[sn.key] = a
+                    pending.remove(sn)
+                elif a is not None:
+                    out[sn.key] = a          # giữ lại thông báo lỗi để báo cho người dùng
+        for sn in pending:
+            out.setdefault(sn.key, RenderedAsset(key=sn.key, inline=sn.inline, ok=False,
+                                                 error="Mọi tuyến dựng ảnh đều thất bại."))
+            self.stats["failed"] += 1
+        if pending:
+            self.stats["loi_khuyen"] = tc.get("loi_khuyen", "") or (
+                "TeX chạy được nhưng không tạo được ảnh. Thử:  pip install pypdfium2")
+        for asset in out.values():
             if asset.ok:
                 self._cache_store(asset)
         return out
+
+    def _route_order(self, tc: dict[str, Any]) -> list[str]:
+        forced = os.environ.get("L2W_TEX_ROUTE", "").strip().lower()
+        if forced in ("pdf", "dvi"):
+            return [forced] if _route_available(forced, tc) else []
+        order = []
+        if _route_available("pdf", tc):
+            order.append("pdf")
+        if _route_available("dvi", tc):
+            order.append("dvi")
+        return order
+
+    def _render_route(self, route: str, snippets: list[_Snippet]) -> dict[str, RenderedAsset]:
+        if route == "dvi":
+            return self._render_dvi(snippets)
+        return self._render_pdf(snippets)
+
+    # ---------- tuyến PDF ----------
+    def _render_pdf(self, snippets: list[_Snippet]) -> dict[str, RenderedAsset]:
+        out: dict[str, RenderedAsset] = {}
+        batch = self._compile_batch(snippets, tag="batch")
+        if batch is not None:
+            pdf, boxes = batch
+            out.update(self._slice_pdf(pdf, snippets, boxes))
+        missing = [sn for sn in snippets if not out.get(sn.key, RenderedAsset(key=sn.key)).ok]
+        for sn in missing:                       # biên dịch riêng từng khối hỏng
+            single = self._compile_batch([sn], tag=f"solo_{sn.key}")
+            if single is not None:
+                pdf, boxes = single
+                got = self._slice_pdf(pdf, [sn], boxes)
+                if got.get(sn.key) is not None:
+                    out[sn.key] = got[sn.key]
+            out.setdefault(sn.key, RenderedAsset(key=sn.key, inline=sn.inline, ok=False,
+                                                 error="Biên dịch TeX (tuyến PDF) thất bại."))
+        self.stats["compiled"] += sum(1 for a in out.values() if a.ok)
+        return out
+
+    # ---------- tuyến DVI (chỉ cần bản TeX) ----------
+    def _render_dvi(self, snippets: list[_Snippet]) -> dict[str, RenderedAsset]:
+        """latex → .dvi → dvisvgm (vector) và/hoặc dvipng (ảnh điểm).
+
+        Hai công cụ này đi kèm sẵn trong MiKTeX và TeX Live nên tuyến này chạy được
+        trên máy hoàn toàn không có Poppler / Ghostscript / Inkscape / LibreOffice."""
+        out: dict[str, RenderedAsset] = {}
+        latex = _which("latex")
+        if not latex:
+            return out
+        d = self.workdir / "dvi"
+        d.mkdir(parents=True, exist_ok=True)
+        has_svg, has_png = bool(_which("dvisvgm")), bool(_which("dvipng"))
+
+        svgs: dict[int, bytes] = {}
+        sizes: dict[int, tuple[float, float]] = {}
+        if has_svg:
+            dvi = self._compile_dvi(latex, d / "svg", snippets, driver="dvisvgm")
+            if dvi is not None:
+                svgs, sizes = _dvi_to_svgs(dvi, len(snippets))
+        pngs: dict[int, bytes] = {}
+        png_sizes: dict[int, tuple[float, float]] = {}
+        if has_png and (not svgs or True):       # luôn lấy PNG để Word đời cũ vẫn thấy hình
+            dvi = self._compile_dvi(latex, d / "png", snippets, driver="")
+            if dvi is not None:
+                pngs, png_sizes = _dvi_to_pngs(dvi, len(snippets), self.dpi)
+
+        for i, sn in enumerate(snippets, start=1):
+            svg, png = svgs.get(i, b""), pngs.get(i, b"")
+            w, h = sizes.get(i) or png_sizes.get(i) or (0.0, 0.0)
+            asset = RenderedAsset(key=sn.key, inline=sn.inline, width_pt=w, height_pt=h)
+            if svg and png:
+                asset.data, asset.ext, asset.png_data = svg, "svg", png
+            elif png:
+                asset.data, asset.ext = png, "png"
+            elif svg:
+                asset.data, asset.ext, asset.png_data = svg, "svg", b""
+            else:
+                asset.error = "Tuyến DVI không tạo được ảnh cho khối này."
+                out[sn.key] = asset
+                continue
+            if _is_degenerate(w, h, sn.body, sn.inline):
+                asset.ok = False
+                asset.error = f"Tuyến DVI dựng ra khối rỗng/hỏng ({w:.0f}x{h:.0f}pt)."
+            else:
+                asset.ok = True
+            out[sn.key] = asset
+        self.stats["compiled"] += sum(1 for a in out.values() if a.ok)
+        return out
+
+    def _compile_dvi(self, latex: str, d: Path, snippets: list[_Snippet], driver: str) -> Path | None:
+        d.mkdir(parents=True, exist_ok=True)
+        tex_path = d / "l2w_truth.tex"
+        tex_path.write_text(self._build_source(snippets, driver=driver), encoding="utf-8")
+        saved, self.engine = self.engine, latex
+        try:
+            shims: set[str] = set()
+            for _ in range(MAX_SHIMS + 1):
+                log = self._run_engine(tex_path, d)
+                dvi = tex_path.with_suffix(".dvi")
+                if dvi.exists() and dvi.stat().st_size > 0:
+                    return dvi
+                missing = _first_missing_package(log)
+                if not missing or missing in shims:
+                    _log(f"tuyến DVI không biên dịch được; cuối log: {log[-200:].strip()}")
+                    return None
+                shims.add(missing)
+                _write_shim(d, missing, engine=latex)
+        finally:
+            self.engine = saved
+        return None
 
     # ---------- biên dịch ----------
     def _compile_batch(self, snippets: list[_Snippet], tag: str = "batch") -> tuple[Path, dict[int, tuple[float, float, float]]] | None:
@@ -272,6 +448,7 @@ class TexTruth:
         tex_path = d / "l2w_truth.tex"
         tex_path.write_text(self._build_source(snippets), encoding="utf-8")
         shims: set[str] = set()
+        repairs: set[str] = set()
         for _ in range(MAX_SHIMS + 1):
             log = self._run_engine(tex_path, d)
             pdf = tex_path.with_suffix(".pdf")
@@ -285,6 +462,9 @@ class TexTruth:
             if pdf.exists() and pdf.stat().st_size > 0 and _pdf_page_count(pdf) >= len(snippets):
                 self.stats["compiled"] += len(snippets)
                 return pdf, boxes
+            if self._repair_preamble(log, repairs):
+                tex_path.write_text(self._build_source(snippets), encoding="utf-8")
+                continue
             missing = _first_missing_package(log)
             if not missing or missing in shims:
                 _log(f"biên dịch thất bại ({tag}); 200 ký tự cuối log: {log[-200:].strip()}")
@@ -303,12 +483,44 @@ class TexTruth:
             _log(f"thiếu gói '{missing}' → tự tạo bản vá rỗng rồi biên dịch lại")
         return None
 
+    def _repair_preamble(self, log: str, done: set[str]) -> bool:
+        """Tự gỡ gói gây lỗi ra khỏi preamble rồi dựng lại.
+
+        Hay gặp nhất: máy chưa cài gói ngôn ngữ của babel (`vietnamese.ldf`). Bỏ `babel`
+        đi thì chữ vẫn đúng, chỉ mất quy tắc ngắt từ — tốt hơn nhiều so với mất cả hình."""
+        got = _first_missing_file(log)
+        if not got:
+            return False
+        name, ext = got
+        targets: list[str] = []
+        if ext in ("ldf", "cfg", "def"):
+            targets = ["babel", "polyglossia"]
+        elif ext == "sty" and name.lower() in NEVER_SHIM and name.lower() not in _CORE_FOR_MECHANISM:
+            targets = [name]
+        for t in targets:
+            tag = f"{t}:{name}.{ext}"
+            if tag in done:
+                continue
+            new, n = re.subn(r"\\usepackage\s*(?:\[[^\]]*\])?\s*\{[^}]*\b" + re.escape(t) + r"\b[^}]*\}[^\n]*\n?",
+                             "", self.preamble)
+            if n:
+                done.add(tag)
+                self.preamble = new
+                self.stats.setdefault("goi_da_go", []).append(t)
+                _log(f"thiếu {name}.{ext} → tự gỡ gói '{t}' khỏi preamble rồi dựng lại")
+                return True
+        return False
+
     def _run_engine(self, tex_path: Path, cwd: Path) -> str:
         self.stats["tex_runs"] += 1
         env = dict(os.environ)
         env.setdefault("TEXINPUTS", f"{cwd}{os.pathsep}{os.pathsep}")
         env["max_print_line"] = "1000"
-        cmd = [self.engine or "pdflatex", "-interaction=nonstopmode", "-file-line-error", tex_path.name]
+        exe = self.engine or "pdflatex"
+        cmd = [exe, "-interaction=nonstopmode", "-file-line-error"]
+        if _is_miktex(exe):
+            cmd.append("--enable-installer")   # MiKTeX: tự tải gói thiếu, không hiện hộp thoại
+        cmd.append(tex_path.name)
         if (self.engine or "").lower().endswith("latex") and "pdflatex" not in (self.engine or "").lower():
             pass  # xelatex/lualatex đều xuất PDF trực tiếp
         try:
@@ -327,9 +539,10 @@ class TexTruth:
                 pass
         return out
 
-    def _build_source(self, snippets: list[_Snippet]) -> str:
+    def _build_source(self, snippets: list[_Snippet], driver: str = "") -> str:
         parts = [
             "\\documentclass[12pt]{article}\n",
+            ("\\def\\pgfsysdriver{pgfsys-dvisvgm.def}\n" if driver == "dvisvgm" else ""),
             "\\usepackage[active,tightpage]{preview}\n",
             "\\setlength\\PreviewBorder{1pt}\n",
             "\\IfFileExists{varwidth.sty}{\\usepackage{varwidth}}{}\n",
@@ -520,15 +733,40 @@ def _parse_preview_boxes(log: str) -> dict[int, tuple[float, float, float]]:
     return out
 
 
-def _first_missing_package(log: str) -> str | None:
-    m = _MISSING_PKG_RE.search(log) or _MISSING_FILE_RE.search(log)
+#: Vá rỗng những gói này thì hỏng luôn cơ chế — thà báo lỗi rõ ràng còn hơn.
+#: Những gói mà chính cơ chế này cần — thiếu là phải báo người dùng cài, không gỡ được.
+_CORE_FOR_MECHANISM = {"preview", "varwidth", "standalone"}
+NEVER_SHIM = {"preview", "varwidth", "standalone", "graphicx", "graphics", "tikz", "pgf",
+              "pgfplots", "pgfcore", "xcolor", "color", "amsmath", "amssymb", "fontspec",
+              "inputenc", "fontenc", "babel", "geometry", "array", "longtable", "tabularx"}
+
+
+def _first_missing_file(log: str) -> tuple[str, str] | None:
+    """Trả về (tên, phần mở rộng) của file TeX đầu tiên bị thiếu."""
+    m = _MISSING_ANY_RE.search(log or "") or _MISSING_PKG_RE.search(log or "") or _MISSING_FILE_RE.search(log or "")
     if not m:
         return None
-    name = m.group(1).strip()
-    if name.endswith(".sty"):
-        name = name[:-4]
+    raw = m.group(1).strip()
+    if "." in raw:
+        name, _, ext = raw.rpartition(".")
+    else:
+        name, ext = raw, "sty"
     if not re.fullmatch(r"[A-Za-z0-9@_\-]+", name):
         return None
+    return name, ext.lower()
+
+
+def _first_missing_package(log: str) -> str | None:
+    got = _first_missing_file(log)
+    if not got:
+        return None
+    name, ext = got
+    if ext != "sty":
+        return None
+    if not re.fullmatch(r"[A-Za-z0-9@_\-]+", name):
+        return None
+    if name.lower() in NEVER_SHIM:
+        return None            # gói nền tảng — vá rỗng là hỏng, phải báo cho người dùng cài
     return name
 
 
@@ -571,6 +809,85 @@ def _write_shim(d: Path, name: str, engine: str | None = None) -> None:
         (d / f"{name}.sty").write_text(body, encoding="utf-8")
     except Exception:
         pass
+
+
+# ---------- tuyến DVI: dvisvgm / dvipng (đi kèm sẵn trong MiKTeX & TeX Live) ----------
+_SVG_SIZE_RE = re.compile(rb'<svg[^>]*?width=["\']([0-9.]+)(pt|px|mm|cm|in)?["\'][^>]*?height=["\']([0-9.]+)(pt|px|mm|cm|in)?["\']', re.S)
+_UNIT_PT = {b"pt": 1.0, None: 1.0, b"px": 0.75, b"mm": 72 / 25.4, b"cm": 72 / 2.54, b"in": 72.0}
+
+
+def _svg_size_pt(data: bytes) -> tuple[float, float]:
+    m = _SVG_SIZE_RE.search(data[:4000])
+    if not m:
+        return 0.0, 0.0
+    w = float(m.group(1)) * _UNIT_PT.get(m.group(2), 1.0)
+    h = float(m.group(3)) * _UNIT_PT.get(m.group(4), 1.0)
+    return w, h
+
+
+def _png_size_px(data: bytes) -> tuple[int, int]:
+    """Đọc kích thước PNG từ khối IHDR — thuần thư viện chuẩn, không cần Pillow."""
+    if len(data) < 24 or data[:8] != b"\x89PNG\r\n\x1a\n":
+        return 0, 0
+    import struct
+    w, h = struct.unpack(">II", data[16:24])
+    return int(w), int(h)
+
+
+def _dvi_to_svgs(dvi: Path, n_pages: int) -> tuple[dict[int, bytes], dict[int, tuple[float, float]]]:
+    exe = _which("dvisvgm")
+    out: dict[int, bytes] = {}
+    sizes: dict[int, tuple[float, float]] = {}
+    if not exe:
+        return out, sizes
+    d = dvi.parent
+    for bbox in ("preview", "min"):
+        for f in d.glob("pg*.svg"):
+            try:
+                f.unlink()
+            except Exception:
+                pass
+        try:
+            subprocess.run([exe, "--page=1-", "--no-fonts", f"--bbox={bbox}",
+                            "--output=pg%p", dvi.name],
+                           cwd=str(d), timeout=600,
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except Exception:
+            continue
+        for i in range(1, n_pages + 1):
+            f = d / f"pg{i}.svg"
+            if f.exists() and f.stat().st_size > 200:
+                data = f.read_bytes()
+                out[i] = data
+                sizes[i] = _svg_size_pt(data)
+        if len(out) >= n_pages:
+            break
+    return out, sizes
+
+
+def _dvi_to_pngs(dvi: Path, n_pages: int, dpi: int) -> tuple[dict[int, bytes], dict[int, tuple[float, float]]]:
+    exe = _which("dvipng")
+    out: dict[int, bytes] = {}
+    sizes: dict[int, tuple[float, float]] = {}
+    if not exe:
+        return out, sizes
+    d = dvi.parent
+    try:
+        subprocess.run([exe, "-D", str(dpi), "-T", "tight", "-bg", "Transparent",
+                        "-q", "-o", "pg%d.png", dvi.name],
+                       cwd=str(d), timeout=600,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except Exception:
+        return out, sizes
+    for i in range(1, n_pages + 1):
+        f = d / f"pg{i}.png"
+        if f.exists() and f.stat().st_size > 100:
+            data = f.read_bytes()
+            out[i] = data
+            px, py = _png_size_px(data)
+            if px and py:
+                sizes[i] = (px * 72.0 / dpi, py * 72.0 / dpi)
+    return out, sizes
 
 
 # ---------- thao tác PDF (ưu tiên thư viện Python, không bắt buộc công cụ ngoài) ----------
@@ -622,6 +939,15 @@ def _pdf_page_size_pt(pdf: Path) -> tuple[float, float]:
 
 
 def _pdf_to_svg(pdf: Path) -> bytes:
+    try:                       # PyMuPDF: xuất SVG thuần Python, không cần công cụ ngoài
+        import fitz
+        doc = fitz.open(str(pdf))
+        svg = doc[0].get_svg_image(text_as_path=True)
+        doc.close()
+        if svg and len(svg) > 200:
+            return svg.encode("utf-8")
+    except Exception:
+        pass
     exe = _which("dvisvgm")
     if exe:
         dest = pdf.with_suffix(".svg")
@@ -682,36 +1008,54 @@ def _pdf_to_emf(pdf: Path) -> bytes:
 
 
 def _pdf_to_png(pdf: Path, dpi: int) -> bytes:
-    exe = _which("pdftocairo")
-    if exe:
-        stem = pdf.with_suffix("")
-        subprocess.run([exe, "-png", "-r", str(dpi), "-singlefile", "-transp", str(pdf), str(stem)],
-                       timeout=240, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        cand = Path(str(stem) + ".png")
-        if cand.exists():
-            return cand.read_bytes()
-    exe = _which("pdftoppm")
-    if exe:
-        stem = pdf.with_suffix("")
-        subprocess.run([exe, "-png", "-r", str(dpi), "-singlefile", str(pdf), str(stem)],
-                       timeout=240, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        cand = Path(str(stem) + ".png")
-        if cand.exists():
-            return cand.read_bytes()
+    """PDF 1 trang → PNG. Thứ tự ưu tiên theo mức độ "chắc chắn có trên máy người dùng"."""
+    # (1) pypdfium2 — cài bằng pip, không cần công cụ ngoài, chạy được trên mọi Windows
     try:
         import pypdfium2 as pdfium
         doc = pdfium.PdfDocument(str(pdf))
-        bmp = doc[0].render(scale=dpi / 72.0)
+        bmp = doc[0].render(scale=dpi / 72.0, draw_annots=False)
         dest = pdf.with_suffix(".png")
         bmp.to_pil().save(dest)
-        return dest.read_bytes()
+        doc.close()
+        if dest.exists() and dest.stat().st_size > 100:
+            return dest.read_bytes()
     except Exception:
         pass
+    # (2) PyMuPDF nếu người dùng đã có
+    try:
+        import fitz
+        doc = fitz.open(str(pdf))
+        pix = doc[0].get_pixmap(dpi=dpi, alpha=True)
+        dest = pdf.with_suffix(".png")
+        pix.save(str(dest))
+        doc.close()
+        if dest.exists():
+            return dest.read_bytes()
+    except Exception:
+        pass
+    # (3) Poppler
+    for exe_names, extra in ((("pdftocairo",), ["-transp"]), (("pdftoppm",), [])):
+        exe = _which(*exe_names)
+        if not exe:
+            continue
+        stem = pdf.with_suffix("")
+        try:
+            subprocess.run([exe, "-png", "-r", str(dpi), "-singlefile", *extra, str(pdf), str(stem)],
+                           timeout=240, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            cand = Path(str(stem) + ".png")
+            if cand.exists():
+                return cand.read_bytes()
+        except Exception:
+            pass
+    # (4) ImageMagick
     exe = _which("magick", "convert")
     if exe:
         dest = pdf.with_suffix(".png")
-        subprocess.run([exe, "-density", str(dpi), str(pdf), "-background", "none", "-flatten", str(dest)],
-                       timeout=240, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        if dest.exists():
-            return dest.read_bytes()
+        try:
+            subprocess.run([exe, "-density", str(dpi), str(pdf), "-background", "none", str(dest)],
+                           timeout=240, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            if dest.exists():
+                return dest.read_bytes()
+        except Exception:
+            pass
     return b""

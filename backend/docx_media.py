@@ -82,7 +82,12 @@ class MediaInjector:
                       cx: int, cy: int, name: str = "Hình LaTeX") -> Any:
         """Trả về phần tử `<w:drawing>` chứa ảnh (SVG → kèm PNG dự phòng)."""
         main_ext = (main_ext or "png").lower()
-        if main_ext == "svg":
+        if main_ext == "svg" and not png_data:
+            # Không có bản PNG kèm theo: trỏ thẳng vào SVG. Word 2016+/365/WPS hiển thị được;
+            # Word đời rất cũ có thể không thấy — khi đó cài thêm 'dvipng' hoặc pypdfium2.
+            rid = self._add_image_part(main_data, "svg")
+            blip = f'<a:blip xmlns:a="{NS_A}" xmlns:r="{NS_R}" r:embed="{rid}"/>'
+        elif main_ext == "svg":
             png_rid = self._add_image_part(png_data or main_data, "png" if png_data else "svg")
             svg_rid = self._add_image_part(main_data, "svg")
             blip = (f'<a:blip xmlns:a="{NS_A}" xmlns:r="{NS_R}" r:embed="{png_rid}">'

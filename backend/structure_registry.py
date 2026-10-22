@@ -21,7 +21,8 @@ from __future__ import annotations
 __all__ = [
     "NATIVE_ENVIRONMENTS", "PICTURE_ENVIRONMENTS", "TEXTUAL_ENVIRONMENTS", "IGNORE_ENVIRONMENTS",
     "NATIVE_COMMANDS", "PICTURE_COMMANDS", "TEXT_COMMANDS", "IGNORE_COMMANDS", "MATH_SYMBOLS",
-    "PACKAGE_COMMANDS", "INLINE_PICTURE_COMMANDS",
+    "PACKAGE_COMMANDS", "INLINE_PICTURE_COMMANDS", "LENGTHS_AND_COUNTERS",
+    "VIETNAM_EXAM_COMMANDS", "EXTRA_ENVIRONMENTS",
     "VERBATIM_ENVIRONMENTS", "tier_of_environment", "tier_of_command", "registry_size",
 ]
 
@@ -239,6 +240,97 @@ NATIVE_COMMANDS |= PACKAGE_COMMANDS
 
 #: Lệnh vẽ/hoá học nằm GIỮA DÒNG — chụp ảnh inline, căn đúng đường cơ sở.
 INLINE_PICTURE_COMMANDS: set[str] = {"ce", "cee", "chemfig", "qrcode", "QRCode", "tikzmark"}
+
+
+# ─────────────────── ĐỘ DÀI, BỘ ĐẾM, KHOẢNG TRẮNG CỦA LaTeX ───────────────────
+#: Những cái này xuất hiện dày đặc trong `p{0.24\textwidth}`, `\arraystretch`… — không
+#: khai báo thì bộ đo độ phủ tưởng là lệnh lạ và kéo tụt số phần trăm một cách oan uổng.
+LENGTHS_AND_COUNTERS: set[str] = set("""
+textwidth linewidth columnwidth paperwidth hsize textheight paperheight vsize
+baselineskip baselinestretch parindent parskip lineskip lineskiplimit
+topmargin oddsidemargin evensidemargin leftmargin rightmargin leftmargini leftmarginii
+marginparwidth marginparsep marginparpush columnsep columnseprule
+tabcolsep arraycolsep arraystretch arrayrulewidth doublerulesep extrarowheight
+fboxsep fboxrule shadowsize unitlength
+itemsep parsep topsep partopsep labelsep labelwidth listparindent itemindent
+headheight headsep footskip topskip footnotesep skip
+abovedisplayskip belowdisplayskip abovedisplayshortskip belowdisplayshortskip
+jot mathindent intextsep floatsep textfloatsep dblfloatsep dbltextfloatsep
+hoffset voffset topsep width height depth totalheight
+stretch fill fil filll relax empty hfil hfilll vfil vfill null
+arabic alph Alph roman Roman fnsymbol asbuk Asbuk
+thepage thesection thesubsection thesubsubsection thechapter thepart theparagraph
+theenumi theenumii theenumiii theenumiv theequation thefigure thetable thefootnote
+value the ifnum ifdim ifodd else fi
+smallskipamount medskipamount bigskipamount
+""".split())
+NATIVE_COMMANDS |= LENGTHS_AND_COUNTERS
+
+# ─────────────────── GÓI ĐỀ THI TIẾNG VIỆT (ex_test / ncctex / exam) ───────────────────
+#: Bộ lệnh soạn đề của giáo viên Việt Nam — gặp rất nhiều trong file thực tế.
+VIETNAM_EXAM_COMMANDS: set[str] = set("""
+cauhoi Cauhoi cautn cautl cauTF dangbai dang vd vidu bt baitap loigiai Loigiai
+dapan dapso dapso khoanh True Sai Dung chonA chonB chonC chonD
+choiceTFt choicefTF choiceTFs choicehaicot choicebonpa choicemotcot
+heva hoac he hept hpt heptrinh dong doivet truonghop
+immini immini* minipageleft minipageright hinhve hinhvebenphai
+bangbienthien bangxetdau bangbienthienn xetdau
+mucluc phantrac phantuluan phandungsai phantraloingan
+diemso thoigian tenbai lop monhoc truong sobaodanh madethi
+ck gk giuaky cuoiky dethi dapanchitiet
+tikzcachung tikzhinhhoc vehinh vedothi vebbt
+""".split())
+NATIVE_COMMANDS |= VIETNAM_EXAM_COMMANDS
+
+#: Môi trường hay gặp trong tài liệu đề thi / giáo trình.
+EXTRA_ENVIRONMENTS: set[str] = set("""
+tasks parts subparts choices oneparchoices checkboxes oneparcheckboxes solution solutionorbox
+exercise exercises problem problems answer answers hint hints question
+tabbing tabularray booktabsx widetable sidewaystable landscape
+framed shaded snugshade leftbar mdframed tcolorbox* boxedminipage
+align-star gather-star empheq dmath dgroup darray
+algorithm algorithmic algorithm2e lstlisting* breakablealgorithm
+thebibliography references appendices subappendices
+wrapfloat wraptable wrapfigure wrapfig
+column columns block alertblock exampleblock frame
+fitch prooftree deduction bussproof
+""".split())
+NATIVE_ENVIRONMENTS |= EXTRA_ENVIRONMENTS
+
+#: Lệnh chữ nghĩa / ký hiệu còn thiếu.
+EXTRA_TEXT_COMMANDS: set[str] = set("""
+textdegree textpm texttimes textdiv textbullet textperiodcentered textregistered
+textcopyright texttrademark textparagraph textsection textdagger textdaggerdbl
+textpertenthousand textperthousand textohm textmu textcelsius textfractionsolidus
+textcompwordmark textvisiblespace textunderscore textbraceleft textbraceright
+oe OE ae AE aa AA o O ss SS l L i j
+acute grave ddot check breve dd DD
+MakeUppercase MakeLowercase uppercase lowercase
+ensuremath hphantom vphantom mathpalette
+raggedbottom flushbottom sloppy fussy
+newcolumn newcounter roman stepcounter refstepcounter
+centerline leftline rightline llap rlap
+verb verbatiminput lstinputlisting inputminted
+includepdfmerge pdfbookmark currentpdfbookmark belowpdfbookmark
+phantomsection addcontentsline addtocontents markboth markright
+""".split())
+NATIVE_COMMANDS |= EXTRA_TEXT_COMMANDS
+
+#: Lệnh cấu hình chỉ có ở preamble — không in gì ra.
+EXTRA_IGNORE_COMMANDS: set[str] = set("""
+usetikzlibrary usepgfplotslibrary pgfdeclarelayer pgfsetlayers tikzexternalize
+tcbuselibrary tcbset newtcbox newtcolorbox DeclareTColorBox
+SetKw SetKwData SetKwFunction SetKwProg SetKwFor SetAlgoLined DontPrintSemicolon
+lstdefinestyle lstdefinelanguage definecolor* DeclareCaptionFormat DeclareCaptionLabelFormat
+setkeys presetkeys define@key setlist* newtheoremstyle declaretheorem
+setcounter* arrayrulecolor setcitestyle DeclareFieldFormat ExecuteBibliographyOptions
+setmainlanguage setotherlanguage newfontface defaultfontfeatures
+DeclareUnicodeCharacter DeclareTextCommandDefault ProvidesFile ProvidesClass
+IfFileExists InputIfFileExists RequirePackageWithOptions LoadClass
+pdfsuppresswarningpagegroup pdfminorversion pdfobjcompresslevel
+nocite nocopyright listfiles
+""".split())
+IGNORE_COMMANDS |= EXTRA_IGNORE_COMMANDS
 
 _TIER_ENV = [(NATIVE_ENVIRONMENTS, "NATIVE"), (PICTURE_ENVIRONMENTS, "PICTURE"),
              (TEXTUAL_ENVIRONMENTS, "TEXT"), (IGNORE_ENVIRONMENTS, "IGNORE"),

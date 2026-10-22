@@ -1,29 +1,28 @@
-CÁCH CHÉP VÀO DỰ ÁN
-===================
-1) Chép nguyên 4 file MỚI vào backend/:
-      backend/universal_fallback.py
-      backend/tex_truth.py
-      backend/docx_media.py
-      backend/structure_registry.py
+BẢN 2 — SỬA LỖI "0/5" VÀ NÂNG ĐỘ CHÍNH XÁC
+===========================================
 
-2) Hai file CŨ đã được vá sẵn trong gói này:
-      backend/smart_paste.py   (thêm 4 móc nối, 48 dòng — không xoá logic cũ)
-      app.py                   (thêm 26 dòng hiển thị % — chỉ hiện ở tab dán mã)
-   Nếu bản trên máy bạn MỚI HƠN bản trong gói, ĐỪNG chép đè. Thay vào đó chép
-   4 file mới ở bước 1 rồi chạy:
-      python cai_dat_universal.py
-   Script tự chèn đúng 4 móc nối vào file của bạn và lưu bản cũ ra .bak.
+LÀM ĐÚNG 3 BƯỚC:
 
-3) Kiểm tra:
-      python cai_dat_universal.py --kiem-tra
-      python kiem_tra_universal.py de_cua_toi.tex
+  1) pip install pypdfium2
+     (đây là thứ máy bạn đang THIẾU — nó là lý do hiện 0/5)
 
-4) Gỡ ra bất cứ lúc nào:
-      python cai_dat_universal.py --go
-   hoặc tạm tắt mà không sửa file:  đặt biến môi trường  L2W_UNIVERSAL=0
+  2) Chép đè 4 file trong backend/ và 3 file ở thư mục gốc:
+       backend/universal_fallback.py   backend/tex_truth.py
+       backend/docx_media.py           backend/structure_registry.py
+       app.py   kiem_tra_universal.py   requirements.txt
+     (backend/smart_paste.py trong gói này giống hệt bản bạn đang chạy — chỉ chép
+      nếu bạn chưa cài móc nối bao giờ.)
 
-KHÔNG có file nào trong backend/core_converter.py, backend/drawingml_engine.py,
-backend/latex_preprocessor*.py, backend/server.py bị đụng tới.
-Nhánh tải file .pdf/.tex/.zip chạy y hệt như trước.
+  3) python kiem_tra_universal.py --chan-doan
+     Lệnh này nói thẳng còn thiếu gì. Chạy tới khi nó in "✓ Mọi thứ sẵn sàng".
 
-Đọc PHU_100.md để biết chi tiết và các núm chỉnh.
+CÓ GÌ MỚI
+  • 4 tuyến dựng ảnh, trong đó tuyến DVI chỉ cần bản TeX đã cài (dvipng/dvisvgm
+    đi kèm sẵn MiKTeX) — không cần Poppler/Ghostscript/Inkscape/LibreOffice.
+  • Sổ đăng ký tăng từ 1.048 lên 1.390 cấu trúc: thêm toàn bộ độ dài (\textwidth…),
+    bộ đếm (\alph…), gói đề thi tiếng Việt, môi trường exam/tasks/tcolorbox.
+    → Độ phủ file ktgk1 của bạn: 77,0% → 98,1% nguyên bản, 78,9% → 100% tổng.
+  • Giao diện hiện ô ĐỎ kèm hướng dẫn khi không dựng được khối nào.
+  • Tự gỡ gói gây lỗi (thiếu vietnamese.ldf → bỏ babel), không vá rỗng gói nền tảng.
+
+Nhánh tải file .pdf/.tex/.zip và backend/core_converter.py vẫn KHÔNG bị đụng tới.

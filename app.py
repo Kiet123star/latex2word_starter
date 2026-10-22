@@ -301,8 +301,20 @@ def main() -> None:
                           f"{cov.get('do_phu_nguyen_ban_phan_tram', 0)}%")
                 c2.metric("Phủ tổng (giống bản gốc)",
                           f"{cov.get('do_phu_tong_phan_tram', 0)}%")
-                c3.metric("Khối do TeX dựng (ảnh vector)",
-                          f"{(uf.get('ket_qua') or {}).get('so_anh_chen', 0)}/{cov.get('so_khoi_chup_anh', 0)}")
+                kq = uf.get("ket_qua") or {}
+                da_chen = kq.get("so_anh_chen", 0)
+                can_dung = uf.get("tong_khoi_can_dung") or cov.get("so_khoi_chup_anh", 0)
+                c3.metric("Khối do TeX dựng (ảnh vector)", f"{da_chen}/{can_dung}")
+                if can_dung and not da_chen:
+                    st.error(
+                        "⛔ **Không dựng được khối hình nào** — các hình TikZ/đồ thị vẫn do engine cũ đoán "
+                        "nên sẽ khác bản gốc.\n\n"
+                        + (uf.get("loi_khuyen") or kq.get("loi_khuyen") or "")
+                        + "\n\nChạy `python kiem_tra_universal.py --chan-doan` để biết chính xác thiếu gì."
+                    )
+                elif can_dung and da_chen < can_dung:
+                    st.warning(f"⚠️ Dựng được {da_chen}/{can_dung} khối. "
+                               "Các khối còn lại giữ nguyên cách xử lý cũ — xem chi tiết bên dưới.")
                 with st.expander("🛡️ Chi tiết lớp bảo hiểm phủ 100% (dán mã)"):
                     st.write(uf.get("ly_do", ""))
                     if cov.get("lenh_la"):
