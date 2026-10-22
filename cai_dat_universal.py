@@ -23,7 +23,8 @@ for _s in (sys.stdout, sys.stderr):
 
 ROOT = Path(__file__).resolve().parent
 TARGET = ROOT / "backend" / "smart_paste.py"
-NEW_MODULES = ["universal_fallback.py", "tex_truth.py", "docx_media.py", "structure_registry.py"]
+NEW_MODULES = ["universal_fallback.py", "tex_truth.py", "docx_media.py", "structure_registry.py",
+               "macro_fidelity.py", "omml_fix.py"]
 
 HELPERS = '''# ─────────── LỚP BẢO HIỂM PHỦ 100% (backend/universal_fallback.py) ───────────
 # Nhập mềm: thiếu module hoặc module lỗi thì mọi thứ chạy y như trước khi có lớp này.

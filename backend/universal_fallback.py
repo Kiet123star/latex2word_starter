@@ -33,6 +33,8 @@ from pathlib import Path
 from typing import Any, Callable
 
 from . import structure_registry as REG
+from .macro_fidelity import rewrite_user_macros
+from .omml_fix import fix_math_accents
 from .docx_media import MARKER_RE, MediaInjector, make_marker
 from .tex_truth import TexTruth, describe_toolchain, extract_preamble, tex_engine_available
 
@@ -442,9 +444,11 @@ class ProtectContext:
     future: Future | None = None
     blocks: dict[int, dict[str, Any]] = field(default_factory=dict)   # index → {key, inline, label}
     coverage: CoverageReport | None = None
+    macro_fidelity: dict[str, Any] = field(default_factory=dict)
     warnings: list[str] = field(default_factory=list)
     reason: str = ""
     loi_khuyen: str = ""          # câu hướng dẫn cụ thể khi thiếu công cụ trên máy
+    failed_blocks: list[dict[str, Any]] = field(default_factory=list)
     tong_khoi_can_dung: int = 0   # số khối ĐÁNG LẼ phải dựng (kể cả khối hỏng)
 
     def summary(self) -> dict[str, Any]:
@@ -454,7 +458,9 @@ class ProtectContext:
             "so_khoi_giao_cho_tex": len(self.blocks),
             "tong_khoi_can_dung": self.tong_khoi_can_dung,
             "loi_khuyen": self.loi_khuyen,
+            "khoi_chua_dung_duoc": self.failed_blocks[:12],
             "canh_bao": self.warnings[:30],
+            "ton_trong_macro_nguoi_dung": self.macro_fidelity,
         }
         if self.coverage is not None:
             out["do_phu"] = self.coverage.to_dict()
@@ -487,6 +493,17 @@ def protect(src: str, *, base_dir: Path | None = None, workdir: Path | None = No
         if not is_enabled():
             ctx.reason = "tắt bằng L2W_UNIVERSAL=0"
             return src, ctx
+        # Bước -1 — trả lại đúng macro người dùng tự định nghĩa mà engine gốc sẽ đè lên
+        # (\choice, \True…): nở ngay trong mã nguồn để engine không còn thấy mà đè.
+        mf = rewrite_user_macros(src)
+        if mf.expanded:
+            src = mf.text
+            ctx.macro_fidelity = mf.summary()
+            ctx.warnings.append(
+                "Đã nở " + ", ".join(f"\\{k} ({v} lần)" for k, v in mf.expanded.items())
+                + " theo đúng định nghĩa của bạn, thay vì để engine dùng khuôn riêng.")
+        elif mf.skipped:
+            ctx.macro_fidelity = mf.summary()
         ctx.coverage = scan_coverage(src)
         tc = describe_toolchain()
         if not tc.get("tuyen_dung_duoc"):
@@ -547,11 +564,9 @@ def protect(src: str, *, base_dir: Path | None = None, workdir: Path | None = No
             return src, ctx
 
         preamble = extract_preamble(src)
-        stubs, n_stubs = _build_stubs("\n".join(sp.text(src) for sp in chosen), mine)
-        renderer = TexTruth(preamble, workdir=workdir, stubs=stubs)
-        if n_stubs:
-            ctx.warnings.append(f"Đã tự sinh khung rỗng cho {n_stubs} tên lạ để TeX dựng được "
-                                "mà không báo lỗi.")
+        # Khung rỗng cho tên lạ nay được tạo THEO PHẢN ỨNG trong tex_truth: chỉ khi TeX thật sự
+        # báo thiếu. Đoán trước như bản cũ có lúc đè lên \\node/\\draw của TikZ làm hỏng cả hình.
+        renderer = TexTruth(preamble, workdir=workdir)
         ctx.renderer = renderer
         chosen.sort(key=lambda s: s.start)
         keys = [renderer.add(sp.text(src), inline=(sp.start, sp.end) in inline_spans, label=sp.name)
@@ -577,9 +592,17 @@ def protect(src: str, *, base_dir: Path | None = None, workdir: Path | None = No
         for sp, key in zip(chosen, keys):
             asset = assets.get(key) if assets else None
             if assets and (asset is None or not asset.ok):
+                head = " ".join(sp.text(src)[:110].split())
                 ctx.warnings.append(
                     f"TeX chưa dựng được khối '{sp.name}' → giữ nguyên cách xử lý cũ của engine"
-                    + (f" ({asset.error})" if asset is not None and asset.error else ""))
+                    + (f" | {asset.error}" if asset is not None and asset.error else "")
+                    + f" | mã nguồn: {head}…")
+                ctx.failed_blocks.append({
+                    "moi_truong": sp.name,
+                    "ma_nguon": head,
+                    "loi": (asset.error if asset is not None else ""),
+                    "tex_bao": (asset.tex_errors if asset is not None else []),
+                })
                 continue                       # không thay gì cả — hành vi y như trước khi có lớp này
             is_inline = (sp.start, sp.end) in inline_spans
             ctx.blocks[idx] = {"key": key, "inline": is_inline, "label": sp.name}
@@ -646,10 +669,13 @@ def _standalone_picture_commands(src: str, masked: str, body_start: int,
 
 # ─────────────────────── đổi chỗ đánh dấu thành ảnh ───────────────────────
 def restore(docx_path: Path, ctx: ProtectContext, *, timeout: float = 600.0) -> dict[str, Any]:
-    """Mở .docx, đổi mọi chỗ đánh dấu thành ảnh vector. Không bao giờ ném lỗi ra ngoài."""
+    """Mở .docx, đổi mọi chỗ đánh dấu thành ảnh vector + sửa dấu trên công thức.
+
+    Không bao giờ ném lỗi ra ngoài."""
     stats: dict[str, Any] = {"bat": ctx.enabled, "so_anh_chen": 0, "so_khoi_hong": 0,
                              "tong_khoi_can_dung": ctx.tong_khoi_can_dung,
                              "loi_khuyen": ctx.loi_khuyen, "canh_bao": list(ctx.warnings[:10])}
+    stats["sua_dau_cong_thuc"] = fix_math_accents(docx_path)
     if not ctx.enabled or not ctx.blocks:
         _strip_leftover_markers(docx_path)
         return stats

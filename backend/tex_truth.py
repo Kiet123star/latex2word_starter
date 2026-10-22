@@ -195,12 +195,22 @@ class RenderedAsset:
         return max(1, int(round(self.height_pt * EMU_PER_PT)))
 
 
+_PURE_PICTURE_RE = re.compile(
+    r"^\s*\\begin\{(tikzpicture|pgfpicture|tikzcd|circuitikz|chemfig|forest|pspicture)\}"
+    r".*\\end\{\1\}\s*$", re.S)
+
+
 @dataclass
 class _Snippet:
     key: str
     body: str
     inline: bool
     label: str = ""
+
+    @property
+    def needs_box(self) -> bool:
+        """Hình thuần TikZ không cần khung bọc — bọc thêm chỉ rước rủi ro."""
+        return not (self.inline or _PURE_PICTURE_RE.match(self.body))
 
 
 # ───────────────────────────── bộ render chính ─────────────────────────────
@@ -243,6 +253,7 @@ class TexTruth:
             self.dpi = 600
         self.timeout = timeout
         self.last_errors: list[str] = []
+        self._reactive: list[str] = []      # khung rỗng CHỈ tạo khi TeX thật sự báo thiếu
         self._snippets: list[_Snippet] = []
         self._by_key: dict[str, _Snippet] = {}
         self.stats: dict[str, Any] = {
@@ -305,22 +316,41 @@ class TexTruth:
             self.stats["loi_khuyen"] = tc.get("loi_khuyen", "")
             return out
 
-        for route in routes:
+        base_preamble = self.preamble
+        self.stats["preamble_da_thu"] = []
+        for variant in range(3):
             if not pending:
                 break
-            self.stats["tuyen_da_thu"].append(route)
-            try:
-                got = self._render_route(route, pending)
-            except Exception as exc:
-                _log(f"tuyến {route} lỗi: {type(exc).__name__}: {exc}")
-                got = {}
-            for sn in list(pending):
-                a = got.get(sn.key)
-                if a is not None and a.ok:
-                    out[sn.key] = a
-                    pending.remove(sn)
-                elif a is not None:
-                    out[sn.key] = a          # giữ lại thông báo lỗi để báo cho người dùng
+            if variant == 1:                 # preamble tối giản, giữ cấu hình vẽ của người dùng
+                self.preamble = minimal_preamble("\n".join(s.body for s in pending), base_preamble)
+            elif variant == 2:               # tối giản tuyệt đối, bỏ cả macro người dùng
+                self.preamble = minimal_preamble("\n".join(s.body for s in pending), base_preamble,
+                                                 keep_user_lines=False)
+            if variant:
+                self._reactive = []
+                self.stats["preamble_da_thu"].append(f"toi_gian_{variant}")
+                _log(f"còn {len(pending)} khối chưa dựng được → thử lại với preamble tối giản ({variant})")
+            for route in routes:
+                if not pending:
+                    break
+                tag = f"{route}" if not variant else f"{route}#{variant}"
+                if tag not in self.stats["tuyen_da_thu"]:
+                    self.stats["tuyen_da_thu"].append(tag)
+                try:
+                    got = self._render_route(route, pending, variant=variant)
+                except Exception as exc:
+                    _log(f"tuyến {route} lỗi: {type(exc).__name__}: {exc}")
+                    got = {}
+                for sn in list(pending):
+                    a = got.get(sn.key)
+                    if a is not None and a.ok:
+                        if variant:
+                            a.error = ""
+                        out[sn.key] = a
+                        pending.remove(sn)
+                    elif a is not None:
+                        out[sn.key] = a      # giữ lại thông báo lỗi để báo cho người dùng
+        self.preamble = base_preamble
         for sn in pending:
             out.setdefault(sn.key, RenderedAsset(key=sn.key, inline=sn.inline, ok=False,
                                                  error="Mọi tuyến dựng ảnh đều thất bại."))
@@ -344,33 +374,38 @@ class TexTruth:
             order.append("dvi")
         return order
 
-    def _render_route(self, route: str, snippets: list[_Snippet]) -> dict[str, RenderedAsset]:
+    def _render_route(self, route: str, snippets: list[_Snippet], variant: int = 0) -> dict[str, RenderedAsset]:
         if route == "dvi":
-            return self._render_dvi(snippets)
-        return self._render_pdf(snippets)
+            return self._render_dvi(snippets, variant=variant)
+        return self._render_pdf(snippets, variant=variant)
 
     # ---------- tuyến PDF ----------
-    def _render_pdf(self, snippets: list[_Snippet]) -> dict[str, RenderedAsset]:
+    def _render_pdf(self, snippets: list[_Snippet], variant: int = 0) -> dict[str, RenderedAsset]:
         out: dict[str, RenderedAsset] = {}
-        batch = self._compile_batch(snippets, tag="batch")
+        batch = self._compile_batch(snippets, tag=f"batch{variant or ''}")
         if batch is not None:
             pdf, boxes = batch
             out.update(self._slice_pdf(pdf, snippets, boxes))
         missing = [sn for sn in snippets if not out.get(sn.key, RenderedAsset(key=sn.key)).ok]
         for sn in missing:                       # biên dịch riêng từng khối hỏng
-            single = self._compile_batch([sn], tag=f"solo_{sn.key}")
+            single = self._compile_batch([sn], tag=f"solo{variant or ''}_{sn.key}")
+            errs = list(self.last_errors)
             if single is not None:
                 pdf, boxes = single
                 got = self._slice_pdf(pdf, [sn], boxes)
                 if got.get(sn.key) is not None:
                     out[sn.key] = got[sn.key]
-            out.setdefault(sn.key, RenderedAsset(key=sn.key, inline=sn.inline, ok=False,
-                                                 error="Biên dịch TeX (tuyến PDF) thất bại."))
+            a = out.setdefault(sn.key, RenderedAsset(key=sn.key, inline=sn.inline, ok=False,
+                                                     error="Biên dịch TeX (tuyến PDF) thất bại."))
+            if not a.ok:
+                a.tex_errors = errs[:4]
+                if errs:
+                    a.error = (a.error + " TeX báo: " + " | ".join(errs[:2]))[:400]
         self.stats["compiled"] += sum(1 for a in out.values() if a.ok)
         return out
 
     # ---------- tuyến DVI (chỉ cần bản TeX) ----------
-    def _render_dvi(self, snippets: list[_Snippet]) -> dict[str, RenderedAsset]:
+    def _render_dvi(self, snippets: list[_Snippet], variant: int = 0) -> dict[str, RenderedAsset]:
         """latex → .dvi → dvisvgm (vector) và/hoặc dvipng (ảnh điểm).
 
         Hai công cụ này đi kèm sẵn trong MiKTeX và TeX Live nên tuyến này chạy được
@@ -379,7 +414,7 @@ class TexTruth:
         latex = _which("latex")
         if not latex:
             return out
-        d = self.workdir / "dvi"
+        d = self.workdir / f"dvi{variant or ''}"
         d.mkdir(parents=True, exist_ok=True)
         has_svg, has_png = bool(_which("dvisvgm")), bool(_which("dvipng"))
 
@@ -430,7 +465,13 @@ class TexTruth:
                 log = self._run_engine(tex_path, d)
                 dvi = tex_path.with_suffix(".dvi")
                 if dvi.exists() and dvi.stat().st_size > 0:
+                    if self._add_reactive_stubs(log):
+                        tex_path.write_text(self._build_source(snippets, driver=driver), encoding="utf-8")
+                        continue
                     return dvi
+                if self._add_reactive_stubs(log):
+                    tex_path.write_text(self._build_source(snippets, driver=driver), encoding="utf-8")
+                    continue
                 missing = _first_missing_package(log)
                 if not missing or missing in shims:
                     _log(f"tuyến DVI không biên dịch được; cuối log: {log[-200:].strip()}")
@@ -460,8 +501,16 @@ class TexTruth:
                     if e not in self.stats["tex_errors"]:
                         self.stats["tex_errors"].append(e)
             if pdf.exists() and pdf.stat().st_size > 0 and _pdf_page_count(pdf) >= len(snippets):
+                # Dựng được rồi, nhưng nếu log vẫn báo tên chưa định nghĩa thì ảnh đang lẫn chữ
+                # thừa — vá khung rỗng đúng những tên đó rồi dựng lại một lần cho sạch.
+                if self._add_reactive_stubs(log):
+                    tex_path.write_text(self._build_source(snippets), encoding="utf-8")
+                    continue
                 self.stats["compiled"] += len(snippets)
                 return pdf, boxes
+            if self._add_reactive_stubs(log):
+                tex_path.write_text(self._build_source(snippets), encoding="utf-8")
+                continue
             if self._repair_preamble(log, repairs):
                 tex_path.write_text(self._build_source(snippets), encoding="utf-8")
                 continue
@@ -482,6 +531,28 @@ class TexTruth:
             self.stats["shims_created"].append(missing)
             _log(f"thiếu gói '{missing}' → tự tạo bản vá rỗng rồi biên dịch lại")
         return None
+
+    def _add_reactive_stubs(self, log: str) -> bool:
+        """Tạo khung rỗng cho đúng những tên TeX vừa báo là chưa định nghĩa."""
+        cmds, envs = undefined_names(log)
+        added = False
+        have = "".join(self._reactive)
+        for c in cmds:
+            if c in _NEVER_STUB or f"\\providecommand{{\\{c}}}" in have:
+                continue
+            self._reactive.append("\\providecommand{\\%s}{}\n" % c)
+            added = True
+        for e in envs:
+            if f"newenvironment{{{e}}}" in have:
+                continue
+            self._reactive.append(
+                "\\makeatletter\\@ifundefined{%s}{\\newenvironment{%s}[1][]{}{}}{}\\makeatother\n" % (e, e))
+            added = True
+        if added:
+            self.stats.setdefault("khung_rong_tu_tao", [])
+            self.stats["khung_rong_tu_tao"] = sorted(set(self.stats["khung_rong_tu_tao"]) | set(cmds) | set(envs))
+            _log("TeX báo thiếu " + ", ".join(cmds + envs) + " → tạo khung rỗng rồi dựng lại")
+        return added
 
     def _repair_preamble(self, log: str, done: set[str]) -> bool:
         """Tự gỡ gói gây lỗi ra khỏi preamble rồi dựng lại.
@@ -545,17 +616,17 @@ class TexTruth:
             ("\\def\\pgfsysdriver{pgfsys-dvisvgm.def}\n" if driver == "dvisvgm" else ""),
             "\\usepackage[active,tightpage]{preview}\n",
             "\\setlength\\PreviewBorder{1pt}\n",
-            "\\IfFileExists{varwidth.sty}{\\usepackage{varwidth}}{}\n",
-            "\\makeatletter\\@ifundefined{varwidth}{\\newenvironment{l2wbox}[1]"
-            "{\\begin{minipage}{#1}}{\\end{minipage}}}"
-            "{\\newenvironment{l2wbox}[1]{\\begin{varwidth}{#1}}{\\end{varwidth}}}\\makeatother\n",
+            "\\IfFileExists{varwidth.sty}"
+            "{\\usepackage{varwidth}\\newenvironment{l2wbox}[1]{\\begin{varwidth}{#1}}{\\end{varwidth}}}"
+            "{\\newenvironment{l2wbox}[1]{\\begin{minipage}{#1}}{\\end{minipage}}}\n",
             self.preamble,
+            ("".join(self._reactive) if self._reactive else ""),
             "\n\\pagestyle{empty}\n",
             "\\begin{document}\n",
         ]
         for sn in snippets:
             parts.append("\\begin{preview}%\n")
-            if sn.inline:
+            if not sn.needs_box:
                 parts.append(sn.body + "%\n")
             else:
                 parts.append("\\begin{l2wbox}{\\linewidth}\n" + sn.body + "\n\\end{l2wbox}%\n")
@@ -715,6 +786,31 @@ _TEX_ERROR_RE = re.compile(r"^(?:! .*|.*?:\d+: (?:LaTeX|Package|Class)? ?Error.*
                            re.M)
 
 
+_UNDEF_CS_RE = re.compile(r"Undefined control sequence\.?\s*\n(?:[^\n]*\n){0,2}?[^\n]*?\\([A-Za-z@]+)\s*$",
+                          re.M)
+_UNDEF_CS_SIMPLE_RE = re.compile(r"^l\.\d+[^\n]*?\\([A-Za-z@]+)\s*$", re.M)
+_UNDEF_ENV_RE = re.compile(r"Environment\s+([A-Za-z@*]+)\s+undefined")
+
+
+def undefined_names(log: str) -> tuple[list[str], list[str]]:
+    """Trả về (lệnh chưa định nghĩa, môi trường chưa định nghĩa) đúng như TeX báo.
+
+    Đây là cách AN TOÀN để vá: chỉ tạo khung rỗng cho thứ TeX thật sự kêu thiếu, thay vì
+    đoán trước rồi vô tình đè lên lệnh của TikZ / pgfplots (đó là lỗi đã gây hỏng 3 hình)."""
+    log = log or ""
+    cmds: list[str] = []
+    for m in re.finditer(r"Undefined control sequence", log):
+        seg = log[m.end():m.end() + 400]
+        hit = _UNDEF_CS_SIMPLE_RE.search(seg)
+        if hit and hit.group(1) not in cmds:
+            cmds.append(hit.group(1))
+    envs = []
+    for m in _UNDEF_ENV_RE.finditer(log):
+        if m.group(1) not in envs:
+            envs.append(m.group(1))
+    return cmds, envs
+
+
 def extract_tex_errors(log: str, limit: int = 8) -> list[str]:
     seen: list[str] = []
     for m in _TEX_ERROR_RE.finditer(log or ""):
@@ -724,6 +820,128 @@ def extract_tex_errors(log: str, limit: int = 8) -> list[str]:
         if len(seen) >= limit:
             break
     return seen
+
+
+_CARRY_NAMES = ("usetikzlibrary", "usepgfplotslibrary", "pgfplotsset", "tikzset", "tikzstyle",
+                "definecolor", "colorlet", "newcommand", "renewcommand", "providecommand",
+                "DeclareMathOperator", "DeclarePairedDelimiter", "def", "newif",
+                "newlength", "setlength", "newcounter", "pgfkeys", "pgfdeclareimage",
+                "pgfdeclareplotmark", "SetKwFunction", "newtcolorbox", "tcbset")
+_CARRY_START_RE = re.compile(r"\\(" + "|".join(_CARRY_NAMES) + r")(?![A-Za-z])")
+_FONT_PKG_RE = re.compile(
+    r"^[ \t]*\\usepackage\s*(?:\[[^\]]*\])?\s*\{[^}]*"
+    r"(?:vietnam|vntex|inputenc|fontenc|babel|polyglossia|fontspec|unicode-math)[^}]*\}[^\n]*$", re.M)
+
+
+def _balanced(src: str, i: int) -> int:
+    """`i` trỏ vào `{` → vị trí ngay sau `}` khớp; -1 nếu không khớp."""
+    if i >= len(src) or src[i] != "{":
+        return -1
+    depth, j = 0, i
+    while j < len(src):
+        c = src[j]
+        if c == "\\":
+            j += 2
+            continue
+        if c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+            if depth == 0:
+                return j + 1
+        j += 1
+    return -1
+
+
+def _carry_lines(preamble: str) -> list[str]:
+    r"""Lấy TRỌN VẸN từng lệnh cấu hình/định nghĩa của người dùng, kể cả thân nhiều dòng.
+
+    Quy tắc dừng: sau tên lệnh cho phép **một** tên lệnh nữa (để bắt `\def\foo`,
+    `\newif\ifcorrect`, `\newcommand\foo`), rồi chỉ nuốt các nhóm `{…}` / `[…]`.
+    Gặp tên lệnh khác là dừng — nếu không sẽ nuốt luôn lệnh kế tiếp và sinh ra
+    định nghĩa trùng (`\True already defined`) hoặc kéo theo cả `\usepackage` lạ."""
+    out: list[str] = []
+    n = len(preamble)
+    for m in _CARRY_START_RE.finditer(preamble):
+        i = m.end()
+        seen_cs = False
+        seen_group = False
+        while i < n:
+            c = preamble[i]
+            if c in " \t\r\n":
+                i += 1
+                continue
+            if c == "*" and not seen_group:
+                i += 1
+                continue
+            if c == "\\" and not seen_cs and not seen_group:
+                mm = re.match(r"\\[A-Za-z@]+", preamble[i:])
+                if not mm:
+                    break
+                i += mm.end()
+                seen_cs = True
+                continue
+            if c == "{":
+                j = _balanced(preamble, i)
+                if j < 0:
+                    break
+                i = j
+                seen_group = True
+                continue
+            if c == "[":
+                j = preamble.find("]", i)
+                if j < 0:
+                    break
+                i = j + 1
+                continue
+            break
+        piece = preamble[m.start():i].strip()
+        if piece and piece.count("{") == piece.count("}") and piece not in out:
+            out.append(piece)
+    return out
+
+
+#: dấu hiệu trong khối → gói cần nạp
+_PKG_HINTS: list[tuple[str, tuple[str, ...]]] = [
+    (r"\\begin\{axis\}|\\addplot|semilogxaxis|semilogyaxis|loglogaxis|groupplot|polaraxis", ("pgfplots",)),
+    (r"\\tkzTab|\\tkzInit|\\tkzAxe|\\tkzFct", ("tkz-tab",)),
+    (r"\\begin\{circuitikz\}|\\ctikzset", ("circuitikz",)),
+    (r"\\chemfig|\\schemestart", ("chemfig",)),
+    (r"\\ce\{|\\cee\{", ("mhchem",)),
+    (r"\\SI\{|\\si\{|\\num\{|\\qty\{", ("siunitx",)),
+    (r"\\begin\{tcolorbox\}|\\tcbset|\\newtcolorbox", ("tcolorbox",)),
+    (r"\\begin\{forest\}", ("forest",)),
+    (r"\\begin\{tikzcd\}", ("tikz-cd",)),
+    (r"\\begin\{bytefield\}", ("bytefield",)),
+    (r"\\begin\{ganttchart\}", ("pgfgantt",)),
+    (r"\\multirow", ("multirow",)),
+    (r"\\toprule|\\midrule|\\bottomrule", ("booktabs",)),
+    (r"\\begin\{tabularx\}", ("tabularx",)),
+    (r"\\begin\{tabular\*?\}|\\begin\{array\}", ("array",)),
+]
+
+
+def minimal_preamble(block: str, user_preamble: str, *, keep_user_lines: bool = True) -> str:
+    """Preamble TỐI GIẢN: chỉ những gói khối này thật sự cần, cộng các dòng cấu hình vẽ.
+
+    Dùng khi preamble đầy đủ của người dùng làm TeX gãy (gói ngôn ngữ, font, lớp tài liệu
+    lạ…). Bỏ hết thứ không liên quan đến việc vẽ thì khối thường dựng được ngay."""
+    pkgs: list[str] = ["amsmath", "amssymb", "amsfonts"]
+    if re.search(r"\\begin\{tikzpicture\}|\\tikz|\\begin\{scope\}", block) or True:
+        pkgs.append("tikz")
+    for pat, names in _PKG_HINTS:
+        if re.search(pat, block):
+            pkgs.extend(n for n in names if n not in pkgs)
+    lines = ["\\usepackage{%s}" % p for p in dict.fromkeys(pkgs)]
+    if any(ord(c) > 127 for c in block):
+        lines.extend(m.group(0).strip() for m in _FONT_PKG_RE.finditer(user_preamble))
+    carried: list[str] = []
+    if keep_user_lines:
+        carried = _carry_lines(user_preamble)
+        lines.extend(carried)
+    if "pgfplots" in pkgs and not any("compat" in c for c in carried):
+        lines.append("\\pgfplotsset{compat=newest}")
+    return "\n".join(x for x in lines if x) + "\n"
 
 
 def _parse_preview_boxes(log: str) -> dict[int, tuple[float, float, float]]:
@@ -736,6 +954,11 @@ def _parse_preview_boxes(log: str) -> dict[int, tuple[float, float, float]]:
 #: Vá rỗng những gói này thì hỏng luôn cơ chế — thà báo lỗi rõ ràng còn hơn.
 #: Những gói mà chính cơ chế này cần — thiếu là phải báo người dùng cài, không gỡ được.
 _CORE_FOR_MECHANISM = {"preview", "varwidth", "standalone"}
+#: Tuyệt đối không tạo khung rỗng cho những lệnh này — chúng do TikZ/pgfplots định nghĩa
+#: ngay trong môi trường vẽ; đè lên là hỏng cả hình.
+_NEVER_STUB = {"draw", "node", "fill", "filldraw", "path", "clip", "shade", "shadedraw",
+               "coordinate", "addplot", "addplot3", "matrix", "pic", "foreach", "scope",
+               "useasboundingbox", "pattern", "begin", "end", "item", "hline", "\\"}
 NEVER_SHIM = {"preview", "varwidth", "standalone", "graphicx", "graphics", "tikz", "pgf",
               "pgfplots", "pgfcore", "xcolor", "color", "amsmath", "amssymb", "fontspec",
               "inputenc", "fontenc", "babel", "geometry", "array", "longtable", "tabularx"}

@@ -315,8 +315,14 @@ def main() -> None:
                 elif can_dung and da_chen < can_dung:
                     st.warning(f"⚠️ Dựng được {da_chen}/{can_dung} khối. "
                                "Các khối còn lại giữ nguyên cách xử lý cũ — xem chi tiết bên dưới.")
+                mf = uf.get("ton_trong_macro_nguoi_dung") or {}
+                if mf.get("macro_da_no"):
+                    st.info("🧩 Đã dựng theo **đúng định nghĩa macro của bạn** (thay vì khuôn mặc định của engine): "
+                            + ", ".join(f"`\\{k}` × {v}" for k, v in mf["macro_da_no"].items()))
                 with st.expander("🛡️ Chi tiết lớp bảo hiểm phủ 100% (dán mã)"):
                     st.write(uf.get("ly_do", ""))
+                    if mf:
+                        st.json(mf)
                     if cov.get("lenh_la"):
                         st.write("Lệnh chưa có trong sổ đăng ký:", ", ".join(f"\\{k}" for k in cov["lenh_la"]))
                     if cov.get("moi_truong_la"):
