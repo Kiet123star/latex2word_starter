@@ -1150,6 +1150,46 @@ def _leftover_raw_commands(src: str, processed: str, docx_text: str) -> list[str
     return [n for n in cands if re.search(r"\\" + re.escape(n) + r"(?![A-Za-z])", docx_text)]
 
 
+# ─────────── LỚP BẢO HIỂM PHỦ 100% (backend/universal_fallback.py) ───────────
+# Nhập mềm: thiếu module hoặc module lỗi thì mọi thứ chạy y như trước khi có lớp này.
+try:
+    from . import universal_fallback as _universal
+except Exception as _uf_exc:  # pragma: no cover
+    _universal = None
+    _log(f"không nạp được universal_fallback ({_uf_exc}) → chạy như cũ")
+
+
+def _universal_protect(src: str, base_dir: Path, workdir: Path | None = None):
+    """Thay khối lạ bằng chỗ đánh dấu + khởi động dựng ảnh ở luồng nền."""
+    if _universal is None:
+        return src, None
+    try:
+        return _universal.protect(src, base_dir=base_dir, workdir=workdir)
+    except Exception as exc:
+        _log(f"universal.protect lỗi → bỏ qua: {type(exc).__name__}: {exc}")
+        return src, None
+
+
+def _universal_restore(output: Path, ctx) -> dict[str, Any]:
+    """Đổi chỗ đánh dấu trong .docx thành ảnh vector do TeX dựng."""
+    if _universal is None or ctx is None:
+        return {}
+    try:
+        return _universal.restore(output, ctx)
+    except Exception as exc:
+        _log(f"universal.restore lỗi → bỏ qua: {type(exc).__name__}: {exc}")
+        return {}
+
+
+def _universal_abort(ctx) -> None:
+    """Thu dọn khi pipeline rơi về engine gốc."""
+    try:
+        if ctx is not None and getattr(ctx, "renderer", None) is not None:
+            ctx.renderer.close()
+    except Exception:
+        pass
+
+
 def convert_pasted_latex_unified(
     tex: Path,
     output: Path,
@@ -1179,8 +1219,10 @@ def convert_pasted_latex_unified(
     original_bytes = tex.read_bytes()
     src = original_bytes.decode("utf-8-sig", errors="replace")
     pre = None
+    # Bước 0 — khối nào engine chưa dựng được thì giao thẳng cho TeX dựng.
+    uf_src, uf_ctx = _universal_protect(src, tex.parent, workdir=tex.parent / "_l2w_truth")
     try:
-        pre = preprocess_latex(src, base_dir=tex.parent, show_solutions=show_solutions)
+        pre = preprocess_latex(uf_src, base_dir=tex.parent, show_solutions=show_solutions)
         tex.write_text(STANDALONE_HEAD + pre.text + STANDALONE_TAIL, encoding="utf-8")
         if os.environ.get("L2W_KEEP_SMART_TEX"):
             tex.with_name(tex.stem + ".l2w_smart.tex").write_text(STANDALONE_HEAD + pre.text + STANDALONE_TAIL,
@@ -1190,7 +1232,9 @@ def convert_pasted_latex_unified(
         finally:
             tex.write_bytes(original_bytes)  # always give the original source back
         layout_stats = apply_layout_markers(output, pre)
+        universal_stats = _universal_restore(output, uf_ctx)
     except Exception as exc:  # fallback: exactly the original engine behaviour
+        _universal_abort(uf_ctx)
         if tex.read_bytes() != original_bytes:
             tex.write_bytes(original_bytes)
         _log(f"LỖI → dùng engine gốc: {type(exc).__name__}: {exc}")
@@ -1205,7 +1249,10 @@ def convert_pasted_latex_unified(
     leftovers = _leftover_raw_commands(src, pre.text, _docx_plain_text(output))
     report["input"] = str(tex)
     report["smart_paste"] = {"status": "ok" if not leftovers else "partially_applied", **pre.summary(),
-                             "layout": layout_stats, "raw_commands_left_in_word": leftovers}
+                             "layout": layout_stats, "raw_commands_left_in_word": leftovers,
+                             "universal_fallback": {**(uf_ctx.summary() if uf_ctx is not None else
+                                                       {"bat": False, "ly_do": "chua nap duoc module"}),
+                                                    "ket_qua": universal_stats}}
     report["smart_paste_status"] = "OK" if not leftovers else "CÒN LỆNH THÔ: " + ", ".join(leftovers[:5])
     if leftovers:
         _log("Engine vẫn in nguyên văn các lệnh: " + ", ".join(leftovers))
@@ -1224,3 +1271,5 @@ def convert_pasted_latex_unified(
             report["qa_rendered_pdf"] = str(target_pdf)
     output.with_suffix(".report.json").write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
     return report
+
+

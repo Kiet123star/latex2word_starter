@@ -1,0 +1,29 @@
+CÁCH CHÉP VÀO DỰ ÁN
+===================
+1) Chép nguyên 4 file MỚI vào backend/:
+      backend/universal_fallback.py
+      backend/tex_truth.py
+      backend/docx_media.py
+      backend/structure_registry.py
+
+2) Hai file CŨ đã được vá sẵn trong gói này:
+      backend/smart_paste.py   (thêm 4 móc nối, 48 dòng — không xoá logic cũ)
+      app.py                   (thêm 26 dòng hiển thị % — chỉ hiện ở tab dán mã)
+   Nếu bản trên máy bạn MỚI HƠN bản trong gói, ĐỪNG chép đè. Thay vào đó chép
+   4 file mới ở bước 1 rồi chạy:
+      python cai_dat_universal.py
+   Script tự chèn đúng 4 móc nối vào file của bạn và lưu bản cũ ra .bak.
+
+3) Kiểm tra:
+      python cai_dat_universal.py --kiem-tra
+      python kiem_tra_universal.py de_cua_toi.tex
+
+4) Gỡ ra bất cứ lúc nào:
+      python cai_dat_universal.py --go
+   hoặc tạm tắt mà không sửa file:  đặt biến môi trường  L2W_UNIVERSAL=0
+
+KHÔNG có file nào trong backend/core_converter.py, backend/drawingml_engine.py,
+backend/latex_preprocessor*.py, backend/server.py bị đụng tới.
+Nhánh tải file .pdf/.tex/.zip chạy y hệt như trước.
+
+Đọc PHU_100.md để biết chi tiết và các núm chỉnh.

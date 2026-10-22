@@ -292,6 +292,31 @@ def main() -> None:
             elif smart_info.get("status") == "fallback_original_engine":
                 st.warning("Tiền xử lý thông minh gặp lỗi nên đã dùng engine gốc: " + str(smart_info.get("error", "")))
 
+            # ── Lớp bảo hiểm phủ 100% (chỉ có ở nhánh dán mã) ──
+            uf = smart_info.get("universal_fallback") or {}
+            cov = uf.get("do_phu") or {}
+            if cov:
+                c1, c2, c3 = st.columns(3)
+                c1.metric("Phủ nguyên bản (sửa được trong Word)",
+                          f"{cov.get('do_phu_nguyen_ban_phan_tram', 0)}%")
+                c2.metric("Phủ tổng (giống bản gốc)",
+                          f"{cov.get('do_phu_tong_phan_tram', 0)}%")
+                c3.metric("Khối do TeX dựng (ảnh vector)",
+                          f"{(uf.get('ket_qua') or {}).get('so_anh_chen', 0)}/{cov.get('so_khoi_chup_anh', 0)}")
+                with st.expander("🛡️ Chi tiết lớp bảo hiểm phủ 100% (dán mã)"):
+                    st.write(uf.get("ly_do", ""))
+                    if cov.get("lenh_la"):
+                        st.write("Lệnh chưa có trong sổ đăng ký:", ", ".join(f"\\{k}" for k in cov["lenh_la"]))
+                    if cov.get("moi_truong_la"):
+                        st.write("Môi trường chưa có trong sổ đăng ký:", ", ".join(cov["moi_truong_la"]))
+                    for w in (uf.get("canh_bao") or [])[:10]:
+                        st.write("⚠️ " + str(w))
+                    for w in ((uf.get("ket_qua") or {}).get("canh_bao") or [])[:10]:
+                        st.write("⚠️ " + str(w))
+                    st.json({"tex": uf.get("tex"), "cong_cu": uf.get("cong_cu")})
+            elif uf and not uf.get("bat"):
+                st.info("🛡️ Lớp bảo hiểm phủ 100% chưa chạy: " + str(uf.get("ly_do", "")))
+
             st.success(
                 f"✅ Đã tạo thành công `{output_docx.name}` với **{report.get('equation_nodes', 0)}** công thức toán OMML chỉnh sửa trực tiếp, "
                 f"**{report.get('drawingml_groups', 0)}** nhóm hình vẽ gốc Word (DrawingML), "
@@ -331,5 +356,7 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
 
 
