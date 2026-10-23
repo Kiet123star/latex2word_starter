@@ -1,0 +1,2297 @@
+{
+  "meta": {
+    "command": "python.exe kiem_tra_pdf_va_file.py --qa",
+    "started": "2026-10-24 00:27:49",
+    "seconds": 109.1,
+    "env": {
+      "python": "3.14.7",
+      "platform": "Windows-11-10.0.26200-SP0",
+      "tools": {
+        "xelatex": true,
+        "pdflatex": true,
+        "lualatex": true,
+        "pdftocairo": true,
+        "soffice": false,
+        "tesseract": false,
+        "gs": false
+      },
+      "derived_capabilities": {
+        "tex_upload": true,
+        "paste_smart": true,
+        "pdf_reader": true,
+        "pdf_vector_crop": true,
+        "ocr": false,
+        "math_ocr": false,
+        "visual_qa": true,
+        "tex_reference_compile": true
+      },
+      "preprocess_default": "engine",
+      "tesseract_languages": []
+    }
+  },
+  "summary": {
+    "PASS": 54,
+    "SKIP": 2
+  },
+  "results": [
+    {
+      "group": "G1",
+      "id": "G1.1",
+      "title": "Cùng một nguồn qua dán mã / tệp .tex / gói .zip cho cùng kết quả",
+      "status": "PASS",
+      "seconds": 6.2,
+      "checks": [
+        {
+          "ok": true,
+          "name": "paste: tạo được .docx hợp lệ",
+          "detail": []
+        },
+        {
+          "ok": true,
+          "name": "tex: tạo được .docx hợp lệ",
+          "detail": []
+        },
+        {
+          "ok": true,
+          "name": "zip: tạo được .docx hợp lệ",
+          "detail": []
+        },
+        {
+          "ok": true,
+          "name": "văn bản + công thức giống hệt nhau giữa 3 đường",
+          "detail": {
+            "paste": "Đề kiểm tra nhanh\nCho hàm số  với . Tính . f(x)=2x+1x−1 x≠1 limx→+∞f(x)\nCâu 1. Giá trị của  khi  là 16+u⋅v u⊥v\nA.  2\nB.  4\nC.  6\nD.  8\nLời giải. Vì  nên , do đó",
+            "tex": "Đề kiểm tra nhanh\nCho hàm số  với . Tính . f(x)=2x+1x−1 x≠1 limx→+∞f(x)\nCâu 1. Giá trị của  khi  là 16+u⋅v u⊥v\nA.  2\nB.  4\nC.  6\nD.  8\nLời giải. Vì  nên , do đó",
+            "zip": "Đề kiểm tra nhanh\nCho hàm số  với . Tính . f(x)=2x+1x−1 x≠1 limx→+∞f(x)\nCâu 1. Giá trị của  khi  là 16+u⋅v u⊥v\nA.  2\nB.  4\nC.  6\nD.  8\nLời giải. Vì  nên , do đó"
+          }
+        },
+        {
+          "ok": true,
+          "name": "số công thức OMML bằng nhau",
+          "detail": {
+            "paste": 18,
+            "tex": 18,
+            "zip": 18
+          }
+        },
+        {
+          "ok": true,
+          "name": "vai trò bảng giống nhau",
+          "detail": {
+            "paste": {
+              "mcq": 1,
+              "data": 1
+            },
+            "tex": {
+              "mcq": 1,
+              "data": 1
+            },
+            "zip": {
+              "mcq": 1,
+              "data": 1
+            }
+          }
+        },
+        {
+          "ok": true,
+          "name": "trạng thái kiểm định L1–L4 giống nhau",
+          "detail": {
+            "paste": [
+              "PASS",
+              "PASS",
+              "PASS",
+              "PASS"
+            ],
+            "tex": [
+              "PASS",
+              "PASS",
+              "PASS",
+              "PASS"
+            ],
+            "zip": [
+              "PASS",
+              "PASS",
+              "PASS",
+              "PASS"
+            ]
+          }
+        },
+        {
+          "ok": true,
+          "name": "giữ đúng chữ có dấu",
+          "detail": " nên , do đó kết quả là . u⊥v u⋅v=0 4\n x\n 1\n 2\n y\n 3\n 5\nKết thúc đề với dòng chữ có dấu: Trường học, người thầy, ước mơ."
+        }
+      ],
+      "info": {
+        "layers": [
+          "PASS",
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "equation_nodes": 18,
+        "tables_by_role": {
+          "mcq": 1,
+          "data": 1
+        },
+        "preprocess": "engine"
+      }
+    },
+    {
+      "group": "G1",
+      "id": "G1.2",
+      "title": "QA hiển thị (render Word→PDF + so với PDF tham chiếu) cho .tex và .pdf",
+      "status": "PASS",
+      "seconds": 21.0,
+      "checks": [
+        {
+          "ok": true,
+          "name": "có kết quả nhóm E",
+          "detail": "Không có nguồn so sánh hợp lệ (PDF gốc / PDF biên dịch từ TeX) → NOT_MEASURED. Chỉ có ảnh Word thì không đo được độ giống. Biên dịch: LaTeX Error: Environment ex undefined."
+        },
+        {
+          "ok": true,
+          "name": "chưa đo được → không được 'passed'",
+          "detail": "review_required"
+        },
+        {
+          "ok": true,
+          "name": "trình render bỏ OMML → báo cáo, không 'passed'",
+          "detail": "review_required"
+        },
+        {
+          "ok": true,
+          "name": "PDF: có nhóm E",
+          "detail": "Trang nguồn 1 / Word 1; chữ hiển thị giữ 100.0%; IoU mực (heuristic bố cục) 0.15."
+        }
+      ],
+      "info": {
+        "tex_L5": "NOT_MEASURED: Không có nguồn so sánh hợp lệ (PDF gốc / PDF biên dịch từ TeX) → NOT_MEASURED. Chỉ có ảnh Word thì không đo được độ giống. Biên dịch: LaTeX Error:…",
+        "pdf_L5": "PASS: Trang nguồn 1 / Word 1; chữ hiển thị giữ 100.0%; IoU mực (heuristic bố cục) 0.15.",
+        "tex_issues": [
+          "qa_renderer_drops_omml"
+        ]
+      }
+    },
+    {
+      "group": "G2",
+      "id": "G2.1",
+      "title": "TeX: chữ dựng sẵn (NFC) và chữ tổ hợp (NFD) cho cùng văn bản Word",
+      "status": "PASS",
+      "seconds": 0.5,
+      "checks": [
+        {
+          "ok": true,
+          "name": "văn bản Word (chuẩn hoá NFC) giống nhau",
+          "detail": [
+            "Trường Trung học phổ thông Nguyễn Huệ\nĐề kiểm tra môn Toán lớp mười hai\nHọc sinh đọc kỹ đề bài trước khi làm.\nPhương trì",
+            "Trường Trung học phổ thông Nguyễn Huệ\nĐề kiểm tra môn Toán lớp mười hai\nHọc sinh đọc kỹ đề bài trước khi làm.\nPhương trì"
+          ]
+        },
+        {
+          "ok": true,
+          "name": "có dòng: Trường Trung học phổ thông Nguyễn Huệ",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "có dòng: Đề kiểm tra môn Toán lớp mười hai",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "có dòng: Học sinh đọc kỹ đề bài trước khi làm.",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "có dòng: Phương trình bậc hai có nghiệm thực khi ",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "có dòng: Người ra đề: thầy Lê Văn Thưởng, tổ Toán",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "có dòng: Thời gian làm bài chín mươi phút, không ",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "không mất dấu (L1)",
+          "detail": "Giữ 100.0% token nguồn (59/59); đủ nội dung chữ."
+        }
+      ]
+    },
+    {
+      "group": "G2",
+      "id": "G2.2",
+      "title": "PDF phông TrueType nhúng tập con (subset), chữ tiếng Việt dựng sẵn",
+      "status": "PASS",
+      "seconds": 0.3,
+      "checks": [
+        {
+          "ok": true,
+          "name": "có dòng: Trường Trung học phổ thông Nguyễn Huệ",
+          "detail": "Trường Trung học phổ thông Nguyễn Huệ Đề kiểm tra môn Toán lớp mười hai Học sinh đọc kỹ đề bài trước khi làm. Phương trình bậc hai có nghiệm thực khi biệt thức không âm. Người ra đề: thầy Lê Văn Thưởn"
+        },
+        {
+          "ok": true,
+          "name": "có dòng: Đề kiểm tra môn Toán lớp mười hai",
+          "detail": "Trường Trung học phổ thông Nguyễn Huệ Đề kiểm tra môn Toán lớp mười hai Học sinh đọc kỹ đề bài trước khi làm. Phương trình bậc hai có nghiệm thực khi biệt thức không âm. Người ra đề: thầy Lê Văn Thưởn"
+        },
+        {
+          "ok": true,
+          "name": "có dòng: Học sinh đọc kỹ đề bài trước khi làm.",
+          "detail": "Trường Trung học phổ thông Nguyễn Huệ Đề kiểm tra môn Toán lớp mười hai Học sinh đọc kỹ đề bài trước khi làm. Phương trình bậc hai có nghiệm thực khi biệt thức không âm. Người ra đề: thầy Lê Văn Thưởn"
+        },
+        {
+          "ok": true,
+          "name": "có dòng: Phương trình bậc hai có nghiệm thực khi ",
+          "detail": "Trường Trung học phổ thông Nguyễn Huệ Đề kiểm tra môn Toán lớp mười hai Học sinh đọc kỹ đề bài trước khi làm. Phương trình bậc hai có nghiệm thực khi biệt thức không âm. Người ra đề: thầy Lê Văn Thưởn"
+        },
+        {
+          "ok": true,
+          "name": "có dòng: Người ra đề: thầy Lê Văn Thưởng, tổ Toán",
+          "detail": "Trường Trung học phổ thông Nguyễn Huệ Đề kiểm tra môn Toán lớp mười hai Học sinh đọc kỹ đề bài trước khi làm. Phương trình bậc hai có nghiệm thực khi biệt thức không âm. Người ra đề: thầy Lê Văn Thưởn"
+        },
+        {
+          "ok": true,
+          "name": "có dòng: Thời gian làm bài chín mươi phút, không ",
+          "detail": "Trường Trung học phổ thông Nguyễn Huệ Đề kiểm tra môn Toán lớp mười hai Học sinh đọc kỹ đề bài trước khi làm. Phương trình bậc hai có nghiệm thực khi biệt thức không âm. Người ra đề: thầy Lê Văn Thưởn"
+        },
+        {
+          "ok": true,
+          "name": "L1 PASS (chữ PDF ↔ Word)",
+          "detail": "Giữ 100.0% từ và 100.0% chữ/số của PDF (ngoài vùng ảnh); đủ nội dung chữ."
+        }
+      ],
+      "info": {
+        "blocks": {
+          "total": 1,
+          "by_method": {
+            "text_native": 1
+          },
+          "unresolved": 0,
+          "native": 1,
+          "as_image": 0
+        }
+      }
+    },
+    {
+      "group": "G2",
+      "id": "G2.3",
+      "title": "PDF chữ tổ hợp (NFD: chữ cơ sở + dấu rời) → chữ dựng sẵn trong Word",
+      "status": "PASS",
+      "seconds": 0.3,
+      "checks": [
+        {
+          "ok": true,
+          "name": "có dòng (NFC): Trường Trung học phổ thông Nguyễn Huệ",
+          "detail": "Trường Trung học phổ thông Nguyễn Huệ Đề kiểm tra môn Toán lớp mười hai Học sinh đọc kỹ đề bài trước khi làm. Phương trình bậc hai có nghiệm thực khi biệt thức không âm. Người ra đề: thầy Lê Văn Thưởn"
+        },
+        {
+          "ok": true,
+          "name": "có dòng (NFC): Đề kiểm tra môn Toán lớp mười hai",
+          "detail": "Trường Trung học phổ thông Nguyễn Huệ Đề kiểm tra môn Toán lớp mười hai Học sinh đọc kỹ đề bài trước khi làm. Phương trình bậc hai có nghiệm thực khi biệt thức không âm. Người ra đề: thầy Lê Văn Thưởn"
+        },
+        {
+          "ok": true,
+          "name": "có dòng (NFC): Học sinh đọc kỹ đề bài trước khi làm.",
+          "detail": "Trường Trung học phổ thông Nguyễn Huệ Đề kiểm tra môn Toán lớp mười hai Học sinh đọc kỹ đề bài trước khi làm. Phương trình bậc hai có nghiệm thực khi biệt thức không âm. Người ra đề: thầy Lê Văn Thưởn"
+        },
+        {
+          "ok": true,
+          "name": "có dòng (NFC): Phương trình bậc hai có nghiệm thực khi ",
+          "detail": "Trường Trung học phổ thông Nguyễn Huệ Đề kiểm tra môn Toán lớp mười hai Học sinh đọc kỹ đề bài trước khi làm. Phương trình bậc hai có nghiệm thực khi biệt thức không âm. Người ra đề: thầy Lê Văn Thưởn"
+        },
+        {
+          "ok": true,
+          "name": "có dòng (NFC): Người ra đề: thầy Lê Văn Thưởng, tổ Toán",
+          "detail": "Trường Trung học phổ thông Nguyễn Huệ Đề kiểm tra môn Toán lớp mười hai Học sinh đọc kỹ đề bài trước khi làm. Phương trình bậc hai có nghiệm thực khi biệt thức không âm. Người ra đề: thầy Lê Văn Thưởn"
+        },
+        {
+          "ok": true,
+          "name": "có dòng (NFC): Thời gian làm bài chín mươi phút, không ",
+          "detail": "Trường Trung học phổ thông Nguyễn Huệ Đề kiểm tra môn Toán lớp mười hai Học sinh đọc kỹ đề bài trước khi làm. Phương trình bậc hai có nghiệm thực khi biệt thức không âm. Người ra đề: thầy Lê Văn Thưởn"
+        },
+        {
+          "ok": true,
+          "name": "L1 PASS",
+          "detail": "Giữ 100.0% từ và 100.0% chữ/số của PDF (ngoài vùng ảnh); đủ nội dung chữ."
+        },
+        {
+          "ok": true,
+          "name": "không báo nhầm ánh xạ sai",
+          "detail": []
+        }
+      ]
+    },
+    {
+      "group": "G2",
+      "id": "G2.4",
+      "title": "PDF thiếu ToUnicode (glyph không ánh xạ) → giữ ảnh glyph + cảnh báo, không bịa chữ",
+      "status": "PASS",
+      "seconds": 0.9,
+      "checks": [
+        {
+          "ok": true,
+          "name": "có cảnh báo unmapped_glyphs",
+          "detail": [
+            "unmapped_glyphs"
+          ]
+        },
+        {
+          "ok": true,
+          "name": "glyph không đọc được giữ bằng ảnh tại chỗ",
+          "detail": 61
+        },
+        {
+          "ok": true,
+          "name": "không lọt mã (cid:N)/U+FFFD vào Word",
+          "detail": "Trng Trung hc ph thng Nguyn Hu  kim tra mn Ton lp mi hai Hc sinhc k bi trc khi lm. Phng trnh bc hai c nghim thc khi bit "
+        },
+        {
+          "ok": true,
+          "name": "không được 'passed'",
+          "detail": "review_required"
+        }
+      ],
+      "info": {
+        "text_head": "Trng Trung hc ph thng Nguyn Hu  kim tra mn Ton lp mi hai Hc sinhc k bi trc khi lm. Phng trnh bc hai ",
+        "images": 61
+      }
+    },
+    {
+      "group": "G2",
+      "id": "G2.5",
+      "title": "PDF ToUnicode SAI có chủ đích (dịch mã) — có phát hiện được không",
+      "status": "PASS",
+      "seconds": 0.3,
+      "checks": [
+        {
+          "ok": true,
+          "name": "không được 'passed'",
+          "detail": "review_required"
+        },
+        {
+          "ok": true,
+          "name": "phát hiện (heuristic) và báo text_mapping_suspect",
+          "detail": ""
+        }
+      ],
+      "info": {
+        "detected": true,
+        "text_head": "UsƱỞoh!Usvoh!iỎd!qiỖ!uiõoh!OhvzỆo!IvỈ đỂ!ljỄn!usb!nõo!Upâo!mỜq!nƱỞj!ibj IỎd!tjoi",
+        "note": "Phát hiện bằng heuristic (chữ trích ra không giống văn bản tự nhiên); ánh xạ sai 'hợp lý' (vd. đổi chữ thành chữ khác vẫn có nguyên âm, có dấu cách) KHÔNG phát …"
+      }
+    },
+    {
+      "group": "G2",
+      "id": "G2.6",
+      "title": "Tên tệp tiếng Việt / dấu cách / tên cấm của Windows / đường dẫn lạ",
+      "status": "PASS",
+      "seconds": 1.0,
+      "checks": [
+        {
+          "ok": true,
+          "name": "tên .docx giữ tiếng Việt + dấu cách",
+          "detail": "Đề thi số 1 (bản nháp).docx"
+        },
+        {
+          "ok": true,
+          "name": "tên cấm của Windows được đổi",
+          "detail": "_CON.docx"
+        },
+        {
+          "ok": true,
+          "name": "tệp kết quả nằm trong thư mục job",
+          "detail": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\827a1c70ecd5\\out\\ra_ngoai_.docx"
+        },
+        {
+          "ok": true,
+          "name": "không còn ký tự cấm trong tên",
+          "detail": "ra_ngoai_.docx"
+        }
+      ]
+    },
+    {
+      "group": "G3",
+      "id": "G3.1",
+      "title": "TeX: toán 2D phức tạp → OMML native đúng cấu trúc",
+      "status": "PASS",
+      "seconds": 0.4,
+      "checks": [
+        {
+          "ok": true,
+          "name": "L2 PASS (khối toán khớp OMML)",
+          "detail": "28/28 khối toán khớp OMML theo thứ tự."
+        },
+        {
+          "ok": true,
+          "name": "\\vec/\\overrightarrow → dấu kết hợp U+20D7",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "\\overleftarrow → U+20D6",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "\\overleftrightarrow → U+20E1",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "\\hat/\\widehat → U+0302",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "hệ (cases/\\heva) → ngoặc nhọn co giãn",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "\\hoac → ngoặc vuông co giãn",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "ma trận → m:m",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "phân số → m:f",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "tích phân/tổng → m:nary",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "căn bậc ba có chỉ số",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "giới hạn → m:limLow",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "\\rightarrow không cắt cụt công thức (lỗi gốc)",
+          "detail": [
+            "limn→∞1+1nn=e",
+            "a→b"
+          ]
+        },
+        {
+          "ok": true,
+          "name": "\\left\\lceil … \\right\\rceil dựng ngoặc trần",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "\\pmod in ra (mod 3)",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "không lộ \\label/\\nonumber/& trong OMML",
+          "detail": []
+        },
+        {
+          "ok": true,
+          "name": "không rò lệnh TeX ra chữ",
+          "detail": []
+        }
+      ],
+      "info": {
+        "equation_nodes": 28,
+        "L2": "28/28 khối toán khớp OMML theo thứ tự."
+      }
+    },
+    {
+      "group": "G3",
+      "id": "G3.2",
+      "title": "PDF biên dịch từ TeX (đề có công thức) → công thức OMML hoặc ảnh vùng, không mất nội dung",
+      "status": "SKIP",
+      "reason": "xelatex không biên dịch được de_thi_mau.tex: …; this\r\n(fontspec)                may be but usually is not a fontspec bug. Either\r\n(fontspec)                there is a typo in the font name/file, the font is\r\n(fontspec)                not installed (correctly), or there is a bug in\r\n(fontspec)                the underlying font loading engine\r\n(fontspec)                (XeTeX/luaotfload).\r\n\r\nFor immediate help type H <return>.\r\n ...                                              \r\n                                                  \r\nl.4 \\usepackage\r\n               {amsmath,amssymb}\r\nNo pages of output.\r\nTranscript written on de_thi_mau.log.\r\n",
+      "seconds": 5.6,
+      "checks": []
+    },
+    {
+      "group": "G4",
+      "id": "G4.1",
+      "title": "Trắc nghiệm phương án ngắn → 1×4 (4 cột)",
+      "status": "PASS",
+      "seconds": 0.3,
+      "checks": [
+        {
+          "ok": true,
+          "name": "có đúng 1 bảng trắc nghiệm (role=mcq)",
+          "detail": {
+            "mcq": 1
+          }
+        },
+        {
+          "ok": true,
+          "name": "4 cột",
+          "detail": {
+            "index": 0,
+            "role": "mcq",
+            "role_source": "metadata",
+            "rows": 1,
+            "max_cols": 4,
+            "empty": false,
+            "cols": "4",
+            "answer_key": "explicit",
+            "answer_display": "shown"
+          }
+        }
+      ]
+    },
+    {
+      "group": "G4",
+      "id": "G4.2",
+      "title": "Trắc nghiệm phương án vừa → 2×2",
+      "status": "PASS",
+      "seconds": 0.3,
+      "checks": [
+        {
+          "ok": true,
+          "name": "có đúng 1 bảng trắc nghiệm (role=mcq)",
+          "detail": {
+            "mcq": 1
+          }
+        },
+        {
+          "ok": true,
+          "name": "2 cột",
+          "detail": {
+            "index": 0,
+            "role": "mcq",
+            "role_source": "metadata",
+            "rows": 2,
+            "max_cols": 2,
+            "empty": false,
+            "cols": "2",
+            "answer_key": "explicit",
+            "answer_display": "shown"
+          }
+        }
+      ]
+    },
+    {
+      "group": "G4",
+      "id": "G4.3",
+      "title": "Trắc nghiệm phương án dài → 4×1",
+      "status": "PASS",
+      "seconds": 0.4,
+      "checks": [
+        {
+          "ok": true,
+          "name": "có đúng 1 bảng trắc nghiệm (role=mcq)",
+          "detail": {
+            "mcq": 1
+          }
+        },
+        {
+          "ok": true,
+          "name": "1 cột",
+          "detail": {
+            "index": 0,
+            "role": "mcq",
+            "role_source": "metadata",
+            "rows": 4,
+            "max_cols": 1,
+            "empty": false,
+            "cols": "1",
+            "answer_key": "explicit",
+            "answer_display": "shown"
+          }
+        }
+      ]
+    },
+    {
+      "group": "G4",
+      "id": "G4.4",
+      "title": "Đáp án đánh dấu TƯỜNG MINH (\\True) → answer_key=explicit; Đúng/Sai (\\choiceTF)",
+      "status": "PASS",
+      "seconds": 0.7,
+      "checks": [
+        {
+          "ok": true,
+          "name": "có đúng 1 bảng trắc nghiệm (role=mcq)",
+          "detail": {
+            "mcq": 1
+          }
+        },
+        {
+          "ok": true,
+          "name": "answer_key=explicit",
+          "detail": {
+            "index": 0,
+            "role": "mcq",
+            "role_source": "metadata",
+            "rows": 1,
+            "max_cols": 4,
+            "empty": false,
+            "cols": "4",
+            "answer_key": "explicit",
+            "answer_display": "shown"
+          }
+        },
+        {
+          "ok": true,
+          "name": "bảng Đúng/Sai có đáp án tường minh",
+          "detail": [
+            {
+              "index": 0,
+              "role": "true_false",
+              "role_source": "metadata",
+              "rows": 5,
+              "max_cols": 3,
+              "empty": false,
+              "answer_key": "explicit",
+              "answer_display": "shown"
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "name": "điền Đ/S theo \\True",
+          "detail": "Câu 1. Xét tính đúng sai của các mệnh đề sau.\nMệnh đề\nĐúng\nSai\na) Hàm số  đồng biến trên  y=x3 ℝ\nĐ\n\nb) Phương trình  có nghiệm thực x2+1=0\n\nS\nc)  4=2\nĐ\n\nd)  là số hữu tỉ π\n\nS"
+        }
+      ]
+    },
+    {
+      "group": "G4",
+      "id": "G4.5",
+      "title": "Chỉ in đậm nhãn (không có dấu tường minh) → answer_key=unknown, không suy đáp án",
+      "status": "PASS",
+      "seconds": 0.3,
+      "checks": [
+        {
+          "ok": true,
+          "name": "nhận bảng 4 phương án",
+          "detail": {
+            "mcq": 1
+          }
+        },
+        {
+          "ok": true,
+          "name": "answer_key=unknown (không suy từ in đậm)",
+          "detail": {
+            "index": 0,
+            "role": "mcq",
+            "role_source": "metadata",
+            "rows": 1,
+            "max_cols": 4,
+            "empty": false,
+            "cols": "4",
+            "answer_key": "unknown",
+            "answer_source": "presentation_only",
+            "answer_display": "shown"
+          }
+        }
+      ]
+    },
+    {
+      "group": "G4",
+      "id": "G4.6",
+      "title": "Chế độ học sinh: không lộ đáp án (gạch chân, cột Đ/S, lời giải)",
+      "status": "PASS",
+      "seconds": 0.8,
+      "checks": [
+        {
+          "ok": true,
+          "name": "bảng trắc nghiệm không có gạch chân đánh dấu",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "answer_display=hidden",
+          "detail": [
+            {
+              "index": 0,
+              "role": "mcq",
+              "role_source": "metadata",
+              "rows": 1,
+              "max_cols": 4,
+              "empty": false,
+              "cols": "4",
+              "answer_key": "unknown",
+              "answer_display": "hidden"
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "name": "ẩn lời giải",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "cột Đúng/Sai để trống",
+          "detail": []
+        }
+      ]
+    },
+    {
+      "group": "G4",
+      "id": "G4.7",
+      "title": "PDF trắc nghiệm (A./B./C./D. cùng dòng và 2×2) → bảng phương án, answer_key=unknown",
+      "status": "PASS",
+      "seconds": 0.3,
+      "checks": [
+        {
+          "ok": true,
+          "name": "2 bảng phương án",
+          "detail": {
+            "layout_mcq_pdf": 2
+          }
+        },
+        {
+          "ok": true,
+          "name": "answer_key=unknown",
+          "detail": [
+            {
+              "index": 0,
+              "role": "layout_mcq_pdf",
+              "role_source": "metadata",
+              "rows": 2,
+              "max_cols": 2,
+              "empty": false,
+              "block": "p1-mcq1",
+              "cols": "2",
+              "answer_key": "unknown"
+            },
+            {
+              "index": 1,
+              "role": "layout_mcq_pdf",
+              "role_source": "metadata",
+              "rows": 4,
+              "max_cols": 1,
+              "empty": false,
+              "block": "p1-mcq2",
+              "cols": "1",
+              "answer_key": "unknown"
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "name": "có 'A. 4.'",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "có 'D. 7.'",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "có 'Hà Nội'",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "có 'Cần Thơ'",
+          "detail": ""
+        }
+      ],
+      "info": {
+        "cols": [
+          2,
+          1
+        ]
+      }
+    },
+    {
+      "group": "G5",
+      "id": "G5.1",
+      "title": "Bảng biến thiên nhiều dòng (2 dòng biến thiên) → bảng Word native",
+      "status": "PASS",
+      "seconds": 0.4,
+      "checks": [
+        {
+          "ok": true,
+          "name": "2 bảng biến thiên (role=variation)",
+          "detail": {
+            "variation": 2
+          }
+        },
+        {
+          "ok": true,
+          "name": "bảng 1 có ≥4 hàng (x, f', f, g)",
+          "detail": {
+            "index": 0,
+            "role": "variation",
+            "role_source": "metadata",
+            "rows": 4,
+            "max_cols": 8,
+            "empty": false,
+            "source": "tkz-tab"
+          }
+        },
+        {
+          "ok": true,
+          "name": "không có BBT chưa dựng",
+          "detail": []
+        },
+        {
+          "ok": true,
+          "name": "L4 PASS",
+          "detail": "variation 2/2."
+        }
+      ],
+      "info": {
+        "variation": [
+          {
+            "index": 0,
+            "role": "variation",
+            "role_source": "metadata",
+            "rows": 4,
+            "max_cols": 8,
+            "empty": false,
+            "source": "tkz-tab"
+          },
+          {
+            "index": 1,
+            "role": "variation",
+            "role_source": "metadata",
+            "rows": 3,
+            "max_cols": 6,
+            "empty": false,
+            "source": "tkz-tab"
+          }
+        ]
+      }
+    },
+    {
+      "group": "G5",
+      "id": "G5.2",
+      "title": "Tiệm cận đứng hai phía (-D+, d) → một ô có giá trị hai bên vạch kép",
+      "status": "PASS",
+      "seconds": 0.4,
+      "checks": [
+        {
+          "ok": true,
+          "name": "có bảng tiệm cận",
+          "detail": 2
+        },
+        {
+          "ok": true,
+          "name": "một ô chứa cả −∞ và +∞ (hai phía tiệm cận)",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "ô tiệm cận có hai vạch dọc (vạch kép)",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "group": "G5",
+      "id": "G5.3",
+      "title": "Bảng gộp ô (\\multirow + \\multicolumn) giữ đủ ô",
+      "status": "PASS",
+      "seconds": 0.3,
+      "checks": [
+        {
+          "ok": true,
+          "name": "có gộp dọc (vMerge)",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "có gộp ngang (gridSpan)",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "có ô 'Nhóm'",
+          "detail": "Nhóm\nKết quả\n\nĐạt\nKhông đạt\nLớp A\n12\n3"
+        },
+        {
+          "ok": true,
+          "name": "có ô 'Kết quả'",
+          "detail": "Nhóm\nKết quả\n\nĐạt\nKhông đạt\nLớp A\n12\n3"
+        },
+        {
+          "ok": true,
+          "name": "có ô 'Đạt'",
+          "detail": "Nhóm\nKết quả\n\nĐạt\nKhông đạt\nLớp A\n12\n3"
+        },
+        {
+          "ok": true,
+          "name": "có ô 'Không đạt'",
+          "detail": "Nhóm\nKết quả\n\nĐạt\nKhông đạt\nLớp A\n12\n3"
+        },
+        {
+          "ok": true,
+          "name": "có ô 'Lớp A'",
+          "detail": "Nhóm\nKết quả\n\nĐạt\nKhông đạt\nLớp A\n12\n3"
+        },
+        {
+          "ok": true,
+          "name": "có ô '12'",
+          "detail": "Nhóm\nKết quả\n\nĐạt\nKhông đạt\nLớp A\n12\n3"
+        },
+        {
+          "ok": true,
+          "name": "có ô '3'",
+          "detail": "Nhóm\nKết quả\n\nĐạt\nKhông đạt\nLớp A\n12\n3"
+        },
+        {
+          "ok": true,
+          "name": "không có bảng rỗng",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "group": "G5",
+      "id": "G5.4",
+      "title": "longtable dài → lặp dòng tiêu đề khi sang trang (tblHeader)",
+      "status": "PASS",
+      "seconds": 0.5,
+      "checks": [
+        {
+          "ok": true,
+          "name": "dòng tiêu đề lặp (tblHeader)",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "đủ 41 hàng",
+          "detail": [
+            {
+              "index": 0,
+              "role": "data",
+              "role_source": "metadata",
+              "rows": "41",
+              "max_cols": 3,
+              "empty": false,
+              "cols": "3"
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "name": "giữ hàng cuối",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "group": "G5",
+      "id": "G5.5",
+      "title": "PDF bảng trải nhiều trang → bảng native từng trang, không mất hàng",
+      "status": "PASS",
+      "seconds": 1.2,
+      "checks": [
+        {
+          "ok": true,
+          "name": "đủ 70 hàng học sinh",
+          "detail": []
+        },
+        {
+          "ok": true,
+          "name": "bảng native ở mỗi trang",
+          "detail": {
+            "total": 3,
+            "by_method": {
+              "table_native": 3
+            },
+            "unresolved": 0,
+            "native": 3,
+            "as_image": 0
+          }
+        },
+        {
+          "ok": true,
+          "name": "L4 PASS",
+          "detail": "3/3 bảng native, 0/0 bảng giữ ảnh."
+        }
+      ],
+      "info": {
+        "note": "Bảng trải nhiều trang được dựng thành MỘT bảng Word cho MỖI trang PDF (giữ dòng tiêu đề lặp như bản in); chưa tự nối thành một bảng liền.",
+        "tables": 3
+      }
+    },
+    {
+      "group": "G6",
+      "id": "G6.1",
+      "title": "Hình TikZ đơn giản → DrawingML (đã kiểm chứng) hoặc ảnh vector; không mất hình",
+      "status": "PASS",
+      "seconds": 4.6,
+      "checks": [
+        {
+          "ok": true,
+          "name": "1 khối hình",
+          "detail": [
+            "vector_image"
+          ]
+        },
+        {
+          "ok": true,
+          "name": "dựng native hoặc giữ ảnh",
+          "detail": {
+            "block_id": "tex-fig-0001",
+            "kind": "figure",
+            "source": {
+              "file": "hinh_don_gian.tex",
+              "line": 7
+            },
+            "tex": "\\begin{tikzpicture}\n\\draw[thick] (0,0) -- (4,0) -- (1,3) -- cycle;\n\\node[below left] at (0,0) {$A$};\n\\node[below right] at (4,0) {$B$};\n\\node[above] at (1,3) {$…",
+            "index": 1,
+            "method": "vector_image",
+            "status": "fallback",
+            "reason": "thiếu LibreOffice để render thử DrawingML",
+            "warnings": [],
+            "asset": {
+              "ext": "svg",
+              "width_pt": 151.97999572753906,
+              "height_pt": 121.69999694824219,
+              "engine": "xelatex",
+              "geom_png": "b'\\x89PNG\\r\\n\\x1a\\n\\x00\\x00\\x00\\rIHDR\\x00\\x00\\x01=\\x00\\x00\\x00\\xfe\\x08\\x02\\x00\\x00\\x00\\xc7\\xf2Ed\\x00\\x00\\x0c\\xd3IDATx\\x9c\\xed\\xddKS\\x14\\xe7\\x1e\\xc7\\xf1q\\xb6.-F\\x05\\x11\\xaf\\xa4@\\xe3\\xddr\\xdb\\xe3K09\\xa8\\xa0\\xdc\\x95\\x81\\xc1w\\xe1;\\x90\\xab\\xe0\\x05\\x14L\\x86\\xca\"U\\x01qc\\xb7&\\x9a\\xbc\\x01c\"^@\\xbc\\xe0\\xc2\\x8d:\\xa0+N\\x95\\x9c\\xb2\\xfa\\xc8 \\x03\\xd3\\xdd\\xcf\\xf3\\x7f\\x9e\\xefg\\x95\\xa2\\xac\\xd0\\x99\\xa9_\\xfd~\\xf6-k\\xe6\\xe7\\xe7c\\x00D\\x89\\xab>\\x00\\x00+Fn\\x01y\\xc8- \\x0f\\xb9\\x05\\xe4!\\xb7\\x80<\\xe4\\x16\\x90\\x87\\xdc\\x02\\xf2\\x90[@\\x1er\\x0b\\xc8Cn\\x01y\\xc8- \\x0f\\xb9\\x05\\xe4!\\xb7\\x80<\\xe4\\x16\\x90\\x87\\xdc\\x02\\xf2\\x90[@\\x1er\\x0b\\xc8Cn\\x01y\\xc8- \\x0f\\xb9\\x05\\xe4!\\xb7\\x80<\\xe4\\x16\\x90\\x87\\xdc\\x02\\xf2\\x90[@\\x1er\\x0b\\xc8Cn\\x01y\\xc8- \\x0f\\xb9\\x05\\xe4!\\xb7\\x80<\\xe4\\x16\\x90\\x87\\xdc\\x02\\xf2\\x90[@\\x1er\\x0b\\xc8Cn\\x01y\\xc8- \\x0f\\xb9\\xcd\\xcb\\xfb\\xf7\\xef\\xc3\\xfe&\\x80\\xfc\\x91\\xdb\\xe5e\\xb3\\xd9\\x83\\x07\\x0fNLL\\xac\\xe0s\\x05\\xc2Dn\\x977:::11Q^^Nt\\xa1\\tr\\xbb\\xbcL&\\xb3\\xf0\\x0f\\xc9d\\x92\\xe8B\\x07\\xe4v\\x19\\xd9lvll\\xccq\\x9cL&\\xf3\\xe6\\xcd\\x1b\\xa2\\x0b\\x1d\\x90\\xdbe\\x8c\\x8e\\x8e\\xce\\xcd\\xcd\\xfd\\xe7\\xb3\\xe1\\xe1a\\xa2\\x0b\\x1d\\x90\\xdbed2\\x99x<\\xfe\\xc3\\x0f?\\xc4b1\\x7ft\\x1f?~\\x1c\\xcd7\\x04,\\xb6f~~>\\xc7\\x8f\\xf1Y6\\x9b-**:r\\xe4\\x88\\xeb\\xba_>\\x92\\x91\\x91\\x91\\xea\\xea\\xea\\xf5\\xeb\\xd7{\\x9e\\xb7c\\xc7\\x0e>*D\\x8f\\xbe\\xcdk$\\xfb\\x7f\\xf8\\xa5u\\x1d\\xc7\\xa1u\\xa1\\x04\\xb9\\xfd\\x96\\x91\\x91\\x91x<~\\xec\\xd8\\xb1\\xaf~Nt\\xa1\\x16;yI\\xd9l6\\x91H\\x1c>|\\xd8\\xf3\\xbc\\x9c\\x7f \\x93\\xc9\\xd4\\xd4\\xd40\\x98\\x11=\\xfavI\\xa3\\xa3\\xa3\\xb3\\xb3\\xb3UUUK\\xfd\\x81\\xaa\\xaa\\xaa\\xa1\\xa1!\\x063\\xa2GnW<\\x92\\xfd\\x88.\\x94`\\'\\xafr$/\\x1e\\xcc\\x1b6lp]\\x973\\xcc\\x88\\x00}\\xbb\\xca\\x91\\xbc\\xb8ugff\\xb8\\xae\\x8bh\\x90\\xdb\\xd5\\x8fd?\\xa2\\x8b(\\xb1\\x93s\\x98\\x9d\\x9d-**\\xcas$\\xfbe2\\x99\\xea\\xea\\xea\\x8d\\x1b72\\x98\\x11*\\xfa6\\x87\\xdf~\\xfbmvv\\xf6\\xab\\xdb-\\xf2QUU5<<\\xfc\\xfa\\xf5k\\x063BEn\\x97\\x1c\\xc9\\x0b\\xf7$\\x17\\x12\\xdd\\'O\\x9e\\x14\\xfe\\r\\x01\\x8b\\xb1\\x93\\x03\\x1b\\xc99\\x07\\xb3\\xe7y\\xdb\\xb7o_\\xf5\\xbf\\x07\\xc8\\x89\\xbe\\xcd}&y\\x15#9g\\xeb:\\x8eC\\xeb\"p\\xe4\\xf6[\\x0f\\xee\\x15\\x82\\xe8\"<\\xec\\xe4\\xe0G\\xb2\\xdf\\xcf?\\xff\\\\SS\\xc3`F\\xb0\\xe8\\xdb\\xe0G\\xb2\\xdf\\xf1\\xe3\\xc7\\x87\\x86\\x86\\x18\\xcc\\x08\\x16\\xb9\\re$\\xfb\\x11]\\x04\\x8e\\x9d\\x1c\\xe2H^<\\x98\\x8b\\x8b\\x8b]\\xd7\\xe5\\x0c3\\nD\\xdf\\x868\\x92\\x17\\xb7\\xee\\xabW\\xaf\\xb8\\xae\\x8b\\xc2\\x91\\xdb`n\\xb7\\xc8\\x07\\xd1EP\\xd8\\xc9\\xff7\\x92\\x0f\\x1d:t\\xe7\\xce\\x9dX\\x98\\x18\\xcc(\\x1c}\\xbb\\x9a\\x07\\xf7\\nq\\xfc\\xf8\\xf1\\xeb\\xd7\\xaf3\\x98Q\\x08r\\x1b\\xd1H\\xf6;q\\xe2\\xc4\\x97\\xe8>}\\xfa4\\x82\\xdf\\x08\\xc3\\xb0\\x93#\\x1d\\xc9~?\\xfd\\xf4\\xd3\\xa9S\\xa7\\x8a\\x8b\\x8b=\\xcf\\xdb\\xb6m[d\\xbf\\x17\\x06\\xa0o#\\x1d\\xc99[\\xd7q\\x1cZ\\x17+Bn\\xa3\\x1e\\xc9~D\\x17\\xab\\xc3NV3\\x92\\xfd\\x18\\xccX)\\xfa6\\xdc\\xdb-\\xf2q\\xe2\\xc4\\x89k\\xd7\\xae1\\x98\\x91?r\\xfb\\xbf\\x91\\xfc\\xe3\\x8f?\\xc6\\xd49y\\xf2$\\xd1E\\xfel\\xdf\\xc9\\xcaG\\xb2\\xdf\\x8d\\x1b7N\\x9f>]RR\\xe2\\xba.g\\x98\\xf1\\r\\xb6\\xf7\\xad\\xf2\\x91\\xbc\\xb8u_\\xbe|\\xc9u]|\\x9b\\xed\\xb9\\xd5a$\\xfb\\x11]\\xe4\\xc3\\xea\\x9d\\xac\\xd5H\\xf6c0\\xe3\\xdb\\xac\\xee\\xdb\\xb1\\xb11}F\\xb2\\xdf\\xc9\\x93\\'\\x07\\x07\\x07\\x19\\xccX\\x8a\\xd5\\xb9\\r\\xe3\\xed\\x16A\\xa9\\xae\\xae\\xfe\\x12\\xddg\\xcf\\x9e\\xa9>\\x1c\\xe8\\xc5\\xde\\x9d\\xac\\xedH\\xf6\\x1b\\x1e\\x1e\\xae\\xad\\xad-))\\xf1<o\\xeb\\xd6\\xad\\xaa\\x0f\\x07\\xba\\xb0\\xb7o\\xb5\\x1d\\xc99[\\xd7q\\x1cZ\\x17_\\xd8\\x9b[\\x9dG\\xb2\\x1f\\xd1\\xc5b\\x96\\xeed\\x11#\\xd9\\x8f\\xc1\\x0c?K\\xfbV\\xc4H\\xf6\\xa3u\\xe1ginU=\\xb8W\\x88\\xea\\xea\\xea\\x81\\x81\\x01\\xfe\\xae\\x0bKw\\xf2\\xec\\xecl\"\\x918p\\xe0\\xc0\\xdd\\xbbwc\\xd2\\x0c\\r\\r\\xd5\\xd5\\xd5m\\xda\\xb4\\xc9u]\\xce0[\\xcb\\xc6\\xbe\\x1d\\x1b\\x1b\\xcbf\\xb3\\x11\\xbf\\xdd\"(555\\x03\\x03\\x03/^\\xbc\\xe0\\xba\\xae\\xcdl\\xcc\\xad\\xc4\\x91\\xecGta\\xddN\\x16=\\x92\\xfd\\x18\\xcc6\\xb3\\xaeoE\\x8fd?Z\\xd7f\\xd6\\xe5V\\xfaH^\\x1c\\xdd\\xe9\\xe9\\xe9d2999\\xa9\\xfap\\x10\\x1d\\xbbv\\xf2\\xdc\\xdc\\\\QQ\\x91\\x01#\\xd9ohh\\xa8\\xb6\\xb6\\xb6\\xb4\\xb4\\xd4\\xf3\\xbc-[\\xb6\\xa8>\\x1cD\\xc1\\xae\\xbe\\x1d\\x1d\\x1d\\xcdf\\xb3\\x82n\\xb7\\xc8GMM\\xcd\\xe0\\xe0\\xe0\\xf4\\xf4\\xb4\\xe38\\xb4\\xae%\\xec\\xca\\xadno\\xb7\\x08\\n\\xd1\\xb5\\x8dE;\\xd9\\xc8\\x91\\xec\\xc7`\\xb6\\x87E}k\\xe4H\\xf6\\xa3u\\xedaQnM:\\x93\\xbc\\xec\\x19f\\xfe\\xaek6[v\\xb2\\xf1#\\xd9\\xef\\xfa\\xf5\\xebuuu\\x9ca6X\\xdc\\xaa\\xdb-\\x0c\\x1e\\xc9~\\xa7N\\x9d\\xa2u\\xcdfKn\\xa5\\xbc\\xdd\"(D\\xd7lV\\xecd\\xabF\\xb2\\x1f\\x83\\xd9TV\\xf4\\xadU#\\xd9\\x8f\\xd65\\x95\\x15\\xb9\\xcdd2k\\xd6\\xac\\xb1g$/\\x15\\xdd\\xa9\\xa9)\\xd5\\x87\\x83`\\x98\\xbf\\x93\\x17F\\xf2\\xfe\\xfd\\xfb\\x7f\\xff\\xfd\\xf7\\x98\\xad\\xae]\\xbbV__\\xbfy\\xf3f\\xcf\\xf3\\xca\\xca\\xcaT\\x1f\\x0e\\ne~\\xdf\\x1a\\xf3\\xe0^!N\\x9f>}\\xf5\\xea\\xd5\\xe7\\xcf\\x9f\\xd3\\xbaf0?\\xb7###\\xd6\\x8ed?\\xa2k\\x12\\xc3w2#\\xf9+\\x0cf3\\x18\\xde\\xb7\\x8c\\xe4\\xaf\\xd0\\xbaf0<\\xb7\\x8c\\xe4\\xc5\\x88\\xae\\x01L\\xde\\xc9\\x8c\\xe4o\\x18\\x1c\\x1clhh(++s]\\x973\\xcc\\xe2\\x98\\xdc\\xb7\\xd6\\xden\\x91\\x8f\\xda\\xda\\xda+W\\xaeLMM%\\x93I\\xae\\xeb\\x8a\\x137~$\\x9b\\xf7v\\x8b\\xa0\\x10]\\xb9\\x8c\\xdd\\xc9\\x8c\\xe4<1\\x98%2\\xb6o\\x19\\xc9y\\xa2u%26\\xb7\\x8c\\xe4\\xd5E\\xf7\\xf9\\xf3\\xe7!~+\\x08\\x88\\x99;\\x99\\x91\\xbc\\n\\x03\\x03\\x03\\x8d\\x8d\\x8deee\\x9e\\xe7m\\xde\\xbc9\\xf8o\\x05\\xc11\\xb3oo\\xde\\xbc\\xc9\\x99\\xe4\\x95\\xaa\\xab\\xab\\xbb|\\xf9\\xf2\\xd4\\xd4\\x94\\xe38\\xb4\\xae\\xe6\\xe2\\x06?\\xb8\\xc7\\x99\\xe4\\x95\"\\xbaR\\x18\\xb8\\x93\\x19\\xc9\\x05b0\\xeb\\xcf\\xc0\\xbee$\\x17\\x88\\xd6\\xd5\\x9f\\x81\\xb9\\xb5\\xf9\\xed\\x16A!\\xba\\x9a3m\\'/\\x8c\\xe4}\\xfb\\xf6\\xfd\\xf1\\xc7\\x1f\\xaa\\x8f\\xc5\\x90\\xc1\\xbce\\xcb\\x16\\xd7u9\\xc3\\xac\\x95\\xb8\\x91#\\xd9\\xf2\\xb7[\\x04\\xa5\\xae\\xae\\xee\\xd2\\xa5K\\x93\\x93\\x93\\\\\\xd7\\xd5\\x8di\\xb9\\xe5\\xc1\\xbd`\\xd5\\xd7\\xd7\\x13]\\r\\x19\\xb5\\x93\\xe7\\xe6\\xe6\\x12\\x89\\xc4\\xde\\xbd{\\x19\\xc9\\xc1\\xbaz\\xf5jSS\\x13\\x83Y\\x1fF\\xf5\\xed\\xcd\\x9b7?|\\xf8\\xc0H\\x0e\\x1c\\xad\\xab\\x1b\\xa3r\\xcbH\\x8e&\\xba\\xd3\\xd3\\xd3!\\xfe&X\\xb5\\x93\\x19\\xc9Q\\x0ef\\xcf\\xf3JKK\\xa3\\xf8\\x950\\xbbo\\x17F2o\\xb7\\x08U}}}\\x7f\\x7f\\xff\\xe4\\xe4\\xa4\\xe38\\xb4\\xaeB\\xe6\\xe4\\x96\\x07\\xf7\\xa2\\xd1\\xd0\\xd0@t\\x953d\\'\\x7f\\xfc\\xf8\\xb1\\xa8\\xa8\\x883\\xc9\\x91\\xb9r\\xe5Jss3\\x83Y\\x15C\\xfavll\\x8c\\x91\\x1c%ZW-Cr\\xcbH\\x8e\\x1e\\xd1U\\xc8\\x84\\x9d\\xccHV>\\x98\\xb7n\\xdd\\xea\\xba.g\\x98#cB\\xdf2\\x92\\x15jhh\\xe8\\xeb\\xeb{\\xfa\\xf4)\\xd7u\\xa3dBn\\x19\\xc9j566\\xf6\\xf7\\xf7\\x13\\xdd(\\x89\\xdf\\xc9\\x8cdM\\\\\\xbe|\\xb9\\xb9\\xb9y\\xdb\\xb6m\\x0c\\xe6\\x08\\x88\\xef[n\\xb7\\xd0\\x04\\xad\\x1b%\\xf1\\xb9\\xe5\\x15pzF\\xf7\\xc5\\x8b\\x17\\xaa\\x0f\\xc7d\\xb2w2#Y\\xe7\\xc1\\xecy\\xde\\xa6M\\x9bT\\x1f\\x8e\\x99d\\xf7-#Y\\xe7\\xd6u\\x1c\\x87\\xd6\\r\\x89\\xec\\xdc2\\x92\\xf5Dt\\xc3&x\\'/\\x8c\\xe4={\\xf6\\xdc\\xbbwO\\xf5\\xb1 \\x07\\x06sx\\x04\\xf7-o\\xb7\\xd0\\x1c\\xad\\x1b\\x1e\\xc1\\xb9\\xe5v\\x0b\\xfd\\x11\\xdd\\x90H\\xdd\\xc9\\x8cdq\\x83y\\xfb\\xf6\\xed\\xae\\xebr\\x86\\xd9\\xea\\xbee$\\x8bk\\xdd\\'O\\x9ep]\\xd7\\xf6\\xdc2\\x92eill\\xec\\xeb\\xeb#\\xbaV\\xefdF\\xb2P\\x97.]:s\\xe6\\x0c\\x83\\xd9\\xd2\\xbe\\xe5v\\x0b\\xa1\\x9a\\x9a\\x9ah]{s\\xbb0\\x92yu\\xa3\\xf4\\xe8\\xbe|\\xf9R\\xf5\\xe1H%o\\'3\\x92M\\x1a\\xcc\\x9e\\xe7\\x95\\x94\\x94\\xa8>\\x1cy\\xe4\\xf5-#\\xd9\\xa4\\xd6u\\x1c\\x87\\xd6\\xb5\"\\xb7\\x9cI6CSS\\xd3\\xc5\\x8b\\x17\\x89\\xae\\x15;\\x99\\x91l\\x98\\xfe\\xfe\\xfe\\xb3g\\xcf2\\x98\\r\\xef[F\\xb2a\\x9a\\x9b\\x9bi]\\xf3s\\xcbH6\\x0f\\xd15|\\'3\\x92\\x8d\\x1f\\xcc;v\\xecp]\\x973\\xccF\\xf5\\xed\\xf8\\xf88\\xff3\\x11\\xb3[\\xf7\\xf1\\xe3\\xc7\\\\\\xd75-\\xb7\\xbc\\xdd\\xc2lD\\xd7\\xc0\\x9d\\xbc0\\x92\\xbf\\xff\\xfe\\xfb\\xfb\\xf7\\xef\\xab>\\x16\\x84\\xa8\\xaf\\xaf\\xaf\\xa5\\xa5\\x85\\xc1lH\\xdf.\\x8c\\xe4\\xaa\\xaa*\\xd5\\x07\\x82p\\x9d9s\\xa6\\xb7\\xb7\\x97\\xc1lHn\\x19\\xc9vF\\xf7\\xd5\\xabW\\xaa\\x0fGG2v2#\\xd9\\xe6\\xc1\\xecy^qq\\xb1\\xea\\xc3\\xd1\\x8b\\x8c\\xbee$\\xdb\\xdc\\xba\\x8e\\xe3\\xd0\\xba\"s\\xcb\\xed\\x16v\"\\xba\\x82w\\xf2\\xc7\\x8f\\x1f\\x13\\x89\\xc4\\xee\\xdd\\xbb9\\x93l\\xa7\\x8b\\x17/\\xa6R)\\x06\\xb3\\xb0\\xbe\\x1d\\x1f\\x1f\\x7f\\xff\\xfe=O\\xc9[\\xeb\\xec\\xd9\\xb3===\\x0cfa\\xb9\\xe5\\xed\\x16 \\xba\\xc2v2#\\x19_\\r\\xe6\\x9d;w\\xba\\xaek\\xf9\\x19f\\xdd\\xfb\\x96\\x91\\x8c\\xafZwbb\\x82\\xeb\\xba\\xba\\xe7\\x96\\x91\\x0c?\\xa2+`\\'3\\x92\\x91Soookk\\xab\\xcd\\x83Y\\xeb\\xbee$#\\xa7\\x96\\x96\\x96\\xee\\xeen\\x9b\\x07\\xb3\\xd6\\xb9\\xe5v\\x0b,\\xa5\\xc5\\xee\\xe8\\xea\\xbb\\x93\\x19\\xc9\\xc8\\x7f0{\\x9e\\xb7q\\xe3F{>1}\\xfb\\xf6\\xd6\\xad[\\xdcn\\x81<[\\xd7q\\x9c\\xd7\\xaf_\\xdb\\xf3q\\xe9\\x9b[\\x1e\\xdcC>Z\\xac\\x8c\\xae\\xa6;ya$\\xef\\xda\\xb5\\xeb\\xcf?\\xffT},\\x10\\xa0\\xd7\\xb2\\xc1\\x1c\\xd7y$\\xf3v\\x0b\\xe4\\xa9\\xa5\\xa5\\xa5\\xab\\xab\\xcb\\x9e\\xd6\\xd54\\xb7\\x8cd\\xacT*\\x95\\xb2\\'\\xba:\\xeedF2V\\xad\\xa7\\xa7\\xa7\\xad\\xad\\xad\\xbc\\xbc\\xdcu]\\x83\\x07\\xb3\\x8e}\\xcbHF\\x81\\xad\\xfb\\xe8\\xd1\\xa3d2ip\\xeb\\xea\\x98[n\\xb7@!R\\x16DW\\xbb\\x9d\\xccHF z\\x8c\\x1e\\xcc\\xda\\xf5-\\xb7[ \\x10\\xa9T\\xaa\\xb3\\xb3\\xd3\\xd4\\xd6\\xd5.\\xb7<\\xb8\\x87\\xa0\\xb4\\xb6\\xb6\\x9a\\x1a]\\xbdv2#\\x19\\x81\\xeb\\xee\\xeeN\\xa7\\xd3\\xe5\\xe5\\xe5\\x9e\\xe7m\\xd8\\xb0\\xc1\\x8cOX\\xaf\\xbee$#\\xbc\\xd6u\\x1cgff\\xc6\\x8cOX\\xaf\\xdc2\\x92\\x11\\x86V\\xe3\\xa2\\xab\\xd1N\\xfe\\xf4\\xe9S\"\\x91\\xa8\\xac\\xac\\xe4\\x9ed\\x84\\xa1\\xdb\\xa0\\xc1\\xacQ\\xdf\\x8e\\x8f\\x8f\\xbf{\\xf7\\x8e\\xf7$#$\\xad\\xad\\xad\\x1d\\x1d\\x1df\\xb4\\xaeF\\xb9\\xe5v\\x0b\\x84\\xad\\xad\\xad\\xcd\\x8c\\xe8\\xea\\xb2\\x93\\x19\\xc9\\x88LWWW{{\\xfbw\\xdf}\\xe7\\xba\\xae\\xd0\\xc1\\xacK\\xdf2\\x92\\x11q\\xeb\\xfe\\xfb\\xef\\xbf\\xc9dRh\\xeb\\xea\\x92[F2\\xa2\\xd4&<\\xbaZ\\xecdF2\\x94\\xe8\\x12;\\x98\\xb5\\xe8\\xdb[\\xb7nq&\\x19\\xaaZ\\xf7\\x9f\\x7f\\xfe\\x11\\xd7\\xbaZ\\xe4\\x96\\xb7[@\\x95\\xb6\\xb6\\xb6\\xce\\xceNq\\xd1U\\xbf\\x93\\x17FrEE\\xc5_\\x7f\\xfd\\xa5\\xf6H`\\xad\\xae\\xae\\xaet:]QQq\\xfb\\xf6m\\x11\\x839\\xae\\xc9H\\xe6\\x15pP\\xde\\xba\\x0f\\x1f><z\\xf4\\xa8\\x88\\xd6U\\x9f[F2t\\xd0&*\\xba\\x8aw2#\\x19Z\\xe9\\x122\\x98\\x15\\xf7-#\\x19Zi\\x13\\xd2\\xba\\x8as\\xcb\\xed\\x16\\xd0\\xf3\\xe2\\xd0\\xc3\\xcf\\xd1}\\xf3\\xe6MLK*w2#\\x19\\xda\\xea\\xec\\xecloo\\xaf\\xa8\\xa8p]w\\xfd\\xfa\\xf51\\xcd\\xa8\\xec[n\\xb7\\x80\\xb6\\xd2\\xe9\\xf4B\\xeb&\\x93I\\r[Weny\\xbb\\x05t\\x96\\xd68\\xba\\xcav2#\\x19\"tj9\\x98\\x95\\xf5-#\\x19\"\\xa4\\xb5l]e\\xb9\\x1d\\x19\\x19\\x89\\xc5b\\xbc\\x95\\x06\\xfaK\\xa7\\xd3\\x17.\\\\\\xd0*\\xbajv2#\\x19\\xe2ttt\\x9c;w\\xae\\xb2\\xb2\\xf2\\xf6\\xed\\xdb\\xca\\x07\\xb3\\x9a\\xbee$C\\x9c\\xf6\\xf6\\xf6\\x0b\\x17.\\xfc\\xfd\\xf7\\xdf:\\\\\\xd7U\\x93[F2$j\\xd7&\\xba\\nv\\xf2\\xa7O\\x9f\\xd6\\xae][ZZ\\xca\\x83{\\x90\\xa8\\xa3\\xa3\\xe3\\xfc\\xf9\\xf3\\xeb\\xd6\\xad{\\xf0\\xe0\\x81\\xb2\\xc1<\\x1f\\xb9_\\x7f\\xfdU\\xcd\\x7f*\\x10\\xa8\\xca\\xca\\xca\\x99\\x99\\x99\\xe8\\x134??\\xaf\\xa0o\\x7f\\xf9\\xe5\\x17\\xcf\\xf3\"\\xfe\\xa5@\\xb0\\xde\\xbe}\\xbbn\\xdd\\xba]\\xbbv\\xa5R\\xa9\\x98\\x85\\xef\\xbb\\x00 \\xef\\xb9y\\x00+En\\x01y\\xc8- \\x0f\\xb9\\x05\\xe4!\\xb7\\x80<\\xe4\\x16\\x90\\x87\\xdc\\x02\\xf2\\x90[@\\x1er\\x0b\\xc8Cn\\x01y\\xc8- \\x0f\\xb9\\x05\\xe4!\\xb7\\x80<\\xe4\\x16\\x90\\x87\\xdc\\x02\\xf2\\x90[@\\x1er\\x0b\\xc8Cn\\x01y\\xc8- \\x0f\\xb9\\x05\\xe4!\\xb7\\x80<\\xe4\\x16\\x90\\x87\\xdc\\x02\\xf2\\x90[@\\x1er\\x0b\\xc8Cn\\x01y\\xc8- \\x0f\\xb9\\x05\\xe4!\\xb7\\x80<\\xe4\\x16\\x90\\x87\\xdc\\x02\\xf2\\x90[@\\x1er\\x0b\\xc8Cn\\x01y\\xc8- \\x0f\\xb9\\x05b\\xe2\\xfc\\x17Y\\xc3\\xa6\\xc0\\xba\\xc4T\\xd4\\x00\\x00\\x00\\x00IEND\\xaeB`\\x82'"
+            },
+            "max_width_frac": 1.0,
+            "inline": false,
+            "verify": {
+              "done": false,
+              "reason": "thiếu LibreOffice để render thử DrawingML"
+            },
+            "parent": null
+          }
+        },
+        {
+          "ok": true,
+          "name": "L3 không FAIL",
+          "detail": "Nguồn 1 hình; Word có 0 nhóm DrawingML + 1 ảnh hình."
+        },
+        {
+          "ok": true,
+          "name": "giữ đoạn sau hình",
+          "detail": ""
+        }
+      ],
+      "info": {
+        "figure": [
+          [
+            "vector_image",
+            "fallback",
+            "thiếu LibreOffice để render thử DrawingML"
+          ]
+        ]
+      }
+    },
+    {
+      "group": "G6",
+      "id": "G6.2",
+      "title": "Hình cong/tô/nét đứt/3D → giữ ảnh vùng (snapshot TeX), không dựng DrawingML sai",
+      "status": "PASS",
+      "seconds": 2.6,
+      "checks": [
+        {
+          "ok": true,
+          "name": "1 khối hình",
+          "detail": [
+            "vector_image"
+          ]
+        },
+        {
+          "ok": true,
+          "name": "giữ ảnh vùng (vector_image)",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "ảnh có trong Word",
+          "detail": ""
+        }
+      ],
+      "info": {
+        "figure": [
+          [
+            "vector_image",
+            "fallback",
+            "có cấu trúc TikZ chưa hỗ trợ native (danh sách heuristic) → ảnh TeX"
+          ]
+        ]
+      }
+    },
+    {
+      "group": "G6",
+      "id": "G6.3",
+      "title": "\\immini (chữ + hình bên cạnh) → bảng bố cục; SVG+PNG tính MỘT ảnh logic",
+      "status": "PASS",
+      "seconds": 2.7,
+      "checks": [
+        {
+          "ok": true,
+          "name": "1 bảng bố cục layout_immini",
+          "detail": {
+            "layout_immini": 1
+          }
+        },
+        {
+          "ok": true,
+          "name": "giữ phần chữ bên trái",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "đúng 1 ảnh logic",
+          "detail": 1
+        },
+        {
+          "ok": true,
+          "name": "SVG + PNG dự phòng = 2 media cho 1 ảnh logic",
+          "detail": {
+            "logical_images": 1,
+            "svg_backed_images": 1,
+            "media_parts": 2
+          }
+        }
+      ],
+      "info": {
+        "logical_images": 1,
+        "svg_backed_images": 1,
+        "media_parts": 2,
+        "tables_by_role": {
+          "layout_immini": 1
+        }
+      }
+    },
+    {
+      "group": "G6",
+      "id": "G6.4",
+      "title": "PDF: hình đơn giản + hình cong/tô; nhãn đỉnh sát mép nằm trong vùng cắt",
+      "status": "PASS",
+      "seconds": 1.5,
+      "checks": [
+        {
+          "ok": true,
+          "name": "2 khối hình",
+          "detail": [
+            [
+              "figure",
+              "vector_image"
+            ],
+            [
+              "figure",
+              "vector_image"
+            ]
+          ]
+        },
+        {
+          "ok": true,
+          "name": "hình được giữ",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "nhãn A/B/C/M không bị mất (L1 tính cả chữ/số, trừ vùng ảnh)",
+          "detail": "Giữ 100.0% từ và 100.0% chữ/số của PDF (ngoài vùng ảnh); đủ nội dung chữ."
+        },
+        {
+          "ok": true,
+          "name": "L3 PASS",
+          "detail": "2/2 khối hình có trong Word."
+        },
+        {
+          "ok": true,
+          "name": "nhãn không bị tách thành đoạn chữ rời",
+          "detail": [
+            "Hình 1. Tam giác ABC.",
+            "",
+            "Hình 2. Đường cong tô màu và nét đứt.",
+            "",
+            "Đoạn văn sau hình vẽ."
+          ]
+        }
+      ],
+      "info": {
+        "figures": [
+          [
+            "vector_image",
+            [
+              66.0,
+              88.48,
+              271.0,
+              254.48
+            ]
+          ],
+          [
+            "vector_image",
+            [
+              80.0,
+              348.48,
+              344.67,
+              511.89
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "group": "G7",
+      "id": "G7.1",
+      "title": "PDF 2 cột (đường cơ sở thẳng hàng) → đọc hết cột trái rồi cột phải",
+      "status": "PASS",
+      "seconds": 0.3,
+      "checks": [
+        {
+          "ok": true,
+          "name": "toàn bộ cột trái đứng trước cột phải",
+          "detail": "Cột trái câu số 1 kết thúc.\nCột trái câu số 2 kết thúc.\nCột trái câu số 3 kết thúc.\nCột trái câu số 4 kết thúc.\nCột trái câu số 5 kết thúc.\nCột trái câu số 6 kết thúc.\nCột trái câu số 7 kết thúc.\nCột "
+        },
+        {
+          "ok": true,
+          "name": "thứ tự trong cột phải đúng",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "group": "G7",
+      "id": "G7.2",
+      "title": "Trang xoay (/Rotate 90) + trang có CropBox nhỏ",
+      "status": "PASS",
+      "seconds": 0.9,
+      "checks": [
+        {
+          "ok": true,
+          "name": "chữ trang xoay đọc thẳng, đúng thứ tự",
+          "detail": "Trang xoay chín mươi độ vẫn đọc thẳng. Dòng thứ hai của trang xoay.\n\n\nChữ trong vùng cắt hiển thị."
+        },
+        {
+          "ok": true,
+          "name": "thứ tự dòng đúng",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "giữ chữ trong CropBox",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "bỏ chữ nằm ngoài CropBox (không hiển thị)",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "báo outside_cropbox",
+          "detail": [
+            "outside_cropbox"
+          ]
+        },
+        {
+          "ok": true,
+          "name": "hình trên trang xoay được cắt từ PDF gốc",
+          "detail": 1
+        },
+        {
+          "ok": true,
+          "name": "toạ độ vùng cắt trong khổ trang hiển thị (dọc)",
+          "detail": [
+            60.0,
+            164.02,
+            220.0,
+            300.0
+          ]
+        }
+      ],
+      "info": {
+        "figure_bbox_display_pt": [
+          60.0,
+          164.02,
+          220.0,
+          300.0
+        ],
+        "first_block": "p1-b1"
+      }
+    },
+    {
+      "group": "G7",
+      "id": "G7.3",
+      "title": "Chữ nằm trong Form XObject",
+      "status": "PASS",
+      "seconds": 0.3,
+      "checks": [
+        {
+          "ok": true,
+          "name": "đọc được chữ trong XObject",
+          "detail": "Chữ thường ngoài XObject. Chữ nằm trong Form XObject. Dòng thứ hai trong XObject."
+        },
+        {
+          "ok": true,
+          "name": "giữ chữ ngoài XObject",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "group": "G7",
+      "id": "G7.4",
+      "title": "Trang scan, OCR mặc định (cần gói 'vie') → giữ ảnh trang + cảnh báo, không bịa chữ",
+      "status": "PASS",
+      "seconds": 0.4,
+      "checks": [
+        {
+          "ok": true,
+          "name": "nhận trang scan",
+          "detail": {
+            "1": "scan"
+          }
+        },
+        {
+          "ok": true,
+          "name": "có cảnh báo lý do không OCR",
+          "detail": [
+            "ocr_unavailable"
+          ]
+        },
+        {
+          "ok": true,
+          "name": "L1 NOT_MEASURED (không có chữ để đối chiếu)",
+          "detail": "PDF không có lớp chữ hiển thị ngoài vùng ảnh để đối chiếu (trang scan/ảnh) — nội dung nằm trong ảnh trang, chưa kiểm được bằng chữ."
+        },
+        {
+          "ok": true,
+          "name": "không 'passed'",
+          "detail": "review_required"
+        }
+      ],
+      "info": {
+        "by_method": {
+          "page_image": 1
+        },
+        "issues": [
+          "ocr_unavailable"
+        ]
+      }
+    },
+    {
+      "group": "G7",
+      "id": "G7.5",
+      "title": "Trang scan tiếng Anh với ocr_lang=eng → chữ OCR (review) hoặc ảnh trang",
+      "status": "SKIP",
+      "reason": "máy không có tesseract",
+      "seconds": 0.0,
+      "checks": []
+    },
+    {
+      "group": "G7",
+      "id": "G7.6",
+      "title": "Trang hỗn hợp (chữ + ảnh chụp)",
+      "status": "PASS",
+      "seconds": 0.9,
+      "checks": [
+        {
+          "ok": true,
+          "name": "ảnh chụp giữ dạng ảnh",
+          "detail": {
+            "text_native": 2,
+            "raster_image": 1
+          }
+        },
+        {
+          "ok": true,
+          "name": "có 'Trang hỗn hợp có chữ và ảnh ch'",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "có 'Chú thích dưới ảnh chụp minh h'",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "có 'Đoạn văn tiếp theo sau ảnh.'",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "thứ tự chữ đúng",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "group": "G7",
+      "id": "G7.7",
+      "title": "Scan có sẵn lớp chữ OCR ẩn → không nhân đôi chữ, báo lớp OCR",
+      "status": "PASS",
+      "seconds": 0.5,
+      "checks": [
+        {
+          "ok": true,
+          "name": "nhận scan có lớp chữ ẩn",
+          "detail": {
+            "1": "scan_with_hidden_text"
+          }
+        },
+        {
+          "ok": true,
+          "name": "không lặp chữ (ẩn + OCR)",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "báo scan_has_ocr_layer",
+          "detail": [
+            "ocr_unavailable",
+            "scan_has_ocr_layer"
+          ]
+        }
+      ]
+    },
+    {
+      "group": "G8",
+      "id": "G8.1",
+      "title": "ZIP: \\input/\\include lồng nhiều cấp, main trong thư mục con",
+      "status": "PASS",
+      "seconds": 0.3,
+      "checks": [
+        {
+          "ok": true,
+          "name": "có 'Mở đầu tài liệu.'",
+          "detail": "Mở đầu tài liệu.\nChương một nội dung.\nPhần lồng sâu với công thức . a2+b2=c2\n\nChương hai được include.\n\nKết thúc tài liệu."
+        },
+        {
+          "ok": true,
+          "name": "có 'Chương một nội dung.'",
+          "detail": "Mở đầu tài liệu.\nChương một nội dung.\nPhần lồng sâu với công thức . a2+b2=c2\n\nChương hai được include.\n\nKết thúc tài liệu."
+        },
+        {
+          "ok": true,
+          "name": "có 'Phần lồng sâu'",
+          "detail": "Mở đầu tài liệu.\nChương một nội dung.\nPhần lồng sâu với công thức . a2+b2=c2\n\nChương hai được include.\n\nKết thúc tài liệu."
+        },
+        {
+          "ok": true,
+          "name": "có 'Chương hai được include.'",
+          "detail": "Mở đầu tài liệu.\nChương một nội dung.\nPhần lồng sâu với công thức . a2+b2=c2\n\nChương hai được include.\n\nKết thúc tài liệu."
+        },
+        {
+          "ok": true,
+          "name": "có 'Kết thúc tài liệu.'",
+          "detail": "Mở đầu tài liệu.\nChương một nội dung.\nPhần lồng sâu với công thức . a2+b2=c2\n\nChương hai được include.\n\nKết thúc tài liệu."
+        },
+        {
+          "ok": true,
+          "name": "đúng thứ tự include",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "main đúng đường dẫn tương đối",
+          "detail": "goc/main.tex"
+        }
+      ]
+    },
+    {
+      "group": "G8",
+      "id": "G8.2",
+      "title": "ZIP: main_tex SAI → lỗi 409 kèm danh sách ứng viên (không tự chọn)",
+      "status": "PASS",
+      "seconds": 0.0,
+      "checks": [
+        {
+          "ok": true,
+          "name": "ném ConversionError",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "409 main_tex_not_found",
+          "detail": [
+            409,
+            "main_tex_not_found"
+          ]
+        },
+        {
+          "ok": true,
+          "name": "ứng viên có goc/main.tex",
+          "detail": [
+            "goc/chuong/c1.tex",
+            "goc/chuong/c2.tex",
+            "goc/chuong/phan/p1.tex",
+            "goc/main.tex"
+          ]
+        }
+      ]
+    },
+    {
+      "group": "G8",
+      "id": "G8.3",
+      "title": "ZIP: nhiều tệp chính → 409 main_tex_ambiguous; chọn rõ thì đúng tệp",
+      "status": "PASS",
+      "seconds": 0.4,
+      "checks": [
+        {
+          "ok": true,
+          "name": "409 main_tex_ambiguous",
+          "detail": [
+            409,
+            "main_tex_ambiguous"
+          ]
+        },
+        {
+          "ok": true,
+          "name": "chuyển đúng tệp đã chọn",
+          "detail": "Tài liệu thứ hai."
+        }
+      ]
+    },
+    {
+      "group": "G8",
+      "id": "G8.4",
+      "title": "ZIP: ảnh thiếu → thông báo hiện trong Word, giữ chữ trước/sau, không 'passed'",
+      "status": "PASS",
+      "seconds": 0.3,
+      "checks": [
+        {
+          "ok": true,
+          "name": "giữ chữ trước/sau",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "có thông báo hiện trong Word",
+          "detail": [
+            "[L2W: THIẾU HÌNH — ảnh 'hinh/khong_co.png': không tìm thấy]"
+          ]
+        },
+        {
+          "ok": true,
+          "name": "issue khối/tệp thiếu",
+          "detail": [
+            "includegraphics_unresolved"
+          ]
+        },
+        {
+          "ok": true,
+          "name": "L3 không PASS",
+          "detail": "Nguồn 1 hình; Word có 0 nhóm DrawingML + 0 ảnh hình; THIẾU 1; 1 khối chưa đối chiếu được."
+        },
+        {
+          "ok": true,
+          "name": "không 'passed'",
+          "detail": "review_required"
+        }
+      ]
+    },
+    {
+      "group": "G8",
+      "id": "G8.5",
+      "title": "ZIP: ảnh có thật qua \\graphicspath → ảnh trong Word",
+      "status": "PASS",
+      "seconds": 0.4,
+      "checks": [
+        {
+          "ok": true,
+          "name": "1 ảnh",
+          "detail": 1
+        },
+        {
+          "ok": true,
+          "name": "L3 PASS",
+          "detail": "Nguồn 1 hình; Word có 0 nhóm DrawingML + 1 ảnh hình."
+        }
+      ]
+    },
+    {
+      "group": "G8",
+      "id": "G8.6",
+      "title": "ZIP: vòng lặp \\input → phát hiện, không treo, nội dung không lặp vô hạn",
+      "status": "PASS",
+      "seconds": 0.3,
+      "checks": [
+        {
+          "ok": true,
+          "name": "kết thúc nhanh",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "issue include_cycle",
+          "detail": [
+            "include_cycle"
+          ]
+        },
+        {
+          "ok": true,
+          "name": "mỗi tệp xuất hiện một lần",
+          "detail": "Gốc.\nTệp A.\nTệp B.[L2W: VÒNG LẶP INCLUDE a.tex]"
+        }
+      ]
+    },
+    {
+      "group": "G8",
+      "id": "G8.7",
+      "title": "ZIP: gói LaTeX không tồn tại → vẫn chuyển nội dung (không cần biên dịch)",
+      "status": "PASS",
+      "seconds": 0.4,
+      "checks": [
+        {
+          "ok": true,
+          "name": "tạo được .docx",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "giữ nội dung",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "công thức vẫn OMML",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "group": "G8",
+      "id": "G8.8",
+      "title": "ZIP độc hại: thoát thư mục (../), đường dẫn tuyệt đối, symlink, tỉ lệ nén cao → 400",
+      "status": "PASS",
+      "seconds": 0.3,
+      "checks": [
+        {
+          "ok": true,
+          "name": "zip_slip.zip: từ chối (400)",
+          "detail": [
+            400,
+            "ZipSafetyError",
+            "Đường dẫn thoát khỏi gói (..): '../../thoat_ra_ngoai.txt'"
+          ]
+        },
+        {
+          "ok": true,
+          "name": "zip_tuyet_doi.zip: từ chối (400)",
+          "detail": [
+            400,
+            "ZipSafetyError",
+            "Đường dẫn tuyệt đối trong gói: '/tmp/l2w_tuyet_doi.txt'"
+          ]
+        },
+        {
+          "ok": true,
+          "name": "zip_symlink.zip: từ chối (400)",
+          "detail": [
+            400,
+            "ZipSafetyError",
+            "Liên kết/tệp đặc biệt không được phép: 'lien_ket'"
+          ]
+        },
+        {
+          "ok": true,
+          "name": "zip_ty_le_cao.zip: từ chối (400)",
+          "detail": [
+            400,
+            "ZipSafetyError",
+            "Tỉ lệ nén bất thường (nghi zip bomb): 'rong.bin'"
+          ]
+        },
+        {
+          "ok": true,
+          "name": "không có tệp nào bị ghi ra ngoài",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "group": "G8",
+      "id": "G8.9",
+      "title": "Nhận diện theo NỘI DUNG: tệp TeX đặt đuôi .zip; ZIP nhiều PDF",
+      "status": "PASS",
+      "seconds": 0.7,
+      "checks": [
+        {
+          "ok": true,
+          "name": "nhận là TeX + cảnh báo đuôi sai",
+          "detail": [
+            "tex",
+            [
+              "extension_mismatch"
+            ]
+          ]
+        },
+        {
+          "ok": true,
+          "name": "ZIP 2 PDF → 409 + 2 ứng viên",
+          "detail": [
+            409,
+            {
+              "candidates": [
+                "a.pdf",
+                "b.pdf"
+              ],
+              "job_id": "0cf56da8283c"
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "name": "chọn rõ b.pdf → đúng nội dung",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "group": "G9",
+      "id": "G9.1",
+      "title": "Không có TeX (PATH rỗng): hình cần chụp → không mất, báo rõ, không 'passed'",
+      "status": "PASS",
+      "seconds": 4.0,
+      "checks": [
+        {
+          "ok": true,
+          "name": "vẫn tạo được .docx",
+          "detail": null
+        },
+        {
+          "ok": true,
+          "name": "năng lực TeX báo KHÔNG có",
+          "detail": {
+            "available": false,
+            "detail": "biên dịch PDF tham chiếu từ nguồn TeX (shell-escape tắt)"
+          }
+        },
+        {
+          "ok": true,
+          "name": "khối hình vẫn được ghi nhận",
+          "detail": [
+            "drawingml"
+          ]
+        },
+        {
+          "ok": true,
+          "name": "không giả vờ đã chụp ảnh; trạng thái chưa kiểm chứng/unresolved",
+          "detail": {
+            "block_id": "tex-fig-0001",
+            "kind": "figure",
+            "source": {
+              "file": "g9_hinh_kho.tex",
+              "line": 7
+            },
+            "tex": "\\begin{tikzpicture}\n\\shade[left color=blue!20,right color=red!30] (0,0) circle (1.2);\n\\draw[dashed,thick,smooth] plot coordinates {(-2,0) (-1,1) (0,0.3) (1,1.4)…",
+            "index": null,
+            "method": "drawingml",
+            "status": "review",
+            "reason": "máy không có TeX để chụp ảnh khối; không có ảnh TeX để đối chiếu → giữ DrawingML chưa kiểm chứng",
+            "warnings": [],
+            "asset": null,
+            "max_width_frac": 1.0,
+            "inline": false,
+            "verify": null,
+            "parent": null
+          }
+        },
+        {
+          "ok": true,
+          "name": "không 'passed'",
+          "detail": "review_required"
+        }
+      ],
+      "info": {
+        "figure": [
+          [
+            "drawingml",
+            "review",
+            "máy không có TeX để chụp ảnh khối; không có ảnh TeX để đối chiếu → giữ DrawingML chưa kiểm chứng"
+          ]
+        ]
+      }
+    },
+    {
+      "group": "G9",
+      "id": "G9.2",
+      "title": "Không có LibreOffice mà bật QA → nhóm E NOT_MEASURED (không tính là đạt)",
+      "status": "PASS",
+      "seconds": 15.9,
+      "checks": [
+        {
+          "ok": true,
+          "name": "vẫn tạo được .docx",
+          "detail": null
+        },
+        {
+          "ok": true,
+          "name": "L5 NOT_MEASURED",
+          "detail": {
+            "layer": 5,
+            "name": "E. Hiển thị (render Word ↔ PDF nguồn)",
+            "status": "NOT_MEASURED",
+            "summary": "Không có nguồn so sánh hợp lệ (PDF gốc / PDF biên dịch từ TeX) → NOT_MEASURED. Chỉ có ảnh Word thì không đo được độ giống. Biên dịch: máy không có TeX (xelatex/…",
+            "details": {
+              "enabled": false,
+              "measured": false,
+              "similarity_percent": null,
+              "mode": "tex",
+              "reference_compile": {
+                "ok": false,
+                "error": "máy không có TeX (xelatex/pdflatex/lualatex)"
+              },
+              "word_pages": 1,
+              "reason": "Không có nguồn so sánh hợp lệ (PDF gốc / PDF biên dịch từ TeX) → NOT_MEASURED. Chỉ có ảnh Word thì không đo được độ giống. Biên dịch: máy không có TeX (xelatex/…"
+            },
+            "group": "E",
+            "required": true
+          }
+        },
+        {
+          "ok": true,
+          "name": "không 'passed'",
+          "detail": "review_required"
+        }
+      ]
+    },
+    {
+      "group": "G9",
+      "id": "G9.3",
+      "title": "Không có tesseract + trang scan → ảnh trang, báo ocr_unavailable",
+      "status": "PASS",
+      "seconds": 4.2,
+      "checks": [
+        {
+          "ok": true,
+          "name": "vẫn tạo được .docx",
+          "detail": null
+        },
+        {
+          "ok": true,
+          "name": "giữ ảnh trang",
+          "detail": {
+            "total": 1,
+            "by_method": {
+              "page_image": 1
+            },
+            "unresolved": 0,
+            "native": 0,
+            "as_image": 1
+          }
+        },
+        {
+          "ok": true,
+          "name": "issue ocr_unavailable",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "group": "G9",
+      "id": "G9.4",
+      "title": "Khối TikZ cố ý hỏng → khối báo lỗi, chữ trước/sau còn nguyên, không 'passed'",
+      "status": "PASS",
+      "seconds": 3.4,
+      "checks": [
+        {
+          "ok": true,
+          "name": "giữ đoạn trước",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "giữ đoạn sau",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "khối hình được ghi nhận",
+          "detail": [
+            "drawingml"
+          ]
+        },
+        {
+          "ok": true,
+          "name": "trạng thái trung thực (unresolved/chưa kiểm chứng)",
+          "detail": {
+            "block_id": "tex-fig-0001",
+            "kind": "figure",
+            "source": {
+              "file": "khoi_hong.tex",
+              "line": 7
+            },
+            "tex": "\\begin{tikzpicture}\n\\shade[ball color=red] (0,0) circle (1);\n\\draw (0,0) -- (1,1) node {$\\undefinedmacroxyz$};\n\\end{tikzpicture}",
+            "index": null,
+            "method": "drawingml",
+            "status": "review",
+            "reason": "TeX không dựng được khối: Undefined control sequence.; không có ảnh TeX để đối chiếu → giữ DrawingML chưa kiểm chứng",
+            "warnings": [
+              "Undefined control sequence."
+            ],
+            "asset": null,
+            "max_width_frac": 1.0,
+            "inline": false,
+            "verify": null,
+            "parent": null
+          }
+        },
+        {
+          "ok": true,
+          "name": "không 'passed'",
+          "detail": "review_required"
+        }
+      ],
+      "info": {
+        "figure": [
+          [
+            "drawingml",
+            "review",
+            "TeX không dựng được khối: Undefined control sequence.; không có ảnh TeX để đối chiếu → giữ DrawingML chưa kiểm chứng"
+          ]
+        ]
+      }
+    },
+    {
+      "group": "G10",
+      "id": "G10.1",
+      "title": "100 công thức nguồn, Word chỉ có 1 → L2 FAIL",
+      "status": "PASS",
+      "seconds": 0.1,
+      "checks": [
+        {
+          "ok": true,
+          "name": "L2 FAIL",
+          "detail": "1/100 khối toán khớp OMML theo thứ tự; 99 khối chưa khớp."
+        },
+        {
+          "ok": true,
+          "name": "chất lượng không 'passed'",
+          "detail": "review_required"
+        }
+      ]
+    },
+    {
+      "group": "G10",
+      "id": "G10.2",
+      "title": "PDF 2 trang, Word chỉ có trang 1 → L1 không PASS",
+      "status": "PASS",
+      "seconds": 0.1,
+      "checks": [
+        {
+          "ok": true,
+          "name": "L1 FAIL/WARN khi thiếu trang cuối",
+          "detail": "Giữ 53.3% từ và 50.8% chữ/số của PDF (ngoài vùng ảnh); thiếu 46.7% token."
+        }
+      ],
+      "info": {
+        "L1": "WARN: Giữ 53.3% từ và 50.8% chữ/số của PDF (ngoài vùng ảnh); thiếu 46.7% token."
+      }
+    },
+    {
+      "group": "G10",
+      "id": "G10.3",
+      "title": "Nguồn có hình, Word không có → L3 FAIL",
+      "status": "PASS",
+      "seconds": 0.1,
+      "checks": [
+        {
+          "ok": true,
+          "name": "L3 FAIL",
+          "detail": "Nguồn 1 hình; Word có 0 nhóm DrawingML + 0 ảnh hình; THIẾU 1."
+        }
+      ]
+    },
+    {
+      "group": "G10",
+      "id": "G10.4",
+      "title": "Bảng nguồn có dữ liệu, Word có bảng rỗng → L4 không PASS",
+      "status": "PASS",
+      "seconds": 0.1,
+      "checks": [
+        {
+          "ok": true,
+          "name": "L4 FAIL/WARN",
+          "detail": "data 1/1; 1 bảng rỗng."
+        }
+      ]
+    },
+    {
+      "group": "G10",
+      "id": "G10.5",
+      "title": "Chỉ có ảnh Word, không có nguồn đối chiếu → NOT_MEASURED, similarity=None, không 'passed'",
+      "status": "PASS",
+      "seconds": 0.0,
+      "checks": [
+        {
+          "ok": true,
+          "name": "không đo → similarity_percent=None",
+          "detail": {
+            "enabled": false,
+            "measured": false,
+            "similarity_percent": null,
+            "mode": "tex",
+            "word_pages": 1,
+            "reason": "Không có nguồn so sánh hợp lệ (PDF gốc / PDF biên dịch từ TeX) → NOT_MEASURED. Chỉ có ảnh Word thì không đo được độ giống."
+          }
+        },
+        {
+          "ok": true,
+          "name": "L5 NOT_MEASURED",
+          "detail": "Không có nguồn so sánh hợp lệ (PDF gốc / PDF biên dịch từ TeX) → NOT_MEASURED. Chỉ có ảnh Word thì không đo được độ giống."
+        },
+        {
+          "ok": true,
+          "name": "4 PASS + 1 NOT_MEASURED → review_required",
+          "detail": "review_required"
+        },
+        {
+          "ok": true,
+          "name": "đối chứng: 5 PASS → passed",
+          "detail": "passed"
+        },
+        {
+          "ok": true,
+          "name": "toàn SKIP → không 'passed'",
+          "detail": "review_required"
+        }
+      ]
+    },
+    {
+      "group": "G12",
+      "id": "G12.1",
+      "title": "Hai job song song, CÙNG tên tệp, khác nội dung → không lẫn kết quả",
+      "status": "PASS",
+      "seconds": 0.4,
+      "checks": [
+        {
+          "ok": true,
+          "name": "cả hai job hoàn tất",
+          "detail": {}
+        },
+        {
+          "ok": true,
+          "name": "job_id khác nhau",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "job A chỉ có nội dung A",
+          "detail": "Mã riêng của job A: MARKERAAA. xA2"
+        },
+        {
+          "ok": true,
+          "name": "job B chỉ có nội dung B",
+          "detail": "Mã riêng của job B: MARKERBBB. xB2"
+        },
+        {
+          "ok": true,
+          "name": "tệp vào của job A giữ nguyên bytes",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "job A: input_preserved",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "tệp vào của job B giữ nguyên bytes",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "job B: input_preserved",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "group": "G12",
+      "id": "G12.2",
+      "title": "Hai PDF khác nhau cùng tên de.pdf → mỗi job đúng nội dung của mình",
+      "status": "PASS",
+      "seconds": 0.6,
+      "checks": [
+        {
+          "ok": true,
+          "name": "job 1 đúng nội dung",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "job 2 đúng nội dung",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "đường dẫn kết quả khác nhau",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "group": "G11",
+      "id": "G11.1",
+      "title": "Mọi .docx tạo ra trong lượt chạy: quan hệ/media/ID hợp lệ",
+      "status": "PASS",
+      "seconds": 4.1,
+      "checks": [
+        {
+          "ok": true,
+          "name": "55 tệp hợp lệ (content types, rels, r:embed, docPr id duy nhất, mở lại được)",
+          "detail": {}
+        },
+        {
+          "ok": true,
+          "name": "không lộ chỗ đánh dấu nội bộ",
+          "detail": {}
+        }
+      ],
+      "info": {
+        "docx_checked": 55
+      }
+    },
+    {
+      "group": "G11",
+      "id": "G11.2",
+      "title": "Mở + lưu lại bằng python-docx: giữ công thức, bảng, ảnh, nhóm hình",
+      "status": "PASS",
+      "seconds": 2.4,
+      "checks": [
+        {
+          "ok": true,
+          "name": "40 tệp: số đối tượng không đổi sau khi lưu lại",
+          "detail": {}
+        }
+      ]
+    },
+    {
+      "group": "G11",
+      "id": "G11.3",
+      "title": "Ca mẫu có sẵn trong repo vẫn chuyển được (không lỗi nội bộ, gói hợp lệ)",
+      "status": "PASS",
+      "seconds": 13.6,
+      "checks": [
+        {
+          "ok": true,
+          "name": "example.tex: tạo .docx hợp lệ",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "example.tex: không lộ marker",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "mau_giong_de_cua_ban.tex: tạo .docx hợp lệ",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "mau_giong_de_cua_ban.tex: không lộ marker",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "mau_kiem_thu_cau_truc_cuc_la.tex: tạo .docx hợp lệ",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "mau_kiem_thu_cau_truc_cuc_la.tex: không lộ marker",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "mau_kiem_thu_cau_truc_la.tex: tạo .docx hợp lệ",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "mau_kiem_thu_cau_truc_la.tex: không lộ marker",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "mau_kiem_thu_de_thi.tex: tạo .docx hợp lệ",
+          "detail": ""
+        },
+        {
+          "ok": true,
+          "name": "mau_kiem_thu_de_thi.tex: không lộ marker",
+          "detail": ""
+        }
+      ],
+      "info": {
+        "example.tex": {
+          "ok": true,
+          "layers": [
+            "PASS",
+            "PASS",
+            "PASS",
+            "PASS"
+          ],
+          "blocks": {
+            "vector_image": 1
+          }
+        },
+        "mau_giong_de_cua_ban.tex": {
+          "ok": true,
+          "layers": [
+            "PASS",
+            "PASS",
+            "PASS",
+            "PASS"
+          ],
+          "blocks": {
+            "table_native": 1
+          }
+        },
+        "mau_kiem_thu_cau_truc_cuc_la.tex": {
+          "ok": true,
+          "layers": [
+            "PASS",
+            "PASS",
+            "PASS",
+            "PASS"
+          ],
+          "blocks": {
+            "table_native": 1,
+            "vector_image": 2
+          }
+        },
+        "mau_kiem_thu_cau_truc_la.tex": {
+          "ok": true,
+          "layers": [
+            "WARN",
+            "PASS",
+            "FAIL",
+            "PASS"
+          ],
+          "blocks": {
+            "unresolved": 1
+          }
+        },
+        "mau_kiem_thu_de_thi.tex": {
+          "ok": true,
+          "layers": [
+            "PASS",
+            "PASS",
+            "PASS",
+            "PASS"
+          ],
+          "blocks": {}
+        }
+      }
+    }
+  ],
+  "old_tests": null
+}

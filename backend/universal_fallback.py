@@ -605,7 +605,7 @@ def protect(src: str, *, base_dir: Path | None = None, workdir: Path | None = No
                 })
                 continue                       # không thay gì cả — hành vi y như trước khi có lớp này
             is_inline = (sp.start, sp.end) in inline_spans
-            ctx.blocks[idx] = {"key": key, "inline": is_inline, "label": sp.name}
+            ctx.blocks[idx] = {"key": key, "inline": is_inline, "label": sp.name, "src": sp.text(src)}
             pieces.append(src[prev:sp.start])
             pieces.append(make_marker(idx) if is_inline
                           else "\n\n\\par\n" + make_marker(idx) + "\n\\par\n\n")
@@ -671,20 +671,25 @@ def _standalone_picture_commands(src: str, masked: str, body_start: int,
 def restore(docx_path: Path, ctx: ProtectContext, *, timeout: float = 600.0) -> dict[str, Any]:
     """Mở .docx, đổi mọi chỗ đánh dấu thành ảnh vector + sửa dấu trên công thức.
 
-    Không bao giờ ném lỗi ra ngoài."""
+    Không bao giờ ném lỗi ra ngoài.  Khối KHÔNG dựng được ảnh thì chỗ đánh dấu được thay bằng một thông
+    báo hiển thị + mã nguồn gốc của khối (không xoá âm thầm), và được liệt kê trong `khoi_chua_dung`."""
     stats: dict[str, Any] = {"bat": ctx.enabled, "so_anh_chen": 0, "so_khoi_hong": 0,
                              "tong_khoi_can_dung": ctx.tong_khoi_can_dung,
-                             "loi_khuyen": ctx.loi_khuyen, "canh_bao": list(ctx.warnings[:10])}
+                             "loi_khuyen": ctx.loi_khuyen, "canh_bao": list(ctx.warnings[:10]),
+                             "khoi_chua_dung": []}
     stats["sua_dau_cong_thuc"] = fix_math_accents(docx_path)
     if not ctx.enabled or not ctx.blocks:
-        _strip_leftover_markers(docx_path)
+        stats["khoi_chua_dung"] = _mark_unresolved_markers(docx_path, ctx, "không có ảnh cho chỗ đánh dấu")
+        stats["so_khoi_hong"] = len(stats["khoi_chua_dung"])
         return stats
     try:
         assets = ctx.future.result(timeout=timeout) if ctx.future is not None else {}
     except Exception as exc:
         stats["canh_bao"].append(f"Dựng ảnh bằng TeX thất bại: {type(exc).__name__}: {exc}")
-        _strip_leftover_markers(docx_path)
+        stats["khoi_chua_dung"] = _mark_unresolved_markers(docx_path, ctx, f"dựng ảnh thất bại ({type(exc).__name__})")
+        stats["so_khoi_hong"] = len(stats["khoi_chua_dung"])
         return stats
+    failed: list[dict[str, Any]] = []
     try:
         import docx as _docx
         doc = _docx.Document(str(docx_path))
@@ -694,12 +699,14 @@ def restore(docx_path: Path, ctx: ProtectContext, *, timeout: float = 600.0) -> 
         def resolver(index: int) -> dict[str, Any] | None:
             info = ctx.blocks.get(index)
             if not info:
-                return None
+                failed.append({"marker": index, "ly_do": "chỗ đánh dấu lạ (không có trong ngữ cảnh)"})
+                return {"text": f"[L2W: KHỐI #{index} KHÔNG RÕ NGUỒN — xem báo cáo]"}
             asset = assets.get(info["key"])
             if asset is None or not asset.ok:
-                if asset is not None and asset.error:
-                    stats["canh_bao"].append(f"[{info['label']}] {asset.error}")
-                return None
+                err = (asset.error if asset is not None else "") or "TeX không trả về ảnh"
+                stats["canh_bao"].append(f"[{info['label']}] {err}")
+                failed.append({"marker": index, "moi_truong": info["label"], "ly_do": err})
+                return {"text": _unresolved_text(index, info, err)}
             w, h = asset.width_pt, asset.height_pt
             if max_w_pt and w > max_w_pt:
                 h = h * (max_w_pt / w)
@@ -708,6 +715,7 @@ def restore(docx_path: Path, ctx: ProtectContext, *, timeout: float = 600.0) -> 
                 "data": asset.data, "ext": asset.ext, "png": asset.png_data,
                 "cx": max(1, int(round(w * EMU_PER_PT))), "cy": max(1, int(round(h * EMU_PER_PT))),
                 "name": f"LaTeX {info['label']} ",
+                "descr": f"l2w:truth:{index}",
             }
             if info.get("inline") and asset.depth_pt:
                 out["position_half_pt"] = -int(round(asset.depth_pt * 2))
@@ -717,20 +725,32 @@ def restore(docx_path: Path, ctx: ProtectContext, *, timeout: float = 600.0) -> 
             stats["canh_bao"].append("TeX báo: " + err)
         inj.replace_markers(resolver)
         stats["so_anh_chen"] = inj.stats["markers_replaced"]
-        stats["so_khoi_hong"] = len(ctx.blocks) - inj.stats["markers_replaced"]
         stats["chi_tiet_anh"] = dict(inj.stats)
+        missing_in_docx = [i for i in ctx.blocks if i not in inj.found]
+        for i in missing_in_docx:
+            failed.append({"marker": i, "moi_truong": ctx.blocks[i]["label"],
+                           "ly_do": "chỗ đánh dấu không còn trong Word (engine đã làm mất)"})
         doc.save(str(docx_path))
-        if stats["so_khoi_hong"]:
-            _strip_leftover_markers(docx_path)
-        _log(f"đã chèn {stats['so_anh_chen']}/{len(ctx.blocks)} ảnh vector vào Word")
+        failed.extend(_mark_unresolved_markers(docx_path, ctx, "chưa thay được"))
+        stats["khoi_chua_dung"] = failed
+        stats["so_khoi_hong"] = len(failed)
+        _log(f"đã chèn {stats['so_anh_chen']}/{len(ctx.blocks)} ảnh vector vào Word; {len(failed)} khối chưa dựng")
     except Exception as exc:
         stats["canh_bao"].append(f"Chèn ảnh vào Word thất bại: {type(exc).__name__}: {exc}")
         _log(traceback.format_exc())
-        _strip_leftover_markers(docx_path)
+        stats["khoi_chua_dung"] = failed + _mark_unresolved_markers(docx_path, ctx, f"lỗi chèn ảnh ({type(exc).__name__})")
+        stats["so_khoi_hong"] = len(stats["khoi_chua_dung"])
     finally:
         if ctx.renderer is not None:
             ctx.renderer.close()
     return stats
+
+
+def _unresolved_text(index: int, info: dict[str, Any] | None, reason: str) -> str:
+    label = (info or {}).get("label", "?")
+    src = " ".join(((info or {}).get("src") or "").split())
+    return (f"[L2W: CHƯA DỰNG ĐƯỢC KHỐI '{label}' (#{index}) — {reason}. Mã nguồn gốc: {src}]"
+            if src else f"[L2W: CHƯA DỰNG ĐƯỢC KHỐI '{label}' (#{index}) — {reason}]")
 
 
 def _content_width_pt(doc) -> float:
@@ -742,18 +762,42 @@ def _content_width_pt(doc) -> float:
         return 467.0          # A4, lề 2cm
 
 
-def _strip_leftover_markers(docx_path: Path) -> None:
-    """Không bao giờ để chỗ đánh dấu kỹ thuật lọt ra mắt người dùng."""
+def _mark_unresolved_markers(docx_path: Path, ctx: ProtectContext | None, reason: str) -> list[dict[str, Any]]:
+    """Mọi chỗ đánh dấu còn sót → thay bằng thông báo hiển thị + mã nguồn gốc của khối.
+
+    Thay cho `_strip_leftover_markers` cũ (xoá chỗ đánh dấu ⇒ hình mất mà Word trông "sạch" và trạng thái
+    vẫn thành công). Trả về danh sách khối chưa dựng để đưa vào báo cáo."""
+    out: list[dict[str, Any]] = []
     try:
         import docx as _docx
         from docx.oxml.ns import qn
         doc = _docx.Document(str(docx_path))
         touched = False
-        for t in doc.element.body.iter(qn("w:t")):
-            if t.text and MARKER_RE.search(t.text):
-                t.text = MARKER_RE.sub("", t.text)
-                touched = True
+        blocks = ctx.blocks if ctx is not None else {}
+        roots = [doc.element.body]
+        for sec in doc.sections:
+            for hf in (sec.header, sec.footer):
+                try:
+                    roots.append(hf._element)
+                except Exception:
+                    pass
+        for root in roots:
+            for t in root.iter(qn("w:t"), qn("m:t")):
+                if t.text and MARKER_RE.search(t.text):
+                    def _sub(m: re.Match) -> str:
+                        idx = int(m.group(1))
+                        info = blocks.get(idx)
+                        out.append({"marker": idx, "moi_truong": (info or {}).get("label"), "ly_do": reason})
+                        return _unresolved_text(idx, info, reason)
+                    t.text = MARKER_RE.sub(_sub, t.text)
+                    touched = True
         if touched:
             doc.save(str(docx_path))
-    except Exception:
-        pass
+    except Exception as exc:
+        out.append({"marker": None, "ly_do": f"không mở được tệp để đánh dấu khối lỗi: {type(exc).__name__}: {exc}"})
+    return out
+
+
+def _strip_leftover_markers(docx_path: Path) -> None:
+    """(Giữ tên cũ cho tương thích) — nay KHÔNG xoá mà thay bằng thông báo hiển thị."""
+    _mark_unresolved_markers(docx_path, None, "không có ảnh cho chỗ đánh dấu")

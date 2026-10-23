@@ -1,0 +1,503 @@
+{
+  "schema": "l2w-report/2",
+  "job_id": "b15301234c69",
+  "started_at": "2026-10-24T00:28:47",
+  "input": {
+    "name": "nhieu_main.zip",
+    "kind": "zip_tex",
+    "original_name": "nhieu_main.zip",
+    "path": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\b15301234c69\\input\\nhieu_main.zip",
+    "sha256": "ee6a33e287a2971fdcfb5628ae07f6af72737ba286046df5447a327a97f0793c",
+    "size": 421,
+    "detection": {
+      "kind": "zip",
+      "reason": "chữ ký ZIP (PK)",
+      "extension": "zip",
+      "warnings": []
+    }
+  },
+  "conversion_completed": true,
+  "quality_status": "review_required",
+  "status": "review_required",
+  "overall": "review_required",
+  "issues": [],
+  "steps": [
+    {
+      "step": "safe_extract",
+      "seconds": 0.0,
+      "files": 2
+    },
+    {
+      "step": "resolve_source",
+      "seconds": 0.0,
+      "files": 1
+    },
+    {
+      "step": "prepare_blocks",
+      "seconds": 0.01,
+      "blocks": 0
+    },
+    {
+      "step": "engine",
+      "seconds": 0.09
+    },
+    {
+      "step": "inject_blocks",
+      "seconds": 0.02
+    },
+    {
+      "step": "package_check",
+      "seconds": 0.18,
+      "ok": true
+    }
+  ],
+  "limitations": [
+    "Không cam kết giống 100% hay sửa được 100%: ảnh SVG/PNG nhúng là ảnh, không phải OMML/Word Shapes.",
+    "‘passed’ chỉ áp dụng cho các tiêu chí tự động đã nêu trong báo cáo, không có nghĩa đúng mọi tài liệu.",
+    "Render QA dùng LibreOffice; Microsoft Word có thể ngắt dòng/trang khác.",
+    "Nhận dạng công thức từ PDF là heuristic (chỉ phân số/chỉ số đơn giản); công thức không chắc → ảnh vùng.",
+    "OCR chưa có trên máy → trang scan giữ ảnh trang."
+  ],
+  "options": {
+    "mode": 2,
+    "dpi": 150,
+    "strict": false,
+    "qa_pdf": false,
+    "engine": "xelatex",
+    "answer_mode": "source",
+    "show_solutions": true,
+    "figure_policy": "auto",
+    "preprocess": "engine",
+    "ocr": "auto",
+    "ocr_lang": null
+  },
+  "zip": {
+    "files": [
+      "de1.tex",
+      "de2.tex"
+    ],
+    "skipped": [],
+    "warnings": [],
+    "total_bytes": 267
+  },
+  "source": {
+    "main": "de2.tex",
+    "selection": "user_exact_path",
+    "candidates": [
+      "de1.tex",
+      "de2.tex"
+    ],
+    "files": [
+      {
+        "path": "de2.tex",
+        "encoding": "utf-8",
+        "lines": 7,
+        "depth": 0
+      }
+    ],
+    "includes": [],
+    "graphicspath": [],
+    "issues": []
+  },
+  "preprocess": {
+    "mode": "engine",
+    "requested": "engine",
+    "reason": "mặc định: nhánh engine của pipeline — có quản lý khối hình/ảnh, provenance từng khối, thông báo khối thiếu"
+  },
+  "transforms": {
+    "newif": {
+      "resolved": {},
+      "skipped": {}
+    },
+    "user_macros": {
+      "expanded": {},
+      "skipped": {},
+      "defined": []
+    },
+    "macro_fidelity": {
+      "macro_da_no": {},
+      "macro_bo_qua": {},
+      "co_dieu_kien": [],
+      "lenh_danh_dau": []
+    },
+    "lists": {
+      "itemize": 0,
+      "enumerate": 0,
+      "description": 0,
+      "items": 0
+    },
+    "structure": {
+      "unwrapped": {},
+      "titled": {},
+      "user_envs_expanded": {},
+      "unknown_commands": {},
+      "kept_args_of_unknown": 0,
+      "exam_conventions": {
+        "cau": 0,
+        "bonpa": 0,
+        "choiceTF4": 0
+      }
+    }
+  },
+  "blocks": {
+    "items": [],
+    "injection": {
+      "media": {
+        "images_added": 0,
+        "markers_replaced": 0,
+        "markers_missing": 0,
+        "markers_text_fallback": 0,
+        "logical_images": 0
+      },
+      "layouts": {
+        "rebuilt": 0,
+        "failed": 0
+      },
+      "verbatim": {},
+      "blocks_by_status": {}
+    }
+  },
+  "engine_report": {
+    "input": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\b15301234c69\\work\\src\\de2.l2w_engine.tex",
+    "input_type": "tex",
+    "output": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\b15301234c69\\out\\nhieu_main.docx",
+    "mode": 2,
+    "engine": "Native DrawingML + OMML + MathTables + Universal 2D PDF Decompiler Engine v2.4",
+    "rendered_figures": 0,
+    "drawingml_groups": 0,
+    "drawingml_shapes": 0,
+    "tkz_tab_tables": 0,
+    "choice_tables": 0,
+    "data_tables": 0,
+    "immini_layouts": 0,
+    "expanded_tex_includes": 0,
+    "warnings": [],
+    "word_tables": 0,
+    "equation_nodes": 0,
+    "drawing_references": 0,
+    "embedded_media_files": 0,
+    "input_table_environments": 0,
+    "input_includegraphics": 0,
+    "expected_total_image_commands": 0,
+    "ooxml_stats": {
+      "tables_processed": 0,
+      "variation_tables": 0,
+      "choice_tables": 0,
+      "immini_tables": 0,
+      "data_tables": 0,
+      "other_tables": 0,
+      "cells_formatted": 0,
+      "merged_cells_detected": 0,
+      "role_from_metadata": 0,
+      "role_from_heuristic": 0
+    },
+    "status": "automated_checks_passed",
+    "engine_counts_before_postprocess": {
+      "equation_nodes": 0,
+      "word_tables": 0,
+      "drawingml_groups": 0,
+      "drawingml_shapes": 0,
+      "embedded_media_files": 0
+    }
+  },
+  "table_events": [],
+  "math_stats": {
+    "unknown_commands": {},
+    "unverified_constructs": {},
+    "formulas": 0
+  },
+  "postprocess": {
+    "accent_fix": {
+      "da_sua": 0,
+      "ky_tu": {}
+    },
+    "xml_order_fixed": 0
+  },
+  "package": {
+    "ok": true,
+    "errors": [],
+    "warnings": []
+  },
+  "counts": {
+    "ok": true,
+    "paragraphs": 1,
+    "text_chars": 17,
+    "equation_nodes": 0,
+    "omml_paragraphs": 0,
+    "word_tables": 0,
+    "tables_by_role": {},
+    "table_role_source": {},
+    "empty_tables": 0,
+    "drawingml_groups": 0,
+    "drawingml_shapes": 0,
+    "logical_images": 0,
+    "svg_backed_images": 0,
+    "media_parts": 0,
+    "marker_leaks": {
+      "truth_marker": 0,
+      "image_marker": 0,
+      "layout_sentinel": 0,
+      "engine_block_token": 0,
+      "verbatim_marker": 0
+    },
+    "marker_leaks_total": 0,
+    "l2w_notices": [],
+    "tex_residue_count": 0,
+    "tex_residue_samples": []
+  },
+  "layers": [
+    {
+      "layer": 1,
+      "name": "A. Nội dung (chữ, thứ tự, dấu tiếng Việt, rò rỉ)",
+      "status": "PASS",
+      "summary": "Giữ 100.0% token nguồn (4/4); đủ nội dung chữ.",
+      "details": {
+        "source_tokens": 4,
+        "docx_tokens": 4,
+        "matched_tokens": 4,
+        "token_recall": 1.0,
+        "order_ratio": 1.0,
+        "duplicate_excess_ratio": 0.0,
+        "generated_label_tokens": 0,
+        "missing_sample": [],
+        "lost_diacritics_sample": [],
+        "lost_diacritics": 0,
+        "tex_residue": 0,
+        "tex_residue_sample": [],
+        "marker_leaks": 0,
+        "l2w_notices": [],
+        "metric": "token_recall = |token nguồn ∩ token Word| / |token nguồn| (đa tập, NFC, chữ thường); order_ratio = difflib ratio trên dãy token — tín hiệu thứ tự, không phải độ chính xác.",
+        "paragraphs": 1
+      },
+      "group": "A",
+      "required": true
+    },
+    {
+      "layer": 2,
+      "name": "B. Toán (OMML theo từng khối)",
+      "status": "PASS",
+      "summary": "Nguồn không có công thức.",
+      "details": {
+        "source_math_blocks": 0,
+        "omml_equations": 0,
+        "matched_native": 0,
+        "math_as_image": 0,
+        "unmatched": 0,
+        "unmatched_sample": [],
+        "fractions": 0,
+        "radicals": 0,
+        "nary_ops": 0,
+        "matrices": 0,
+        "accents": 0,
+        "metric": "Mỗi khối toán nguồn (ngoài hình) được ghép theo thứ tự với một m:oMath có cùng chữ ký ký tự (chữ/số/ký hiệu). Khớp chữ ký chưa chứng minh cấu trúc đúng; cấu trúc kiểm bằng fixture."
+      },
+      "group": "B",
+      "required": true
+    },
+    {
+      "layer": 3,
+      "name": "C. Hình (DrawingML / ảnh logic)",
+      "status": "PASS",
+      "summary": "Nguồn không có hình.",
+      "details": {
+        "tikz": 0,
+        "bbt_in_tikz": 0,
+        "standalone_axis": 0,
+        "includegraphics": 0,
+        "other_picture_envs": 0,
+        "expected_figures": 0,
+        "drawingml_shape_groups": 0,
+        "drawingml_editable_shapes": 0,
+        "logical_images": 0,
+        "figure_images": 0,
+        "media_parts": 0,
+        "produced_figures": 0,
+        "per_block": [],
+        "missing_blocks": [],
+        "note": "Ảnh SVG kèm PNG của cùng một hình được tính là MỘT hình. Nhóm DrawingML tồn tại chưa chứng minh hình đúng; đối chiếu nét vẽ cần kiểm tra hiển thị (nhóm E)."
+      },
+      "group": "C",
+      "required": true
+    },
+    {
+      "layer": 4,
+      "name": "D. Bảng & bố cục (theo vai trò)",
+      "status": "PASS",
+      "summary": "không có bảng.",
+      "details": {
+        "expected_by_role": {
+          "mcq": 0,
+          "true_false": 0,
+          "variation": 0,
+          "data": 0
+        },
+        "produced_by_role": {
+          "mcq": 0,
+          "true_false": 0,
+          "variation": 0,
+          "data": 0
+        },
+        "docx_tables_by_role": {},
+        "short_by_role": {},
+        "empty_tables": [],
+        "mcq_tables_missing_options": [],
+        "tables": [],
+        "note": "So theo từng vai trò; bảng biến thiên giữ bằng ảnh TeX (table_as_image) được tính là có biểu diễn nhưng không phải bảng native."
+      },
+      "group": "D",
+      "required": true
+    },
+    {
+      "layer": 5,
+      "name": "E. Hiển thị (render Word ↔ PDF nguồn)",
+      "status": "NOT_MEASURED",
+      "summary": "QA hiển thị bị tắt (qa_pdf=False) → nhóm E chưa thực hiện.",
+      "details": {
+        "enabled": false,
+        "measured": false,
+        "similarity_percent": null,
+        "reason": "QA hiển thị bị tắt (qa_pdf=False) → nhóm E chưa thực hiện."
+      },
+      "group": "E",
+      "required": true
+    }
+  ],
+  "blocks_summary": {
+    "total": 0,
+    "by_method": {},
+    "unresolved": 0,
+    "native": 0,
+    "as_image": 0
+  },
+  "quality": {
+    "quality_status": "review_required",
+    "conversion_completed": true,
+    "reasons": [
+      "chưa thực hiện: L5 E. Hiển thị (render Word ↔ PDF nguồn): QA hiển thị bị tắt (qa_pdf=False) → nhóm E chưa thực hiện."
+    ],
+    "not_performed": [
+      "L5 E. Hiển thị (render Word ↔ PDF nguồn): QA hiển thị bị tắt (qa_pdf=False) → nhóm E chưa thực hiện."
+    ],
+    "layer_status": {
+      "L1": "PASS",
+      "L2": "PASS",
+      "L3": "PASS",
+      "L4": "PASS",
+      "L5": "NOT_MEASURED"
+    },
+    "scope_note": "‘passed’ chỉ có nghĩa đạt các tiêu chí tự động đã nêu cho tệp này, không phải đúng 100%."
+  },
+  "input_preserved": true,
+  "output": {
+    "docx": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\b15301234c69\\out\\nhieu_main.docx",
+    "report": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\b15301234c69\\out\\nhieu_main.report.json",
+    "qa_pdf": null
+  },
+  "environment": {
+    "python": "3.14.7",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "libraries": {
+      "python_docx": "1.2.0",
+      "lxml": "6.1.3",
+      "pillow": "12.3.0",
+      "numpy": "2.5.4",
+      "pdfplumber": "0.11.10",
+      "pypdfium2": null,
+      "pikepdf": "10.17.0",
+      "pytesseract": "0.3.13",
+      "fastapi": "0.143.5",
+      "streamlit": "1.66.0"
+    },
+    "tools": {
+      "xelatex": "MiKTeX-XeTeX 4.18 (MiKTeX 26.5)",
+      "pdflatex": "MiKTeX-pdfTeX 4.27 (MiKTeX 26.5)",
+      "lualatex": "This is LuaHBTeX, Version 1.25.7 (MiKTeX 26.5)",
+      "pdftocairo": "pdftocairo version 24.04.0",
+      "imagemagick": "Invalid drive specification.",
+      "pandoc": "pandoc 3.12.1",
+      "docx2pdf": "0.1.8"
+    },
+    "tesseract_languages": []
+  },
+  "capabilities": {
+    "derived": {
+      "tex_upload": {
+        "available": true,
+        "detail": "engine dựng Word từ .tex/.zip"
+      },
+      "paste_smart": {
+        "available": true,
+        "detail": "tiền xử lý thông minh (dán mã)"
+      },
+      "pdf_reader": {
+        "available": true,
+        "detail": "pdfplumber (chữ/đường nét) + pypdfium2 (render/crop) + pikepdf (cấu trúc)"
+      },
+      "pdf_vector_crop": {
+        "available": true,
+        "detail": "cắt vùng PDF thành SVG bằng pdftocairo"
+      },
+      "ocr": {
+        "available": false,
+        "detail": "thiếu tesseract → trang scan giữ ảnh"
+      },
+      "math_ocr": {
+        "available": false,
+        "detail": "chưa cấu hình bộ nhận dạng công thức từ ảnh; công thức không chắc → ảnh vùng"
+      },
+      "visual_qa": {
+        "available": true,
+        "detail": "render DOCX→PDF bằng LibreOffice/Word rồi so với nguồn"
+      },
+      "tex_reference_compile": {
+        "available": true,
+        "detail": "biên dịch PDF tham chiếu từ nguồn TeX (shell-escape tắt)"
+      }
+    },
+    "tools": {
+      "xelatex": {
+        "available": true,
+        "version": "MiKTeX-XeTeX 4.18 (MiKTeX 26.5)"
+      },
+      "pdflatex": {
+        "available": true,
+        "version": "MiKTeX-pdfTeX 4.27 (MiKTeX 26.5)"
+      },
+      "lualatex": {
+        "available": true,
+        "version": "This is LuaHBTeX, Version 1.25.7 (MiKTeX 26.5)"
+      },
+      "pdftocairo": {
+        "available": true,
+        "version": "pdftocairo version 24.04.0"
+      },
+      "soffice": {
+        "available": false,
+        "version": null
+      },
+      "tesseract": {
+        "available": false,
+        "version": null
+      },
+      "ghostscript": {
+        "available": false,
+        "version": null
+      },
+      "imagemagick": {
+        "available": true,
+        "version": "Invalid drive specification."
+      },
+      "pandoc": {
+        "available": true,
+        "version": "pandoc 3.12.1"
+      },
+      "docx2pdf": {
+        "available": true,
+        "version": "0.1.8"
+      }
+    },
+    "tesseract_languages": [],
+    "missing_modules": {}
+  },
+  "finished_at": "2026-10-24T00:28:47"
+}

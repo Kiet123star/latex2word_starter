@@ -1,0 +1,627 @@
+{
+  "schema": "l2w-report/2",
+  "job_id": "e7711eb9915d",
+  "started_at": "2026-10-24T00:29:31",
+  "input": {
+    "name": "mau_kiem_thu_cau_truc_cuc_la.tex",
+    "kind": "tex",
+    "original_name": "mau_kiem_thu_cau_truc_cuc_la.tex",
+    "path": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\e7711eb9915d\\input\\mau_kiem_thu_cau_truc_cuc_la.tex",
+    "sha256": "ad266afb7c546260f203a888acf11f740bc5c9619b23e7faad17ce1e0cd3c45e",
+    "size": 2845,
+    "detection": {
+      "kind": "tex",
+      "reason": "văn bản có lệnh TeX (\\...)",
+      "extension": "tex",
+      "warnings": []
+    }
+  },
+  "conversion_completed": true,
+  "quality_status": "review_required",
+  "status": "review_required",
+  "overall": "review_required",
+  "issues": [],
+  "steps": [
+    {
+      "step": "resolve_source",
+      "seconds": 0.0,
+      "files": 1
+    },
+    {
+      "step": "prepare_blocks",
+      "seconds": 6.12,
+      "blocks": 3
+    },
+    {
+      "step": "engine",
+      "seconds": 0.15
+    },
+    {
+      "step": "inject_blocks",
+      "seconds": 0.03,
+      "ok": 1,
+      "fallback": 2
+    },
+    {
+      "step": "package_check",
+      "seconds": 0.17,
+      "ok": true
+    }
+  ],
+  "limitations": [
+    "Không cam kết giống 100% hay sửa được 100%: ảnh SVG/PNG nhúng là ảnh, không phải OMML/Word Shapes.",
+    "‘passed’ chỉ áp dụng cho các tiêu chí tự động đã nêu trong báo cáo, không có nghĩa đúng mọi tài liệu.",
+    "Render QA dùng LibreOffice; Microsoft Word có thể ngắt dòng/trang khác.",
+    "Nhận dạng công thức từ PDF là heuristic (chỉ phân số/chỉ số đơn giản); công thức không chắc → ảnh vùng.",
+    "OCR chưa có trên máy → trang scan giữ ảnh trang."
+  ],
+  "options": {
+    "mode": 2,
+    "dpi": 150,
+    "strict": false,
+    "qa_pdf": false,
+    "engine": "xelatex",
+    "answer_mode": "source",
+    "show_solutions": true,
+    "figure_policy": "auto",
+    "preprocess": "engine",
+    "ocr": "auto",
+    "ocr_lang": null
+  },
+  "source": {
+    "main": "mau_kiem_thu_cau_truc_cuc_la.tex",
+    "selection": "user_exact_path",
+    "candidates": [
+      "mau_kiem_thu_cau_truc_cuc_la.tex"
+    ],
+    "files": [
+      {
+        "path": "mau_kiem_thu_cau_truc_cuc_la.tex",
+        "encoding": "utf-8",
+        "lines": 83,
+        "depth": 0
+      }
+    ],
+    "includes": [],
+    "graphicspath": [],
+    "issues": []
+  },
+  "preprocess": {
+    "mode": "engine",
+    "requested": "engine",
+    "reason": "mặc định: nhánh engine của pipeline — có quản lý khối hình/ảnh, provenance từng khối, thông báo khối thiếu"
+  },
+  "transforms": {
+    "newif": {
+      "resolved": {},
+      "skipped": {}
+    },
+    "user_macros": {
+      "expanded": {
+        "bonpa": 1,
+        "dinhnghia": 1
+      },
+      "skipped": {},
+      "defined": [
+        "bonpa",
+        "dinhnghia"
+      ]
+    },
+    "macro_fidelity": {
+      "macro_da_no": {},
+      "macro_bo_qua": {
+        "bonpa": "engine gốc vốn dựng tốt macro này (đặt L2W_MACRO_FIDELITY=all để vẫn nở)"
+      },
+      "co_dieu_kien": [],
+      "lenh_danh_dau": []
+    },
+    "lists": {
+      "itemize": 0,
+      "enumerate": 0,
+      "description": 0,
+      "items": 0
+    },
+    "structure": {
+      "unwrapped": {
+        "tcolorbox": 1,
+        "bangxetdauthan": 1,
+        "khongtontai": 1
+      },
+      "titled": {},
+      "user_envs_expanded": {},
+      "unknown_commands": {
+        "hang": 2,
+        "veanhlaso": 1,
+        "tomauvung": 1,
+        "vecaigiday": 1
+      },
+      "kept_args_of_unknown": 13,
+      "exam_conventions": {
+        "cau": 0,
+        "bonpa": 0,
+        "choiceTF4": 0
+      },
+      "content_commands": {
+        "SI": 1
+      }
+    }
+  },
+  "blocks": {
+    "items": [
+      {
+        "block_id": "tex-fig-0001",
+        "kind": "bbt",
+        "source": {
+          "file": "mau_kiem_thu_cau_truc_cuc_la.tex",
+          "line": 23
+        },
+        "tex": "\\begin{tikzpicture}\n\\tkzTabInit[lgt=1.2,espcl=2]{$x$/1,$y'$/1,$y$/2}{$-\\infty$,$-1$,$1$,$+\\infty$}\n\\tkzTabLine{,+,0,-,0,+,}\n\\tkzTabVar{-/$-\\infty$,+/$3$,-/$-1$,+/$+\\infty$}\n\\end{tikzpicture}",
+        "index": null,
+        "method": "table_native",
+        "status": "ok",
+        "reason": "",
+        "warnings": [],
+        "asset": null,
+        "max_width_frac": 1.0,
+        "inline": false,
+        "verify": null,
+        "parent": null
+      },
+      {
+        "block_id": "tex-fig-0002",
+        "kind": "figure",
+        "source": {
+          "file": "mau_kiem_thu_cau_truc_cuc_la.tex",
+          "line": 32
+        },
+        "tex": "\\begin{tikzpicture}\n\\begin{axis}[axis lines=middle,width=7cm,height=5cm,xmin=-3,xmax=3,ymin=-3,ymax=3,grid=both]\n\\addplot[thick,red,domain=-2.5:2.5,samples=100]{x^3-3*x};\n\\addplot[only marks,blue] coordinates {(-1,2) (1,-2)};\n\\end{axis}\n\\end{tikzpicture}",
+        "index": 1,
+        "method": "vector_image",
+        "status": "fallback",
+        "reason": "thiếu LibreOffice để render thử DrawingML",
+        "warnings": [],
+        "asset": {
+          "ext": "svg",
+          "width_pt": 157.97300720214844,
+          "height_pt": 101.28600311279297,
+          "engine": "pdflatex",
+          "geom_png": "b'\\x89PNG\\r\\n\\x1a\\n\\x00\\x00\\x00\\rIHDR\\x00\\x00\\x01J\\x00\\x00\\x00\\xd4\\x08\\x02\\x00\\x00\\x00uP\\xfd\\xd5\\x00\\x00\\x19\\xa2IDATx\\x9c\\xed\\xdd\\x0bX\\x94U\\xfe\\x07\\xf0\\xef\\x08\\x0cxCR\\x10QL\\xd1\\xbc\\x92\\x97\\xbc\\xe5\\xda\\x8d\\r\\xcb4w\\xb5\\xd4\\xacv\\xd5G6\\xadp\\x9f5[CKX\\xccK\\x06\\xfc3{\\xfa\\x8b\\xda\\xc5\\xd5\\xb4\\x8d\\xcc\\xd2\\xfa\\x83V\\x8aA&\\xc6\\x90((\\x17q\\x03\\x15P\\x04\\x14\\xd1\\x01\\x9c\\x19\\x86\\xf9??P\\xd3$\\xe32\\xcc\\xfb\\x9e\\xf3\\xfe>O\\xcfk\\xe6\\x04\\xc7\\x81/\\xe7\\xbc\\xe7=\\xe7wt6\\x9b\\r\\x8c1\\x19\\xb5R\\xba\\x01\\x8c\\xb1\\x96\\xc2\\xf1fLZ\\x1co\\xc6\\xa4%R\\xbc\\x8dFcyy\\xb9\\xd2\\xad\\x10Xe-\\xa5[!\\xb0\\xf2\\xf2r\\xa3\\xd1\\xf8\\xcb\\xefcb\\xa0\\xd3a\\xdb6\\xa8\\x95H\\xf1.+++))Q\\xba\\x15\\x02[\\xbbvmtt\\xb4\\xd2\\xad\\x10XIIIYY\\xd9/\\xbf?~\\x9c\\xae}\\xfbB\\xad\\x9c\\x95n\\x00s\\x90\\xca\\xca\\xca\\xa8\\xa8(\\x9dN\\x17\\x1c\\x1c\\xdc\\xa6M\\x1b~\\xdf\\xed \\'\\x87zo\\x15\\xc7[\\xa4\\xde\\x9b5\\xc7\\xda\\xb5kKJJ\\x8a\\x8b\\x8b\\xd7\\xad[\\xc7\\xef\\xa4}\\x1c?\\x0e__\\xa8\\xf8g%\\xc7[C]\\xb7\\x9b\\x9b\\x9b\\xab\\xabkTT\\x14\\xdf\\x81\\xdb\\x81\\xcd\\x86\\xecl\\x0c\\x18\\x00\\x15\\xe3xk\\xc2\\xda\\xb5k===g\\xcf\\x9e\\x1d\\x14\\x14\\xd4\\xb1cG\\xee\\xc0\\xed ?\\x1f\\x15\\x15\\x1co\\xa6\\xb0\\xca\\xca\\xca\\xe2\\xe2\\xe2\\x94\\x94\\x94\\xce\\xb5RRR\\x8a\\x8a\\x8a\\xb8\\x03o\\xae\\xac,\\xba\\xaa\\xbb\\xf7\\xe6\\xa95\\xf99;;GEE]\\xffm\\xdb\\xb6m\\xa3\\xa2\\xa2L&\\x93\\xa2\\x8d\\x12_\\x96\\x00\\xf1\\xe6\\xc1\\xb9\\xfc\\xf4z\\xfd\\xad\\xff\\xd1\\xd5\\xd5U\\x89\\xb6H$\\x8b\\xe3\\xcd\\x98\\xac23\\xd1\\xa9\\x13\\xbc\\xbc\\xa0b\\xdc{3\\xd6$YY*\\x1f\\x99s\\xbc\\x19k\\x92\\x92\\x12\\x9c?\\xcf\\xf1fLFY\\x02\\xdcxs\\xef\\xcdX\\x93p\\xbc\\x19\\x93V\\x16\\xf7\\xde\\x8c\\xc9*+\\x0bm\\xdb\\xe2\\xce;\\xa1n<s\\xceX\\xe3ee\\xa1_?\\xda.\\xa6n\\x1co\\xc6\\x1a\\xc9h\\xa4\\x05\\xe7\\xaa\\x9fW\\xe3x3\\xd6x\\xd9\\xd9t\\xe5x3&\\xa1,1\\xe6\\xd5\\xb8\\xf7f\\xac\\xf123\\xe9\\xca\\xf1fLBG\\x8f\\xc2\\xd5\\x15}\\xfa@\\xf5xj\\x8d\\xb1F\\xca\\xc8\\xa0isg\\x016Ss\\xbc\\x19k\\x04]E\\x05N\\x9d\\xc2\\xddwC\\x04\\x1co\\xc6\\x1a\\xc1%\\'\\x87\\xaa\\xac\\xf9\\xfbC\\x04\\x1co\\xc6\\x1a\\xc1\\xa5\\xae\\xb69\\xf7\\xde\\x8c\\xc9\\xc7\\x85\\xe3\\xcd\\x98\\xcc\\xf1n\\xdb\\x16~~\\x10\\x01\\x0f\\xce\\x19k\\xe4\\xbd\\xf7\\xc0\\x81\\xea_m^\\x87\\xe3m7\\xd9\\xd9\\x88\\x8f\\xa7\\x87&LV\\xad.^t*.\\x16\\xe5\\xc6\\x9b\\x0b!\\xdbGZ\\x1af\\xcc\\xc0\\xcf?\\xc3\\xc5\\x05\\x16\\x0bm\\x13\\xdc\\xbc\\x19\\xa3F\\xd9\\xe9\\xa33\\xd5\\xd0\\xe7\\xe4\\xd0/\\x82L\\x9bs\\xbc\\xed #\\x03\\x0f>\\x88K\\x97~\\xf9/\\xd9\\xd9x\\xf8a$&b\\xf8p{|\\x02\\xa6\\xb6x\\xdf-L\\xef\\xcd\\x83\\xf3\\xe6z\\xe9\\xa5\\x9b\\xb2]\\xa7\\xa2\\x02\\xf3\\xe65\\xfbC3\\x95q=qB\\xacx\\xdf\\xb4\\xb0\\xcej\\xb5Z,\\x16\\xa8Uu\\xad+W\\xae@5\\xca\\xcb\\xf1\\xfd\\xf7\\xae@=\\x13-G\\x8e\\xd8\\xf2\\xf2L>>P\\x96\\xd9l\\xbe\\xfe\\x8eUTT\\x00(..\\xae\\xfb\\xad\\x9b\\x9b[\\xbd\\'\\x1c\\xb0\\xdf\\xe2\\x92\\x93cuw\\xb7t\\xea\\x045}\\x13\\xde\\xc8\\xc5\\xc5\\xc5\\xc9\\xc9\\xa9\\xfex\\x17\\x17\\x17\\xe7\\xe5\\xe5A\\xad\\xacV\\xab\\xcdf\\xbbp\\xe1\\x02\\xd4\\xc1\\xf5\\xcc\\x19\\xebG\\t\\xce\\x96H3\\xea9\\x02Vo2\\x9e\\x9a\\x13Z1\\xe9\\xaeK\\xf7\\xdc\\x83V\\x8a\\x8d\\x92\\n\\n\\nrss\\xeb\\xfe\\xfd\\xf0\\xe1\\xc3\\x006n\\xdcX\\xf7\\xdb^\\xbdz\\xf9\\xfa\\xfa*\\xd50\\x11\\x8d\\xcc\\xc91\\xf6\\xe8\\x91\\x91\\x9a\\n\\xb5\\xf2\\xf3\\xf3\\xf3\\xb9\\xa1K\\xb9)\\xde>\\xb5\\xa0V\\xf9\\xf9\\xf9&\\x93\\xe9\\xae\\xbb\\xeeR\\xba!\\xc0\\xb1cX\\xba\\x14;wVY\\xf55\\xf8\\x9fz_b\\xd6\\xe9\\x87\\xc6\\x7f\\xe4\\x11\\x7f\\x91v\\x0e\\x86\\x85a\\xfat\\x05C^\\xa7\\xae\\x1b_\\xbcx\\xb1\\xb2\\xcd\\x10UQ\\x11.]r\\x1a<x\\xcc\\x981\\x10\\x04\\xdf{7Ru5\\x96-\\xa3I\\xb3/\\xbe\\xc0\\xb8q\\xad\\xf7\\xfe\\xdfS3\\xddn\\xdd;\\xe4\\xec\\x8c\\t\\x93]=\\xd2\\xbfGH\\x08\\n\\n\\xf0\\xec\\xb3t\\xc3\\x96\\x90`\\xb7\\xaf\\x1bs\\xbc\\xb44\\x00\\x16\\x11\\xb6y_\\xc7\\xf1n\\x8c\\xdc\\\\z\\xde\\x15\\x1eN\\xfb\\x01\\r\\x06\\xc4\\xc5!0p\\xf5j\\xf4\\xe8A\\x8f\\xc4\\xaesv\\x86\\x8f\\x0f\\xa2\\xa3\\x81A\\x83\\x10\\x11\\x81\\x93\\'\\x11\\x1a\\x8a\\xd3\\xa7i>=8\\x98*u1a\\xe3m\\xe6x\\xcb\\xe9\\xd0!\\x8c\\x19\\x83\\xf4t\\x1ai\\xff\\xf4\\x13F\\x8c\\xa8\\xfb\\xcf\\x9d:!9\\x19\\xcf?\\x8f6m(\\xd8nn\\x08\\nBJ\\n\\xbat\\xb9\\xf6?v\\xec\\x88\\xe5\\xcb\\xe9\\x7f\\x0c\\x08\\xc0\\xbau\\x18<\\xb8\\xee\\x1b\\x85\\t&=\\xdd\\xc6\\xbd\\xb7\\x9c\\xbe\\xfe\\x9a\\xc2y\\xe9\\x12\\x8d\\xc9\\x97-\\xc3\\xcd\\x13\\xce\\x9d:\\xe1\\xddw\\xa9W\\xbex\\x11\\x95\\x95\\xd8\\xb0\\x01\\xde\\xde\\xb7|\\x84^\\xbdhQ[t4\\xce\\x9c\\xa1\\x1f\\x13\\xdb\\xb69\\xb2\\xf9\\xcc\\x0e\\xd2\\xd2\\xaa}}m\\xed\\xdaA\\x1c<8o\\x80}\\xfb0i\\x12\\xf5\\xcb\\xfb\\xf6\\xe1\\xcf\\x7f\\xfe\\xadW\\xe9t\\xb4\\xd7\\xe0v\\x8b\\x91u:\\xbc\\xf8\"\\xdd\\x81w\\xe8@3m\\xaf\\xbf\\xde\\xb4\\xaf\\x19S\\x80\\xc9\\x84\\xeclS\\xff\\xfeb\\xbd\\xf9\\x1c\\xef\\xdfs\\xf4(\\x9e|\\x92F\\xde\\xdf}\\x87\\xd1\\xa3\\xed\\xf0\\x96\\x8f\\x1eM\\xe3\\xfc\\x91#i\\xee}\\xc1\\x02\\xaa\\r\\xc0\\xd4/3\\x13\\xd5\\xd5b\\xddxs\\xbc\\x7fO~>\\xc6\\x8f\\xa75\\x0c;w\\xdas\\xad\\x92\\x8f\\x0f\\r\\x04\\x02\\x02\\xb0f\\r\\xe6\\xccAM\\x8d\\xdd>2k!i4]\\xc2\\xbd\\xb7D\\xccfL\\x9eL\\xb7\\xca\\x9b7\\xe3\\xa1\\x87\\xec\\xfc\\xc1\\xdb\\xb5\\xc3\\xae]\\x980\\x01\\x1f~H\\xf3rL\\xe5\\xd28\\xde\\x92Y\\xbc\\x18\\xa9\\xa9WW\\xa4\\xb4\\x84\\xd6\\xadiP0~<>\\xf8\\x00\\x8b\\x16\\xb5\\xc8\\xa7`\\xf6\\x92\\x96\\x86\\xf6\\xed\\xab\\xbbw\\x87P\\xf8\\xde\\xfb7\\xec\\xdeM#\\xe7\\xfb\\xef\\xc7\\xbf\\xfe\\xd5\\x82o\\xbf\\x8b\\x0b>\\xff\\x1c\\xf7\\xdd\\x87\\xc8HzB\\xceT+-\\x8d\\x9eh\\nR\\xc5\\xe1:\\x8ew}\\x8a\\x8a0k\\x16<<\\xf0\\xf1\\xc7\\xb8a\\x81~\\x8bh\\xdd\\x1a\\xb1\\xb1\\xf4\\xad\\xb3x1bbZ\\xf6s\\xb1\\xa6)(\\xc0\\x85\\x0b\\x182\\x04\\xa2\\xe1x\\xd7g\\xfe|\\x94\\x94\\xe0\\xfd\\xf7\\x1dt\\x80\\xb3\\x87\\x07\\r\\x16\\xbav\\xc5\\xec\\xd9\\xb4 \\x86\\xa9Mz:]9\\xde2\\xf8\\xe6\\x1bZs\\xf2\\xe4\\x93\\x982\\xc5q\\x9f\\xb4kW|\\xf5\\x15\\x8d\\xfd&MBa\\xa1\\xe3>/k\\x88\\xbaU\\x86\\x83\\x07C4\\xdc{\\xdf\\xec\\xca\\x15\\xaa\\xc3\\xd0\\xae\\x1d\\xdey\\xc7\\xd1_\\x8a\\xe1\\xc3i\\x8a\\xbe\\xa8\\x88\\xa6\\xebM&G\\x7fvv\\x1bii\\xb4\\xdbo\\xd0 \\x88\\x86\\xe3}\\xb3U\\xab\\xa8f\\xda\\xd2\\xa5Pd#\\xf4\\xb4iX\\xb2\\x84\\x16\\xb4\\xbf\\xfc\\xb2\\x02\\x9f\\x9d\\xfd\\x96\\xb44\\xf4\\xeeMk\\x12E\\xc3\\xf1\\xbe\\xc1\\xc9\\x934}=h\\x10\\xdd{+\\xe5\\xf5\\xd7icYt4>\\xf9D\\xb16\\xb0\\x1b\\x19\\x8d\\xc8\\xc9\\xc1=\\xf7@@\\x1c\\xef\\x1b,]J\\xa3\\xe25k\\x94<\\xfc\\xb1U+\\xfc\\xe7?\\xb4\\xacm\\xee\\\\\\xd4\\x1d\\x88\\xc1\\x94u\\xe4\\x08-+\\x1c6L\\xc4\\xaf\\x03\\xc7\\xfb\\x9a\\xccLl\\xd9\\x82G\\x1e\\xa1\\xceSY\\xde\\xde\\xf8\\xf4STU\\xe1\\x99gh\\xe5\\x1cSVjm\\xe9%1\\xab\\xder\\xbc\\xaf\\t\\r\\xa5\\x1f\\xd2o\\xbc\\x015x\\xe0\\x01\\xba\\t?|\\x98Z\\xc5\\xd4\\x10\\xefa\\xdc{\\x8b\\xcb`\\xc0\\x8e\\x1d\\xf4$\\xecZ\\x91\\x06\\xe5\\x85\\x85\\xd1\\xde\\xb2\\xb7\\xde\\xa2\\x9djLA\\x87\\x0eQ9\\x9e\\x8e\\x1dE\\xfc\"p\\xef]+,\\x8cV\\xa7\\xadX\\x01\\xf5pv\\xc6\\xd6\\xad\\xb4\\x11u\\xe6L*\\x13\\xc1\\x14QU\\x85\\xac,AG\\xe6\\x1c\\xefZ\\xa9\\xa9\\xf8\\xf6[\\xba\\xd1U\\xdbf\\xfd\\xde\\xbd\\xe9\\xf1{A\\x01\\x1d\\x95\\xc0\\x14\\x91\\x9e\\x0e\\xabU\\xd0\\x919\\xc7\\xbbVd$]_y\\x05*\\x14\\x14D\\x9bF7o\\xa6\\xdd\\xa3\\xcc\\xf1\\x0e\\x1d\\xa2+\\xc7[Tyy\\xd8\\xbe\\x1d\\xe3\\xc6\\xa9w\\xc9\\xe1{\\xefQ\\xf1\\xa6\\xb9s\\xe9H\\x14\\xe6`\\xa9\\x02O\\x9bs\\xef\\r\\xac^M\\xa3\\xaf\\x90\\x10\\xa8V\\xb7n\\xd4\\xc8\\xc2B^\\xca\\xa6\\x80\\xd4Tz\\xff;w\\x86\\x98\\xb4=\\xb5v\\xfe<6n\\xa4\\xd9r\\xc5\\x9fu\\xdf^P\\x10\\x1e{\\x8c\\x9a\\xca\\xb3\\xe8\\x8ed6\\xd3q4\\xc2\\x8e\\xcc5\\x1f\\xefu\\xeb\\xa8p\\xb1:\\xef\\xba\\x7fe\\xdd:\\x9aE\\x7f\\xfey\\xd5\\x1e^\\'\\xa1\\xa3G\\xe9\\xb8vaG\\xe6\\xda\\x8e\\xb7\\xd5J\\xb7\\xb5\\xbe\\xbe\\x0e\\xdd\\xf8\\xd9d={\\xd2r\\xf4\\x13\\'\\xb0r\\xa5\\xd2M\\xd1\\x8cT\\x81\\x17\\xb4@\\xeb\\xf1\\x8e\\x8b\\xa3B\\xa8s\\xe6\\xb4x=\\x16{Y\\xb0\\x8066DD #C\\xe9\\xa6hi\\xda|8\\xf7\\xde\"Z\\xbf\\x9e\\x96\\x8e<\\xf7\\x1cD\\xe1\\xe4D\\xc3\\r\\xab\\x95\\xceB`\\x0e\\x90\\x9cLe6\\xbav\\x15\\xf7\\xcd\\xd6j\\xef}\\xf2$Ue\\xf9\\xd3\\x9f\\x04\\xfb\\xe2\\x8d\\x18\\x81\\x17^\\xc0\\xfe\\xfd\\xb4\\xfb\\x85\\xb5\\xa8\\xaa*\\x9aW\\x1b5J\\xe8\\xb7Y\\xab\\xf1\\xde\\xb0\\x816\\x90\\xbc\\xf0\\x02\\x84\\xb3r%=\\xa7y\\xe5\\x15~\\x0c\\xde\\xb2RS\\xe9\\xb0g\\x8e\\xb7x,\\x16z\\xc8\\xd4\\xbb7m\\xff\\x14\\x8e\\x87\\x07\\xdd~\\x9f;\\xd7\\xb2\\x15\\x9a\\x99\\xc1@\\xef\\x01\\xc7[<\\xb1\\xb1(.\\xa6u`\\xa2\\x95\\xad\\xbej\\xd6,*\\x8d\\xbev\\xed\\xd5\\n\\x9e\\xac%\\x18\\x0cTZc\\xe4H\\xa1\\xdf]M\\x0e\\xce\\xb7l\\xa1i\\xaa\\x193 (\\x9d\\x8e\\xb2\\r\\xe0\\x1f\\xffP\\xba)\\xf22\\x18\\xd0\\xaf\\x1f\\xdc\\xdd!2\\xed\\xc5\\xfb\\xc2\\x05z$\\x16\\x18H\\x05\\x8f\\xc45d\\x08=\\xd2KL\\xc4g\\x9f)\\xdd\\x14\\x19\\x95\\x96\"7W\\xf4\\x91\\xb9&\\xe3\\xbdm\\x1b-6\\x14\\xb7\\xeb\\xben\\xf9r\\xdcq\\x07\\xcd\\xb1UU)\\xdd\\x14\\xe9\\x18d\\xb8\\xf1\\xd6d\\xbc\\xb7l\\xa1\\x8a\\xb6O<\\x01\\xd1yzR\\xed\\xc7S\\xa7\\x10\\x15\\xa5tS\\xa4c\\xe0x\\x8b\\xe8\\xe7\\x9f\\x91\\x94D\\'\\x90\\x08X\\xb3\\xba\\x1e\\xc1\\xc1\\xf0\\xf7\\xa7\\x89\\xf4\\x82\\x02\\xa5\\x9b\"\\x17\\x83\\x01\\xae\\xae\"\\x9e:\\xa4\\xed\\xde{\\xebV\\xbaJ02\\xaf\\xe3\\xecL{E++\\xf1\\xdakJ7E.))\\xb4\\xfe\\xd7\\xc5\\x05\\x82\\xd3X\\xbc?\\xfe\\x98\\x96\\xa9\\x05\\x06B\\x1a\\x8f>J{E\\xb7n\\xbd\\xba@\\x9a5_n.M\\xad\\x89\\x7f\\xe3\\xad\\xb1x\\x1f9B;\\xae\\xa6M\\xa3\\xe7\\x992y\\xeb-\\xfa\\x1b\\xf1\\xb9E\\xf6\\xf2\\xe3\\x8ft\\xbd\\xf7^\\x88O\\xaeo\\xf4\\xdb\\xfb\\xfcs\\xbaN\\x9d\\n\\xc9\\x0c\\x1cH\\x0f\\xc9\\xbe\\xff\\x1e_|\\xa1tS\\xa4p\\xe0\\x00]\\xc7\\x8c\\x81\\xf8\\xb4\\x14\\xef\\xed\\xdb\\xe9Y\\xf7}\\xf7A>\\xcb\\x96\\xd1\\x02\\x8cE\\x8bh\\xbd-k\\xa6\\xa4$\\xba\\x83\\xeb\\xd9S\\x827R3\\xf1\\xce\\xc8@v6=\\x0f\\x13t!\\xea\\xedyya\\xf1b\\xfc\\xf7\\xbf\\xb4\\xcb\\x955\\xc7\\xe5\\xcbT\\xa4E\\x8a\\xae[K\\xf1\\xde\\xbe]\\xce\\x91\\xf9u/\\xbdD\\x95g\\x96-\\xc3\\xa5KJ7Ed\\xc9\\xc9\\xb4\\xa3^\\x96!\\x9e\\x96\\xe2\\xed\\xe5\\x85\\x07\\x1f\\x84\\xacZ\\xb7\\xa6SVJK\\xf1\\xe6\\x9bJ7Ed\\x07\\xe4\\xb9\\xf1\\xd6L\\xbcsrhk\\xfe\\xe4\\xc9\\xc2\\xd4]j\\x9a\\x193h%\\xc6\\x9a5\\xbc\\xca\\xa5\\xe9\\x0e\\x1c\\xa0\\x1f\\x94b\\x9e\\xe6\\xad\\xd5x\\xcb:g\\xfe+\\xadZ\\xd1\\x02\\xd5\\xaa*\\xde\\n\\xdeD5548\\x1f9R\\x82\\x05-Z\\x8a\\xf7\\x97_R\\x15\\x04\\x95\\x173\\xb7\\x8bG\\x1e\\xc1\\xd8\\xb1th\\xd1\\xb1cJ7E@G\\x8f\\xd2\\xcc\\x85,7\\xde\\xda\\x88wq1\\xad1\\x1c7\\x8e\\x96pjAD\\x04l6\\xbc\\xfa\\xaa\\xd2\\xed\\x10PR\\x92L7\\xde\\xda\\x88\\xf7\\xae]4\\xe8\\x9a8\\x11\\x1a1l\\x18\\xa6O\\xa7\\x8a4\\xfb\\xf7+\\xdd\\x14\\xd1\\x1c8@\\xcfM9\\xde\"\\x89\\x8d\\xa5\\x19\\xb5\\xf1\\xe3\\xa1\\x1d+W\\xd2\\xdd\\xe3\\xa2EJ\\xb7C4IIT\\xa1\\xa5cG\\xc8B\\xf6\\xde\\xdbb\\xa1\\xb3\\xbbG\\x8fF\\xa7N\\xd0\\x8e^\\xbd\\xa8\\x08\\xec\\xc1\\x83\\xd8\\xb9S\\xe9\\xa6\\x88\\xa3\\xa0\\x80\\x8e\\x8b\\xbd\\xff~HD\\xf6x\\'&\\xd2:$\\xed\\x8c\\xcc\\xaf\\x0b\\rE\\xbbvX\\xb2\\x84\\x16i\\xb0\\x86HH\\xa0k@\\x00$\"{\\xbccc\\xe9\\xfa\\xf8\\xe3\\xd0\\x9a\\xce\\x9di\\x0fYf&>\\xfaH\\xe9\\xa6\\x08\"1\\x91\\xae\\x1co\\x91\\xc4\\xc6\\xa2G\\x0f\\x0c\\x1a\\x04\\rZ\\xb8\\x90\\n6\\x85\\x87\\xc3dR\\xba)\"HH\\xa0\\xd2\\xf7\\xdd\\xbaA\"R\\xf7\\xde\\xc7\\x8fS\\xf5%\\rv\\xddu\\xda\\xb7\\xa7\\xc1y~\\xfe\\xd5\\xaa\\xc9\\xec6\\xce\\x9c\\xa1\\r9ru\\xdd\\xb2\\xc7{\\xf7n\\xbaj6\\xde\\x00\\x1d6\\xd8\\xa3\\x07V\\xad\\xe2}&\\r\\xba\\xf1~\\xe8!\\xc8E\\xeax\\xef\\xd9\\x03\\xbd^\\xbe\\x1f\\xc9\\x8d\\xe0\\xeaJ\\xd5TKK\\xa9\\xa2\\x0b\\xd3\\xd8\\xbc\\x9a\\xd4\\xf16\\x9bi\\xb2d\\xcc\\x18\\xb4i\\x03-\\x9b1\\x83\\xca\\xb9\\xac^\\x8d\\x92\\x12\\xa5\\x9b\\xa2b\\x89\\x89\\xf44\\xb1{w\\xc8E\\xa4x\\x97\\x96\\x96\\x9e;w\\xae\\xa1\\xaf>x\\x10\\x15\\x15TiP\\xe3\\x9c\\x9ch\\xa3\\xa8\\xd1Hk]X\\xbd\\xce\\x9e\\xa5=\\x85\\r\\x18\\x99\\x9f;w\\xae\\xb4\\xb4\\x14\\xe2\\x10)\\xdeg\\xcf\\x9e-hxA\\xef={\\xe8*\\xe2\\x19\\xa0v\\xf7\\xc4\\x13T\\xf7s\\xfd\\xfa\\x0e\\x17/*\\xdd\\x14\\xb1\\x1f\\x89\\x15\\x14\\x14\\x14\\x15\\x15A\\x1d\\xccf\\xb3\\xd1h\\x94\\'\\xde\\x8d\\xf3\\xed\\xb7\\xb4\\xbap\\xd80\\xa5\\xdb\\xa1\\x0eo\\xbc\\x01\\x93)\\xa0\\xee\\x0e\\x93\\xd5\\x1bo\\xd1\\xe6\\xd5\\xf4z\\xfd\\x8a\\x15+\"\"\"***4\\x16\\xef\\x0b\\x17\\xa8\\xeew`\\xa0l5\\x8f\\x9b,0\\x10\\x81\\x81C\\xd2\\xd3=\\xf9\\x0e\\xfcV{\\xf6\\xd0\\x8dw\\x8f\\x1e\\x10Mxx\\xf8\\xd6\\xad[{\\xf6\\xec\\xf9[!\\xd7\\xd9l\\xb6\\xeb\\xbf1\\x18\\x0cqqqP\\xab\\x13\\'N\\x98\\xcdf\\x7f\\x7f\\xff\\xdf}\\xe5\\xc0\\xcc\\xcc\\xe9\\xdb\\xb7\\x7f9qb*\\xf7\\xde\\xd7t+,\\x9c\\xfb\\xe1\\x87\\x89\\x9e\\x9e\\xfb\\x82\\x83[\\xf8\\x0b%\\x12\\x8f\\xb2\\xb2\\x05\\xef\\xbe\\x9b2|xl\\x03\\x1e\\xa0fdd\\xe8\\xf5\\xfa>}\\xfa@5JJJ6m\\xdaTUU\\xe5\\xe5\\xe5\\xb5p\\xe1\\xc2y\\xf3\\xe6\\xb5\\xbd\\xe1\\x80\\xad_o\\x81\\xd6\\xa9\\xb8\\x90h]\\xdb\\x1a\\xd2\\xc2\\xde\\xb9\\xb9t\\xdaD\\xef\\xdej\\xfe\\xeb8\\xd8\\x19_\\xdf\\xfd\\x9e\\x9e\\x0f\\x95\\x96\\x1e?{\\xf6L\\xd7\\xaeJ7G-\\xee\\xca\\xcbk\\xd4\\xb7\\x8a\\xae\\x16T\\xe3w\\x1ac\\x13G\\\\\\\\\\\\LLL\\x83^\\xea\\xe7g\\xeb\\xd3\\xa7\\xc5\\x1b$\\x9a\\xff\\r\\x0e\\xb6\\x02\\xb6G\\x1eQ\\xba!j2u\\xaa\\xcd\\xc9\\xc9VV\\xd6\\x90\\xd7\\xc6\\xc4\\xc4\\xec\\xda\\xb5\\xcb\\xa6\\x1a\\x15\\x15\\x15\\xfe\\xfe\\xfe^^^\\x11\\x11\\x11F\\xa3\\xf1\\xd6\\x17\\xc8xk\\x9a\\x97G\\xff\\x8c\\x1d\\xabt;T\\xa7\\xc4\\xcb+}\\xc8\\x10\\xba\\xd5\\xfc\\xee;\\xa5\\xdb\\xa2\\x0e55\\x88\\x8f\\xc7\\x88\\x11T\\xabK@\\xcb\\x96-\\x9b9sf^^^HH\\xc8\\x8dc\\xf2\\xebd\\xacO$\\xe3\\xd6\\x1f{\\xf9. `hV\\x16\\x95j\\xaa;IK\\xe3~\\xfa\\tee\\x82>=5\\x9b\\xcdaaa\\xf5\\xa6\\xfa:\\x91zo\\x1f\\x1f\\x1f___\\xcd\\xae\\x1f\\xb6\\x8br\\x0f\\x0f\\xaa\\xf4\\x90\\x9c\\xcc\\x95\\x1e~Y\\x1c\\xd1\\xe0\\xb5O\\xbe\\xbe\\xbe]\\xbat\\x81:\\xe8\\xf5\\xfa\\xdbg[\\xb0x{zzz{{\\xff\\xfe\\xeb\\x12\\x13\\xd1\\xbf?\\x1a\\xf2JmZ\\xb2\\xe4j\\xa5\\x87\\x9a\\x1ah\\xdc\\xb7\\xdf\\xd2[1zt\\x03_\\xee\\xed\\xed\\xed\\xe9\\xe9\\tq\\x88\\x14\\xef\\x069u\\n\\'Or\\xd7};\\x9d;c\\xc1\\x02\\xaa\\xf4\\xb0e\\x0b\\xb4\\xcch\\xa4\\x95\\xcb\\x01\\x01\\xd2T5\\xd7@\\xbc\\xf9\\xc6\\xbb!\\x16.\\xa4\\xe2s\\xe1\\xe1\\xb4\\xf1F\\xb3\\x12\\x13\\xa9\\x14\\x9f\\x987\\xdeZ\\x8d7\\xdfx7\\x84\\xbb;^{\\x8dF:\\xeb\\xd6A\\xb3\\xe2jWp=\\xf6\\x18\\xe4%]\\xbc\\x13\\x13\\xd1\\xb7/\\x9d\\xe3\\xcdn/8\\x98\\xf6?\\xae\\\\I\\xa5&\\xb5).\\x0e}\\xfa\\xd0w\\x8b\\xbc\\xe4\\x8aw~>rs\\xf9\\xc6\\xbbA\\xdc\\xdc\\xa8\\xd2CI\\x89F+=\\xa4\\xa7\\xe3\\xf4i\\xe9K\\xe8\\xca\\x15oIkn\\xb4\\x94Y\\xb30`\\x80F+=\\xc4\\xd6\\x96\\xd0\\xe5x\\x8bD\\xcc\\x9d}\\nWz\\xb8|\\x99\\xaeZ\\x13\\x1b\\x8b\\x0e\\x1d\\xf0\\xc0\\x03\\x90\\x9a\\\\\\xbd\\xf7\\x0f?\\xd0\\xce>\\xb9j\\xd9\\xb6\\xac\\'\\x9f\\xa4\\xa7\\xbe\\xeb\\xd7\\xd32^\\xed(-\\xa5\\x85=\\x8f>*\\xf1#1\\xe9\\xe2}\\xfe<U>\\x96\\xe8\\xf4V\\x07\\x89\\x88\\xa0\\xc7cK\\x96@;v\\xd5\\x9e*\\xa9\\x81\\x12\\xba\\x12\\xc5[\\xba\\xd3[\\x1d\\xe4\\xc1\\x07\\xe9\\x1b=&\\x06\\x87\\x0fC#bc\\xa9\\xce\\xc7\\x84\\t\\x90\\x9dD\\xf1>p\\x80\\xae\\xdc{7\\xc1\\x9bo\\xd2\\xc1\\xb7\\x1a9Q\\xd4R{\\xaa\\xe4\\xa8Q\\xf0\\xf2\\x82\\xec$\\x8awR\\x12M\\x964\\xa0\\x96\\x0b\\xfb\\xb5\\xbb\\xef\\xa6z\\xc9{\\xf6\\\\\\xddb!\\xb7\\xf8x\\x94\\x97c\\xd2$h\\x80,\\xf1\\xb6X\\x90\\x92B\\xb3D\\\\\\\\\\xadi\\x96/\\xa7\\'\\xe1!!\\xf2\\xef3\\xf9\\xfcs\\xbaN\\x99\\x02\\r\\x90%\\xde\\xa9\\xa9\\xb8r\\x85G\\xe6M\\xd7\\xbd;\\xe6\\xcf\\xc7\\x91#\\xd8\\xba\\x15\\x12\\xb3Zi\\'\\xec\\xe0\\xc1\\xb4^M\\x03ZIu\\xe3\\xcd\\xf3j\\xcd\\xf1\\xea\\xabt\\xa2hh(\\xfd\\xa0\\x94UB\\x02=\\x15\\x9b:\\x15\\xda K\\xbc\\x93\\x92h\\x91\\xc6\\xbd\\xf7*\\xdd\\x0e\\x91u\\xe8\\x80\\xb00Z\\xd8\\xfb\\xce;\\x90\\xd5\\xf6\\xedt\\x9d6\\r\\xda Q\\xbc\\x07\\x0f\\xa6\\xad\\xf9\\xac9^|\\x91\\xce\\xb8^\\xb5\\x8a\\xba8\\xf9\\xd4\\xd4`\\xc7\\x0e:q\\xad\\x7f\\x7fh\\x83\\x14\\xf1\\xce\\xcb\\xa3c\\xa2\\xf8\\x91X\\xf3\\xb9\\xb8\\xd0*\\x97\\xf2r\\xda\\n.\\x9f\\x1f~\\xc0\\xb9s\\x1a\\x99T\\x93(\\xde\\xbc\\xa0\\xc5\\x8e\\xa6L\\xa1\\x95\\xd8\\x1b6P9\\x17)\\xe7\\xcc\\xa7j\\xe5\\xc6[\\x96x\\xd7\\x15\\xfd\\xfc\\xc3\\x1f\\x94n\\x87,V\\xaf\\xa6q\\xec\\xc2\\x85\\x90\\x89\\xd5\\x8am\\xdbhw\\xf7\\xe0\\xc1\\xd0\\x0c)\\xe2m0P\\xfd\\xb0\\x9e=\\x95n\\x87,F\\x8c\\xc0_\\xfe\\x82\\xdd\\xbbiu\\x974\\xf6\\xeeEQ\\x11\\xfe\\xfaWh\\x89\\xf8\\xf16\\x9b\\x91\\x96\\x86\\x91#\\x95n\\x87\\\\V\\xadB\\x9b6x\\xf9eTWC\\x0e[\\xb6\\xd0\\xc2[\\x8e\\xb7`\\xd2\\xd2`2\\xd1\\x12bfG\\xbe\\xbex\\xe5\\x15ddHR\\x8c\\xcdh\\xa49\\xf3\\xfb\\xee\\x83\\x9f\\x1f\\xb4D\\xfc\\xde;9\\x99\\xae\\x1co\\xbb[\\xb4\\x08w\\xdeIS\\xe8\\xe7\\xcfCt_|\\x81\\xcaJZW\\xaf1\\xe2\\xc7\\xdb`\\xa0+\\xc7\\xdb\\xeeZ\\xb7Fd$\\x9d\\xd1\\x13\\x16\\x06\\xd1m\\xd9\\x02WW<\\xf5\\x144F\\x8ax\\xf7\\xee\\x8d\\x8e\\x1d\\x95n\\x87\\x8c\\xa6O\\xa7\\xdd\\xe0\\xef\\xbdG\\x85\\x07\\xc5UX\\x88}\\xfb\\xa8\\xac\\x9a\\x98\\xe7\\x04j8\\xde\\xe5\\xe5\\xc8\\xc9\\xe1\\xae\\xbb\\x05\\xd5-P\\x9d7\\x0f6\\x1b\\x04\\xb5u+=\\xe7\\xd3\\xde\\xc8\\\\\\xfcx\\xa7\\xa4\\xd0\\xb7\\x1d/5o9C\\x87\\xd2J\\xd5\\x1f~\\xc0G\\x1fAD6\\x1b\\x8d>||\\xb4PzI\\xbax\\xf3\\x8d\\xb7\\x03\\xacXA\\xcb\\nBBp\\xf1\"\\x84\\xf3\\xcd7T\\xfa>(\\x08\\xce2\\x9eu-y\\xbc\\x93\\x93i\\x99\\xf4=\\xf7(\\xdd\\x0e\\xa9u\\xe8\\x80\\xa8(\\x14\\x17\\xd3^Q\\xe1\\xac_O\\x15>\\xe6\\xce\\x85&\\t\\x1eo\\x83\\x01\\x83\\x06Q\\x99\\x11\\xd6\\xa2f\\xce\\xa4\\x85\\xe8\\xeb\\xd7\\xd3y\\xf7\\x02),\\xa4\\xaa\\x89\\xe3\\xc7\\xd3\\x13>M\\x129\\xde\\x05\\x05\\xb4\\xcc\\x90\\x1f\\x899\\xc6\\xbauW\\xbbA\\xab\\x15\\xa2x\\xff}j\\xed\\x0b/@\\xabD\\x8e\\xf7\\xa1Ct\\x1d>\\\\\\xe9vh\\x83\\xbf?\\xdd~\\x1f>\\x8c5k \\x04\\xab\\x15\\x1f|@\\xfd\\xb6\\x06\\n\\x1e\\xcb\\x18\\xef\\xd4T\\xbar\\xbc\\x1d&4\\x94J\\x94\\x85\\x87\\xd3\\xc9\\xc1\\xea\\xf7\\xd9g48\\x9f;W\\xcb\\xd55E\\xfe\\x9b\\xa7\\xa6B\\xaf\\xa7\"\\xbe\\xcc1\\xdc\\xdc\\xe8\\xf6\\xbb\\xa2\\x82\\x1e\\x95\\xa9_T\\x14\\xda\\xb6\\x15\\xa3\\xa9-F\\xe4x\\x1f:D\\xd9\\x96\\xfd\\x98(uy\\xf8a\\xcc\\x9eM{E7m\\x82\\x9a\\xc5\\xc7\\xd3O\\xff\\xa0 \\x8d/g\\x146\\xdeEET\\x80\\x89G\\xe6\\x8e\\xb7z5\\x1d\\xd2\\xb8`\\x01\\r}U+2\\x92\\x1et\\xff\\xf3\\x9f\\xd0\\xb6Vb\\xdfx\\x0f\\x1b\\xa6t;\\xb4\\xc7\\xc3\\x83J5]\\xbc\\xa8\\xde\\x87\\xc9iiT\\x88b\\xda4\\xf4\\xe8\\x01mk%\\xf6\\xb49\\xc7[\\x11\\x8f?NO\\xc2w\\xed\\xc2\\xbf\\xff\\r\\x15\\x8a\\x8c\\xa4kH\\x88\\xd2\\xedP\\x9e\\xb0\\xf1NM\\xa5\\xd1\\x97\\x96\\xeaf\\xa9\\xcb;\\xefP\\xc9\\x87\\xf9\\xf3i\\xc9\\xa7\\xaadf\\xe2\\xd3O1n\\x1c\\xad\\x96\\xd7<\\x91\\xe3=p \\xafWS\\x8c\\x87\\x07m2\\xa9\\xa8\\xa0\\xf2F\\xaaZ\\xe8\\x12\\x1aJ\\xedY\\xb1B\\xe9v\\xa8\\x82\\x98\\xf1.-\\xc5\\xe9\\xd3<2W\\xd8\\x1f\\xffHsW\\x07\\x0f\\xaa(K\\x06\\x03\\x15]\\x9a2\\x85\\xaaA2Q\\xe3\\xcd\\x0bZTb\\xc5\\n\\xda\\xcf\\xb3|9\\xf6\\xef\\x87\\x1a\\xbc\\xf6\\x1a\\x9dE\\xa5\\x9e\\x1f7J\\x139\\xde<\\xaf\\xa68\\xbd\\x1e\\x9f|Be\\x9b\\x9e~\\x9a\\xb6\\x94)+>\\x9e\\xfe\\x999S;g\\x0cI\\x1a\\xefC\\x87h\\xa5!\\xcf\\x9d\\xa8A\\xbf~T/\\xe1\\xcc\\x19<\\xfb\\xac\\x92g\\x83WW\\xe3\\xa5\\x97\\xa8\\xa0\\xda\\xd2\\xa5\\x8a\\xb5A}\\xc4\\x8c\\xf7\\x91#\\xf4]\\xd5\\xa6\\x8d\\xd2\\xed`\\xb5\\x9ey\\x06\\xc1\\xc1\\xd4s*x2\\xd9\\xdbo\\xe3\\xd81:\\xc3X\\xab{?e\\x89\\xb7\\xd1\\x88\\x9f\\x7f\\xe6\\xae[]\\xde~\\x9bN\\x92X\\xb9\\xf2\\xea\\t\\xbb\\x0ev\\xfa4^\\x7f\\x9d\\xb6\\xbb,^\\xac\\xc0gW1\\x01\\xe3}\\xf4(\\x15\\xd0\\xe2\\'\\xde\\xaa\\xa2\\xd7\\xd3\\x94u\\x97.\\x985\\xeb\\xea\\x8a#G\\x9a?\\x9f\\x1e\\xd1EG\\xd3\\xe0\\x9c\\x89\\x1d\\xef\\xb44\\xba\\x0e\\x19\\xa2t;\\xd8\\xcd\\xbau\\xc3\\x97_\\xd2O\\xdeI\\x93\\xe8V\\xdca\\xb6o\\xc7\\xce\\x9d4\\xb77v,\\x7fI~\\x85\\xe3\\xcd\\xecg\\xe4Hl\\xdcH[M&L\\xa0\\x1a\\xd5\\x0ep\\xea\\x14\\xe6\\xcc\\x81\\xb7\\xb70E&\\x1cK\\xccx{z\\xa2kW\\xa5\\xdb\\xc1\\xea\\xf3\\xf4\\xd3x\\xf3M\\xfa\\x1a=\\xfe8\\x9d\\xfb\\xd3\\xa2\\xacV\\x9a\\xae//\\xc7\\xe6\\xcd\\x94p&|\\xbcm6\\xba\\xf7\\xe6\\x91\\xb9\\x9a-ZD\\xc7\\x0f\\x1e8\\x80\\xa9Sa\\xb1\\xb4\\xe0\\'Z\\xba\\x14IIt\\x8c\\xe9\\xb8q-\\xf8YD&X\\xbc]N\\x9f\\xa6\\x99s\\x8e\\xb7\\xcaEF\\xe2\\xb9\\xe7\\xa8\\xea\\xc3\\xa4I\\xa8\\xaaj\\x91O\\x11\\x13C\\x13\\xf5#F\\xd0Y\\xc5L\\x8ex\\xeb\\xb3\\xb3\\xe9\\x17\\x8e\\xb7\\xfam\\xd8\\x80\\xbf\\xfd\\x8d\\x12>~<._\\xb6\\xf3\\x07OH\\xa0)\\xfan\\xddh\\xba\\x9e\\xcb\\xf5H\\x13oW\\x8e\\xb7(Z\\xb5\\xa2:\\xc4\\xf3\\xe7#1\\x11\\x81\\x81\\xf6\\x9cK?z\\x14\\x93\\'\\xd3J\\xd8\\xdd\\xbbiS*\\x93&\\xde\\xfa\\xac,\\xfai=`\\x80\\xd2\\ra\\r\\xa0\\xd3\\xd1\\x84vx8\\x1d\\x057b\\x04~\\xfc\\xd1\\x0e\\xefZR\\x12\\xedT\\xbbr\\x85\\x1e\\x86q\\x15M\\t{\\xef\\xfe\\xfdi\\x11\\x05\\x13\\xc5\\xd2\\xa5t\\x9f\\\\^\\x8e\\x80\\x00Zy\\xf2\\xdb\\'\\x8d\\xd6\\xd4\\xd0\\xbc\\xca\\xedN\"\\xdd\\xb1\\x83\\x1en\\x9bL\\xf8\\xea+\\xfahL\\xa6x\\xeb.]r),\\xe4\\x1bo\\xf1L\\x9fN\\x13\\xe9>>t\\x90p`\\xe0\\xad\\x05^\\x8a\\x8a\\xe8\\xe9u\\xdb\\xb6T\\xd7\\xb4];\\xfc\\xfd\\xef8\\x7f\\xfe\\xe6W\\x98\\xcdT\\xa7a\\xeaT\\xb8\\xbb\\xd3h\\xff\\xd1G\\x1d\\xd9|q\\x89\\x14o\\x97\\xac,\\xfa\\x85\\xe7\\xd5D4t(\\xd2\\xd3\\xe9<\\xa0\\x84\\x04:\\x16n\\xc9\\x12\\\\\\xb8P\\xf7\\'g\\xcf\\xd2\\xc8}\\xd3&\\x1aq[,\\xf4\\xb0\\xfc\\xbd\\xf7\\xe8L\\xe7_\\x12\\x9e\\x92B\\x9b\\x7fW\\xae\\xa4\\x0fr\\xf0 o\\x04\\x963\\xdet\\xe3\\xcd\\xf1\\x16W\\xfb\\xf6tP\\xd9\\xbe}T\\xc0\\xf4\\x8d7\\xd0\\xb3\\'=!OO\\x7f\\xf1E\\xea\\xbd\\xab\\xab\\x7fy\\xa1\\xc5B\\x9bD\\x16.\\x04\\x15<}\\xec1\\xca\\xfa\\x89\\x13T\\xa4!9\\x19~~J\\xfe\\x15D#R\\xbc]\\xea\\xa6\\xcdy3\\x89\\xd0\\x02\\x02h\\xe7\\xe6\\'\\x9f\\xa0{wDF\\x96\\r\\t\\xf8\\xfa+\\xd3\\xad\\xc5\\xda,\\x16\\xc4l\\xbaR5n2\\xf6\\xee\\xa51yj*u\\xf8\\x9a<\\xa3\\xbb9t\\xb6\\x1b\\xa62\\xce\\x9e=\\x9b\\x97\\x97\\x07\\xb5\\xba\\xfb\\xf9\\xe7[\\xe7\\xe7\\xa7\\xec\\xda\\xa5tCDRPP\\x90{\\xed^w\\xef\\xde\\xbd\\x00\\xc6^\\xdbz\\xd1\\xabW/_\\x05\\x1f,\\xd5\\xd4\\xb8\\xa7\\xa7\\x97\\xec81)~\\xd9e[\\xfb[\\xff\\xbc\\x8d\\xae\\xf2\\xbb?-r\\x9a\\xf5GS\\x97.P\\x87\\xea\\xeaj\\x9dN\\xe7\\xe4\\xe4\\x04\\xb5\\xf2\\xf3\\xf3\\xf3\\xf1\\xf1\\xa9?\\xdeV\\xab\\xb5\\xfa\\xc6A\\x92\\xca\\xb8xy]\\xe9\\xdf\\xdfI%e\\xbd\\x04a6\\x9bM&S\\xdd\\xbfG\\xd6\\x16\\x00\\x0f\\xb9V\\x00\\xdc\\xd5\\xd5U\\xaf\\xf43\\x883g0`\\x80\\xded\\xd2\\xdd\\xfaGz\\xbd\\xad\\xa0\\xc0\\xec\\xee\\x0e\\xf58y\\xf2\\xa4^\\xaf\\xef\\xaa\\xe2\\xfd\\x0e\\xce\\xce\\xce7\\xfe\\xf4\\xb9i\\xb4\\xe3T\\x0b\\xea\\x94\\x9f\\x8f\\xcb\\x97\\xcd}\\xfbz\\xf0\\x9e\\xde\\xc6puum\\xdf\\xfej\\xdf\\xd8\\xa6\\xb6\\xbe\\x8d\\xa7\\xa7\\'T\\xc3\\xcf\\x8f\\xa6J\\r\\x86z\\xfe( @\\xe7\\xe5\\xa5\\xae\\xfd\\xdbNNN\\xce\\xce\\xce\\xae\\xe2|\\x07\\x8as\\xef}\\xec\\x18\\xf5E}\\xfb*\\xdd\\x0efg\\xd1\\xd1\\xf4H\\xecW\\xdc\\xdd\\xa9\\x00\\x0c\\xd3L\\xbc328\\xdeR\\x1a>\\x9cf\\xd3\\x07\\x0c\\xa0\\xday\\x1d:\\xd0u\\xe8P*\\xac<p\\xa0\\xd2-\\x13\\x9f8S\\x91\\xdc{\\xcbk\\xd4(:;(3\\x93\\x9e\\x90\\xf9\\xfa\\x82\\x87hZ\\x8c\\xb7\\xd5\\xdb\\xbbFU3-\\xcc\\xae\\x06\\x0e\\xe4\\x1e[\\x9b\\x83\\xf3\\x9a\\x1adeY\\xfa\\xf5S\\xba\\x1d\\x8c\\x89D\\x90x\\xe7\\xe6\\xa2\\xb2\\x92\\xe3\\xcd\\x98\\x8c\\xf1\\xae\\xbd\\xf1\\xe6x3&c\\xbck\\xa7\\xcd9\\xde\\x8c\\xc9\\x18\\xefc\\xc7\\xa0\\xd3Y\\xfa\\xf4Q\\xba\\x1d\\x8c\\x89D\\x9cx\\xf7\\xeci\\xe3C\\xc5\\x18\\x93-\\xde\\x16\\x0b\\x8e\\x1f\\xe7\\xca;\\x8c\\xc9\\x18\\xef\\x13\\'(\\xe1\\\\X\\x8b1\\t\\xe3\\x9d\\x99IW\\x7f\\x7f\\xa5\\xdb\\xc1\\x98`D\\x88w]\\x91\\x16\\xae\\x8e\\xca\\x98\\x9c\\xf1\\xd6\\xe9\\xa8@*cL\\xc2x\\xdfy\\'\\xed$b\\x8cI\\x15\\xef\\x9a\\x1a\\x9a6\\xe7\\x919c\\x12\\xc6\\xfb\\xd4):\\x83\\x8e\\xe3\\xcd\\x98\\x84\\xf1\\xe6y5\\xc6\\x9a\\x8a\\xe3\\xcd\\x98\\xb48\\xde\\x8cIK\\x84x{y\\xa1S\\'\\xa5\\xdb\\xc1\\x98xD\\x887\\xcf\\xab1&a\\xbc\\xcf\\x9dCY\\x19\\xc7\\x9b1\\x19\\xe3\\xcd\\xd3\\xe6\\x8c5\\x03\\xc7\\x9b1iq\\xbc\\x19\\x93\\x96\\xea\\xe3\\xdd\\xbe=\\x9d\\x14\\xcb\\x18\\x930\\xde\\\\\\xdb\\x9c1\\t\\xe3m4\\xa2\\xb0\\x90\\xf7\\x812&c\\xbcsr\\xe8\\xca\\xe7M1&\\xe1\\x19cu\\xf1\\xbeap~\\xc7\\x1dwX\\xadV%\\x9b$\\xb8\\x89\\x13\\'*\\xdd\\x04\\xb1yyy999A\\x1c:\\x9b\\xcd\\xa6t\\x1b\\x18cZ\\x1b\\x9c3\\xc6\\x9a\\x87\\xe3\\xcd\\x98\\xb48\\xde\\x8cAV\\xff\\x0f\\xa6\\x1c\\xdf\\xd08R\\x08\\xb6\\x00\\x00\\x00\\x00IEND\\xaeB`\\x82'"
+        },
+        "max_width_frac": 1.0,
+        "inline": false,
+        "verify": {
+          "done": false,
+          "reason": "thiếu LibreOffice để render thử DrawingML"
+        },
+        "parent": null
+      },
+      {
+        "block_id": "tex-fig-0003",
+        "kind": "figure",
+        "source": {
+          "file": "mau_kiem_thu_cau_truc_cuc_la.tex",
+          "line": 46
+        },
+        "tex": "\\begin{tikzpicture}[scale=0.9,>=Stealth]\n\\draw[pattern=north east lines,pattern color=blue!40] (0,0) rectangle (3,2);\n\\draw[->,thick,decorate,decoration={snake,amplitude=.4mm}] (0,-0.5) -- (3,-0.5);\n\\node[draw,circle,fill=orange!30] (A) at (4.5,1) {$A$};\n\\node[draw,rounded corners,fill=green!20] (B) at (7,1) {Nút $B$};\n\\draw[->,double,thick] (A) -- (B) node[midway,above]{$f$};\n\\end{tikzpicture}",
+        "index": 2,
+        "method": "vector_image",
+        "status": "fallback",
+        "reason": "có cấu trúc TikZ chưa hỗ trợ native (danh sách heuristic) → ảnh TeX",
+        "warnings": [],
+        "asset": {
+          "ext": "svg",
+          "width_pt": 203.677001953125,
+          "height_pt": 70.42900085449219,
+          "engine": "pdflatex"
+        },
+        "max_width_frac": 1.0,
+        "inline": false,
+        "verify": {
+          "done": false,
+          "reason": "có cấu trúc TikZ chưa hỗ trợ native (danh sách heuristic) → ảnh TeX"
+        },
+        "parent": null
+      }
+    ],
+    "injection": {
+      "media": {
+        "images_added": 4,
+        "markers_replaced": 2,
+        "markers_missing": 0,
+        "markers_text_fallback": 0,
+        "logical_images": 2
+      },
+      "layouts": {
+        "rebuilt": 0,
+        "failed": 0
+      },
+      "verbatim": {},
+      "blocks_by_status": {
+        "ok": 1,
+        "fallback": 2
+      }
+    }
+  },
+  "engine_report": {
+    "input": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\e7711eb9915d\\work\\src\\mau_kiem_thu_cau_truc_cuc_la.l2w_engine.tex",
+    "input_type": "tex",
+    "output": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\e7711eb9915d\\out\\mau_kiem_thu_cau_truc_cuc_la.docx",
+    "mode": 2,
+    "engine": "Native DrawingML + OMML + MathTables + Universal 2D PDF Decompiler Engine v2.4",
+    "rendered_figures": 1,
+    "drawingml_groups": 0,
+    "drawingml_shapes": 3,
+    "tkz_tab_tables": 1,
+    "choice_tables": 0,
+    "data_tables": 1,
+    "immini_layouts": 0,
+    "expanded_tex_includes": 0,
+    "warnings": [],
+    "word_tables": 2,
+    "equation_nodes": 38,
+    "drawing_references": 0,
+    "embedded_media_files": 2,
+    "input_table_environments": 1,
+    "input_includegraphics": 0,
+    "expected_total_image_commands": 1,
+    "ooxml_stats": {
+      "tables_processed": 2,
+      "variation_tables": 1,
+      "choice_tables": 0,
+      "immini_tables": 0,
+      "data_tables": 1,
+      "other_tables": 0,
+      "cells_formatted": 34,
+      "merged_cells_detected": 3,
+      "role_from_metadata": 2,
+      "role_from_heuristic": 0
+    },
+    "status": "automated_checks_passed",
+    "engine_counts_before_postprocess": {
+      "equation_nodes": 38,
+      "word_tables": 2,
+      "drawingml_groups": 0,
+      "drawingml_shapes": 3,
+      "embedded_media_files": 0
+    }
+  },
+  "table_events": [],
+  "math_stats": {
+    "unknown_commands": {},
+    "unverified_constructs": {},
+    "formulas": 0
+  },
+  "postprocess": {
+    "accent_fix": {
+      "da_sua": 0,
+      "ky_tu": {}
+    },
+    "xml_order_fixed": 77
+  },
+  "package": {
+    "ok": true,
+    "errors": [],
+    "warnings": []
+  },
+  "counts": {
+    "ok": true,
+    "paragraphs": 52,
+    "text_chars": 547,
+    "equation_nodes": 38,
+    "omml_paragraphs": 0,
+    "word_tables": 2,
+    "tables_by_role": {
+      "variation": 1,
+      "data": 1
+    },
+    "table_role_source": {
+      "metadata": 2
+    },
+    "empty_tables": 0,
+    "drawingml_groups": 0,
+    "drawingml_shapes": 3,
+    "logical_images": 2,
+    "svg_backed_images": 2,
+    "media_parts": 4,
+    "marker_leaks": {
+      "truth_marker": 0,
+      "image_marker": 0,
+      "layout_sentinel": 0,
+      "engine_block_token": 0,
+      "verbatim_marker": 0
+    },
+    "marker_leaks_total": 0,
+    "l2w_notices": [],
+    "tex_residue_count": 0,
+    "tex_residue_samples": []
+  },
+  "layers": [
+    {
+      "layer": 1,
+      "name": "A. Nội dung (chữ, thứ tự, dấu tiếng Việt, rò rỉ)",
+      "status": "PASS",
+      "summary": "Giữ 100.0% token nguồn (105/105); đủ nội dung chữ.",
+      "details": {
+        "source_tokens": 105,
+        "docx_tokens": 109,
+        "matched_tokens": 105,
+        "token_recall": 1.0,
+        "order_ratio": 0.9813,
+        "duplicate_excess_ratio": 0.0,
+        "generated_label_tokens": 4,
+        "missing_sample": [],
+        "lost_diacritics_sample": [],
+        "lost_diacritics": 0,
+        "tex_residue": 0,
+        "tex_residue_sample": [],
+        "marker_leaks": 0,
+        "l2w_notices": [],
+        "metric": "token_recall = |token nguồn ∩ token Word| / |token nguồn| (đa tập, NFC, chữ thường); order_ratio = difflib ratio trên dãy token — tín hiệu thứ tự, không phải độ chính xác.",
+        "paragraphs": 52
+      },
+      "group": "A",
+      "required": true
+    },
+    {
+      "layer": 2,
+      "name": "B. Toán (OMML theo từng khối)",
+      "status": "PASS",
+      "summary": "21/21 khối toán khớp OMML theo thứ tự.",
+      "details": {
+        "source_math_blocks": 21,
+        "omml_equations": 38,
+        "matched_native": 21,
+        "math_as_image": 0,
+        "unmatched": 0,
+        "unmatched_sample": [],
+        "fractions": 2,
+        "radicals": 2,
+        "nary_ops": 1,
+        "matrices": 0,
+        "accents": 0,
+        "metric": "Mỗi khối toán nguồn (ngoài hình) được ghép theo thứ tự với một m:oMath có cùng chữ ký ký tự (chữ/số/ký hiệu). Khớp chữ ký chưa chứng minh cấu trúc đúng; cấu trúc kiểm bằng fixture."
+      },
+      "group": "B",
+      "required": true
+    },
+    {
+      "layer": 3,
+      "name": "C. Hình (DrawingML / ảnh logic)",
+      "status": "PASS",
+      "summary": "Nguồn 2 hình; Word có 0 nhóm DrawingML + 2 ảnh hình.",
+      "details": {
+        "tikz": 3,
+        "bbt_in_tikz": 1,
+        "standalone_axis": 0,
+        "includegraphics": 0,
+        "other_picture_envs": 0,
+        "expected_figures": 2,
+        "drawingml_shape_groups": 0,
+        "drawingml_editable_shapes": 3,
+        "logical_images": 2,
+        "figure_images": 2,
+        "media_parts": 4,
+        "produced_figures": 2,
+        "per_block": [
+          {
+            "block_id": "tex-fig-0002",
+            "method": "vector_image",
+            "found": true,
+            "status": "fallback"
+          },
+          {
+            "block_id": "tex-fig-0003",
+            "method": "vector_image",
+            "found": true,
+            "status": "fallback"
+          }
+        ],
+        "missing_blocks": [],
+        "note": "Ảnh SVG kèm PNG của cùng một hình được tính là MỘT hình. Nhóm DrawingML tồn tại chưa chứng minh hình đúng; đối chiếu nét vẽ cần kiểm tra hiển thị (nhóm E)."
+      },
+      "group": "C",
+      "required": true
+    },
+    {
+      "layer": 4,
+      "name": "D. Bảng & bố cục (theo vai trò)",
+      "status": "PASS",
+      "summary": "variation 1/1, data 1/1.",
+      "details": {
+        "expected_by_role": {
+          "mcq": 0,
+          "true_false": 0,
+          "variation": 1,
+          "data": 1
+        },
+        "produced_by_role": {
+          "mcq": 0,
+          "true_false": 0,
+          "variation": 1,
+          "data": 1
+        },
+        "docx_tables_by_role": {
+          "variation": 1,
+          "data": 1
+        },
+        "short_by_role": {},
+        "empty_tables": [],
+        "mcq_tables_missing_options": [],
+        "tables": [
+          {
+            "role": "variation",
+            "role_source": "metadata",
+            "cells": 24,
+            "non_empty_cells": 16,
+            "empty": false
+          },
+          {
+            "role": "data",
+            "role_source": "metadata",
+            "cells": 10,
+            "non_empty_cells": 9,
+            "empty": false
+          }
+        ],
+        "note": "So theo từng vai trò; bảng biến thiên giữ bằng ảnh TeX (table_as_image) được tính là có biểu diễn nhưng không phải bảng native."
+      },
+      "group": "D",
+      "required": true
+    },
+    {
+      "layer": 5,
+      "name": "E. Hiển thị (render Word ↔ PDF nguồn)",
+      "status": "NOT_MEASURED",
+      "summary": "QA hiển thị bị tắt (qa_pdf=False) → nhóm E chưa thực hiện.",
+      "details": {
+        "enabled": false,
+        "measured": false,
+        "similarity_percent": null,
+        "reason": "QA hiển thị bị tắt (qa_pdf=False) → nhóm E chưa thực hiện."
+      },
+      "group": "E",
+      "required": true
+    }
+  ],
+  "blocks_summary": {
+    "total": 3,
+    "by_method": {
+      "table_native": 1,
+      "vector_image": 2
+    },
+    "unresolved": 0,
+    "native": 1,
+    "as_image": 2
+  },
+  "quality": {
+    "quality_status": "review_required",
+    "conversion_completed": true,
+    "reasons": [
+      "chưa thực hiện: L5 E. Hiển thị (render Word ↔ PDF nguồn): QA hiển thị bị tắt (qa_pdf=False) → nhóm E chưa thực hiện."
+    ],
+    "not_performed": [
+      "L5 E. Hiển thị (render Word ↔ PDF nguồn): QA hiển thị bị tắt (qa_pdf=False) → nhóm E chưa thực hiện."
+    ],
+    "layer_status": {
+      "L1": "PASS",
+      "L2": "PASS",
+      "L3": "PASS",
+      "L4": "PASS",
+      "L5": "NOT_MEASURED"
+    },
+    "scope_note": "‘passed’ chỉ có nghĩa đạt các tiêu chí tự động đã nêu cho tệp này, không phải đúng 100%."
+  },
+  "input_preserved": true,
+  "output": {
+    "docx": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\e7711eb9915d\\out\\mau_kiem_thu_cau_truc_cuc_la.docx",
+    "report": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\e7711eb9915d\\out\\mau_kiem_thu_cau_truc_cuc_la.report.json",
+    "qa_pdf": null
+  },
+  "environment": {
+    "python": "3.14.7",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "libraries": {
+      "python_docx": "1.2.0",
+      "lxml": "6.1.3",
+      "pillow": "12.3.0",
+      "numpy": "2.5.4",
+      "pdfplumber": "0.11.10",
+      "pypdfium2": null,
+      "pikepdf": "10.17.0",
+      "pytesseract": "0.3.13",
+      "fastapi": "0.143.5",
+      "streamlit": "1.66.0"
+    },
+    "tools": {
+      "xelatex": "MiKTeX-XeTeX 4.18 (MiKTeX 26.5)",
+      "pdflatex": "MiKTeX-pdfTeX 4.27 (MiKTeX 26.5)",
+      "lualatex": "This is LuaHBTeX, Version 1.25.7 (MiKTeX 26.5)",
+      "pdftocairo": "pdftocairo version 24.04.0",
+      "imagemagick": "Invalid drive specification.",
+      "pandoc": "pandoc 3.12.1",
+      "docx2pdf": "0.1.8"
+    },
+    "tesseract_languages": []
+  },
+  "capabilities": {
+    "derived": {
+      "tex_upload": {
+        "available": true,
+        "detail": "engine dựng Word từ .tex/.zip"
+      },
+      "paste_smart": {
+        "available": true,
+        "detail": "tiền xử lý thông minh (dán mã)"
+      },
+      "pdf_reader": {
+        "available": true,
+        "detail": "pdfplumber (chữ/đường nét) + pypdfium2 (render/crop) + pikepdf (cấu trúc)"
+      },
+      "pdf_vector_crop": {
+        "available": true,
+        "detail": "cắt vùng PDF thành SVG bằng pdftocairo"
+      },
+      "ocr": {
+        "available": false,
+        "detail": "thiếu tesseract → trang scan giữ ảnh"
+      },
+      "math_ocr": {
+        "available": false,
+        "detail": "chưa cấu hình bộ nhận dạng công thức từ ảnh; công thức không chắc → ảnh vùng"
+      },
+      "visual_qa": {
+        "available": true,
+        "detail": "render DOCX→PDF bằng LibreOffice/Word rồi so với nguồn"
+      },
+      "tex_reference_compile": {
+        "available": true,
+        "detail": "biên dịch PDF tham chiếu từ nguồn TeX (shell-escape tắt)"
+      }
+    },
+    "tools": {
+      "xelatex": {
+        "available": true,
+        "version": "MiKTeX-XeTeX 4.18 (MiKTeX 26.5)"
+      },
+      "pdflatex": {
+        "available": true,
+        "version": "MiKTeX-pdfTeX 4.27 (MiKTeX 26.5)"
+      },
+      "lualatex": {
+        "available": true,
+        "version": "This is LuaHBTeX, Version 1.25.7 (MiKTeX 26.5)"
+      },
+      "pdftocairo": {
+        "available": true,
+        "version": "pdftocairo version 24.04.0"
+      },
+      "soffice": {
+        "available": false,
+        "version": null
+      },
+      "tesseract": {
+        "available": false,
+        "version": null
+      },
+      "ghostscript": {
+        "available": false,
+        "version": null
+      },
+      "imagemagick": {
+        "available": true,
+        "version": "Invalid drive specification."
+      },
+      "pandoc": {
+        "available": true,
+        "version": "pandoc 3.12.1"
+      },
+      "docx2pdf": {
+        "available": true,
+        "version": "0.1.8"
+      }
+    },
+    "tesseract_languages": [],
+    "missing_modules": {}
+  },
+  "finished_at": "2026-10-24T00:29:37"
+}

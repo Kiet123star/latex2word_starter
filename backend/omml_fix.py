@@ -8,11 +8,11 @@ bạn gặp ở `$\\vec{u} = \\overrightarrow{DC'} + \\overrightarrow{AD'}$`.
 
 Module này **sửa thẳng trên file .docx đã tạo**, nên:
 
-* không phải sửa `backend/omml_math.py` → **nhánh tải file không bị đụng tới**;
-* sửa được mọi dấu đặt trên, không riêng mũi tên.
+* sửa được mọi dấu đặt trên, không riêng mũi tên;
+* vẫn có ích cho .docx tạo bởi engine/phiên bản cũ.
 
-Nếu bạn muốn nhánh tải file cũng hết lỗi này, sửa `ACCENT_MAP` trong
-`backend/omml_math.py` theo bảng `COMBINING` bên dưới (đổi đúng mấy ký tự, không đổi gì khác).
+`backend/omml_math.py` nay đã sinh đúng ký tự tổ hợp ngay từ đầu (cả nhánh tải tệp lẫn dán mã);
+bước này chạy lại trên tệp cuối như một lớp bảo hiểm và không đổi gì khi dấu đã đúng.
 """
 from __future__ import annotations
 
@@ -70,7 +70,9 @@ def fix_math_accents(docx_path: Path) -> dict[str, Any]:
         changed = False
         for root in roots:
             for acc in root.iter(qn("m:acc")):
-                for chr_el in acc.iter(qn("m:chr")):
+                acc_pr = acc.find(qn("m:accPr"))
+                # chỉ m:accPr/m:chr của CHÍNH dấu này (không đụng m:chr của nary/groupChr lồng bên trong)
+                for chr_el in ([] if acc_pr is None else acc_pr.findall(qn("m:chr"))):
                     cur = chr_el.get(val) or ""
                     if cur in _ALREADY_OK or not cur:
                         continue

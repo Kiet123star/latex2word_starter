@@ -1,0 +1,259 @@
+{
+ "schema": "l2w-pdf-manifest/1",
+ "coordinate_system": "pt; gốc trên-trái trang HIỂN THỊ (đã áp CropBox và /Rotate); y tăng xuống",
+ "source": {
+  "file": "xoay_va_cropbox.pdf"
+ },
+ "document": {
+  "encrypted": false,
+  "pdf_version": "1.3",
+  "producer": "l2w-tests (reportlab)",
+  "creator": "l2w-tests",
+  "form_xobjects": 0
+ },
+ "page_count": 2,
+ "pages": [
+  {
+   "visible_chars": 56,
+   "hidden_chars": 0,
+   "image_cover": 0.0,
+   "vector_objects": 1,
+   "unmapped_chars": 0,
+   "legacy_vn_fonts": [],
+   "type": "text",
+   "page": 1,
+   "mediabox": [
+    0.0,
+    0.0,
+    841.889764,
+    595.275591
+   ],
+   "cropbox": [
+    0.0,
+    0.0,
+    841.889764,
+    595.275591
+   ],
+   "rotation": 90,
+   "width": 595.28,
+   "height": 841.89,
+   "columns": null,
+   "reference_text": "Trang xoay chín mươi độ vẫn đọc thẳng.\nDòng thứ hai của trang xoay.",
+   "reference_excluded_chars": 2,
+   "text_plausibility": {
+    "checked": false
+   }
+  },
+  {
+   "visible_chars": 23,
+   "hidden_chars": 0,
+   "image_cover": 0.0,
+   "vector_objects": 0,
+   "unmapped_chars": 0,
+   "legacy_vn_fonts": [],
+   "type": "text",
+   "page": 2,
+   "mediabox": [
+    0.0,
+    0.0,
+    595.2756,
+    841.8898
+   ],
+   "cropbox": [
+    40.0,
+    400.0,
+    555.0,
+    841.8898
+   ],
+   "rotation": 0,
+   "width": 515.0,
+   "height": 441.89,
+   "columns": null,
+   "reference_text": "Chữ trong vùng cắt hiển thị.",
+   "reference_excluded_chars": 0,
+   "text_plausibility": {
+    "checked": false
+   }
+  }
+ ],
+ "page_types": {
+  "1": "text",
+  "2": "text"
+ },
+ "blocks": [
+  {
+   "block_id": "p1-b1",
+   "type": "paragraph",
+   "page": 1,
+   "bbox": [
+    60.0,
+    69.02,
+    288.05,
+    113.02
+   ],
+   "method": "text_native",
+   "lines": [
+    {
+     "runs": [
+      {
+       "text": "Trang xoay chín mươi độ vẫn đọc thẳng.",
+       "bold": false,
+       "italic": false,
+       "size": 14.0
+      }
+     ],
+     "math": []
+    },
+    {
+     "runs": [
+      {
+       "text": "Dòng thứ hai của trang xoay.",
+       "bold": false,
+       "italic": false,
+       "size": 14.0
+      }
+     ],
+     "math": []
+    }
+   ],
+   "text": "Trang xoay chín mươi độ vẫn đọc thẳng. Dòng thứ hai của trang xoay.",
+   "inline_math": [],
+   "align": "left",
+   "size": 14.0,
+   "warnings": [],
+   "status": "ok",
+   "order": 1,
+   "parent": null,
+   "fallback_reason": null,
+   "confidence": null,
+   "source": {
+    "file": "xoay_va_cropbox.pdf",
+    "page": 1,
+    "bbox_pt": [
+     60.0,
+     69.02,
+     288.05,
+     113.02
+    ],
+    "coords": "display_topleft_pt"
+   }
+  },
+  {
+   "block_id": "p1-f1",
+   "type": "figure",
+   "page": 1,
+   "bbox": [
+    60.0,
+    164.02,
+    220.0,
+    300.0
+   ],
+   "method": "vector_image",
+   "status": "fallback",
+   "assets": {
+    "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\784cfa6e53cf\\work\\pdf\\assets\\p1-f1.png",
+    "width_pt": 165.0,
+    "height_pt": 140.98,
+    "dpi": 150,
+    "bbox": [
+     57.5,
+     161.52,
+     222.5,
+     302.5
+    ],
+    "svg": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\784cfa6e53cf\\work\\pdf\\assets\\p1-f1.svg"
+   },
+   "warnings": [],
+   "fallback_reason": "hình giữ bằng ảnh vùng gốc (chưa dựng lại DrawingML từ PDF)",
+   "objects": {
+    "rect": 1
+   },
+   "order": 2,
+   "parent": null,
+   "confidence": null,
+   "source": {
+    "file": "xoay_va_cropbox.pdf",
+    "page": 1,
+    "bbox_pt": [
+     60.0,
+     164.02,
+     220.0,
+     300.0
+    ],
+    "coords": "display_topleft_pt"
+   }
+  },
+  {
+   "block_id": "p2-b1",
+   "type": "paragraph",
+   "page": 2,
+   "bbox": [
+    40.0,
+    180.91,
+    197.68,
+    194.91
+   ],
+   "method": "text_native",
+   "lines": [
+    {
+     "runs": [
+      {
+       "text": "Chữ trong vùng cắt hiển thị.",
+       "bold": false,
+       "italic": false,
+       "size": 14.0
+      }
+     ],
+     "math": []
+    }
+   ],
+   "text": "Chữ trong vùng cắt hiển thị.",
+   "inline_math": [],
+   "align": "left",
+   "size": 14.0,
+   "warnings": [],
+   "status": "ok",
+   "order": 3,
+   "parent": null,
+   "fallback_reason": null,
+   "confidence": null,
+   "source": {
+    "file": "xoay_va_cropbox.pdf",
+    "page": 2,
+    "bbox_pt": [
+     40.0,
+     180.91,
+     197.68,
+     194.91
+    ],
+    "coords": "display_topleft_pt"
+   }
+  }
+ ],
+ "issues": [
+  {
+   "severity": "info",
+   "code": "outside_cropbox",
+   "message": "Trang 2: bỏ 28 ký tự nằm ngoài vùng hiển thị (CropBox) — không hiển thị trong trình xem PDF nên không đưa vào Word.",
+   "page": 2
+  }
+ ],
+ "summary": {
+  "blocks": 3,
+  "by_method": {
+   "text_native": 2,
+   "vector_image": 1
+  },
+  "by_type": {
+   "paragraph": 2,
+   "figure": 1
+  },
+  "page_types": {
+   "text": 2
+  },
+  "unresolved": 0,
+  "inline_math_omml": 0,
+  "inline_math_images": 0,
+  "confidence_note": "confidence là heuristic nội bộ (0–1), chưa hiệu chuẩn trên tập dữ liệu thật."
+ }
+}

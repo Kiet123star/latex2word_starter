@@ -1,0 +1,2527 @@
+{
+  "schema": "l2w-report/2",
+  "job_id": "0e67895bd433",
+  "started_at": "2026-10-24T00:28:18",
+  "input": {
+    "name": "vn_tounicode_removed.pdf",
+    "kind": "pdf",
+    "original_name": "vn_tounicode_removed.pdf",
+    "path": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\input\\vn_tounicode_removed.pdf",
+    "sha256": "83b68712aea0935738f6c770499e3fe89a86a2e38698ad635b32a01321905b9f",
+    "size": 53786,
+    "detection": {
+      "kind": "pdf",
+      "reason": "chữ ký %PDF-",
+      "extension": "pdf",
+      "warnings": []
+    }
+  },
+  "conversion_completed": true,
+  "quality_status": "review_required",
+  "status": "review_required",
+  "overall": "review_required",
+  "issues": [
+    {
+      "severity": "warning",
+      "code": "unmapped_glyphs",
+      "message": "Trang 1: 61 glyph không có ánh xạ Unicode (ToUnicode thiếu/hỏng) → giữ bằng ẢNH glyph tại chỗ; chữ ở các vị trí đó không tìm kiếm/sửa được trong Word.",
+      "page": 1,
+      "block_id": null
+    }
+  ],
+  "steps": [
+    {
+      "step": "analyze_pdf",
+      "seconds": 0.38,
+      "pages": 1,
+      "blocks": 1
+    },
+    {
+      "step": "build_docx",
+      "seconds": 0.27
+    },
+    {
+      "step": "package_check",
+      "seconds": 0.13,
+      "ok": true
+    }
+  ],
+  "limitations": [
+    "Không cam kết giống 100% hay sửa được 100%: ảnh SVG/PNG nhúng là ảnh, không phải OMML/Word Shapes.",
+    "‘passed’ chỉ áp dụng cho các tiêu chí tự động đã nêu trong báo cáo, không có nghĩa đúng mọi tài liệu.",
+    "Render QA dùng LibreOffice; Microsoft Word có thể ngắt dòng/trang khác.",
+    "Nhận dạng công thức từ PDF là heuristic (chỉ phân số/chỉ số đơn giản); công thức không chắc → ảnh vùng.",
+    "OCR chưa có trên máy → trang scan giữ ảnh trang."
+  ],
+  "options": {
+    "mode": 2,
+    "dpi": 150,
+    "strict": false,
+    "qa_pdf": false,
+    "engine": "xelatex",
+    "answer_mode": "source",
+    "show_solutions": true,
+    "figure_policy": "auto",
+    "preprocess": "engine",
+    "ocr": "auto",
+    "ocr_lang": null
+  },
+  "source": {
+    "pdf": "vn_tounicode_removed.pdf",
+    "pages": 1,
+    "page_types": {
+      "1": "text"
+    },
+    "document": {
+      "encrypted": false,
+      "pdf_version": "1.3",
+      "producer": "l2w-tests (reportlab)",
+      "creator": "l2w-tests",
+      "form_xobjects": 0
+    }
+  },
+  "pdf_manifest_summary": {
+    "blocks": 1,
+    "by_method": {
+      "text_native": 1
+    },
+    "by_type": {
+      "paragraph": 1
+    },
+    "page_types": {
+      "text": 1
+    },
+    "unresolved": 0,
+    "inline_math_omml": 0,
+    "inline_math_images": 61,
+    "confidence_note": "confidence là heuristic nội bộ (0–1), chưa hiệu chuẩn trên tập dữ liệu thật."
+  },
+  "blocks": {
+    "items": [
+      {
+        "block_id": "p1-b1",
+        "type": "paragraph",
+        "page": 1,
+        "bbox": [
+          60.0,
+          51.7,
+          383.72,
+          194.7
+        ],
+        "method": "text_native",
+        "lines": [
+          {
+            "runs": [
+              {
+                "text": "Tr",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  72.27,
+                  51.7,
+                  79.32,
+                  64.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m1.png",
+                  "width_pt": 10.05,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    70.77,
+                    50.2,
+                    80.82,
+                    66.2
+                  ]
+                },
+                "image_id": "p1-b1-m1"
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  79.32,
+                  51.7,
+                  86.19,
+                  64.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m2.png",
+                  "width_pt": 9.87,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    77.82,
+                    50.2,
+                    87.69,
+                    66.2
+                  ]
+                },
+                "image_id": "p1-b1-m2"
+              },
+              {
+                "text": "ng Trung h",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  143.96,
+                  51.7,
+                  150.46,
+                  64.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m3.png",
+                  "width_pt": 9.5,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    142.46,
+                    50.2,
+                    151.96,
+                    66.2
+                  ]
+                },
+                "image_id": "p1-b1-m3"
+              },
+              {
+                "text": "c ph",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  172.48,
+                  51.7,
+                  178.98,
+                  64.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m4.png",
+                  "width_pt": 9.5,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    170.98,
+                    50.2,
+                    180.48,
+                    66.2
+                  ]
+                },
+                "image_id": "p1-b1-m4"
+              },
+              {
+                "text": " th",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  192.34,
+                  51.7,
+                  198.84,
+                  64.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m5.png",
+                  "width_pt": 9.5,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    190.84,
+                    50.2,
+                    200.34,
+                    66.2
+                  ]
+                },
+                "image_id": "p1-b1-m5"
+              },
+              {
+                "text": "ng Nguy",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  243.98,
+                  51.7,
+                  249.75,
+                  64.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m6.png",
+                  "width_pt": 8.77,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    242.48,
+                    50.2,
+                    251.25,
+                    66.2
+                  ]
+                },
+                "image_id": "p1-b1-m6"
+              },
+              {
+                "text": "n Hu",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  275.39,
+                  51.7,
+                  281.16,
+                  64.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m7.png",
+                  "width_pt": 8.77,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    273.89,
+                    50.2,
+                    282.66,
+                    66.2
+                  ]
+                },
+                "image_id": "p1-b1-m7"
+              }
+            ],
+            "math": []
+          },
+          {
+            "runs": [
+              {
+                "glyph_image": true,
+                "bbox": [
+                  60.0,
+                  77.7,
+                  69.39,
+                  90.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m8.png",
+                  "width_pt": 12.39,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    58.5,
+                    76.2,
+                    70.89,
+                    92.2
+                  ]
+                },
+                "image_id": "p1-b1-m8"
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  69.39,
+                  77.7,
+                  75.16,
+                  90.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m9.png",
+                  "width_pt": 8.77,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    67.89,
+                    76.2,
+                    76.66,
+                    92.2
+                  ]
+                },
+                "image_id": "p1-b1-m9"
+              },
+              {
+                "text": " ki",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  88.52,
+                  77.7,
+                  94.29,
+                  90.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m10.png",
+                  "width_pt": 8.77,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    87.02,
+                    76.2,
+                    95.79,
+                    92.2
+                  ]
+                },
+                "image_id": "p1-b1-m10"
+              },
+              {
+                "text": "m tra m",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  134.72,
+                  77.7,
+                  141.22,
+                  90.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m11.png",
+                  "width_pt": 9.5,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    133.22,
+                    76.2,
+                    142.72,
+                    92.2
+                  ]
+                },
+                "image_id": "p1-b1-m11"
+              },
+              {
+                "text": "n To",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  165.42,
+                  77.7,
+                  171.19,
+                  90.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m12.png",
+                  "width_pt": 8.77,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    163.92,
+                    76.2,
+                    172.69,
+                    92.2
+                  ]
+                },
+                "image_id": "p1-b1-m12"
+              },
+              {
+                "text": "n l",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  184.55,
+                  77.7,
+                  191.42,
+                  90.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m13.png",
+                  "width_pt": 9.87,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    183.05,
+                    76.2,
+                    192.92,
+                    92.2
+                  ]
+                },
+                "image_id": "p1-b1-m13"
+              },
+              {
+                "text": "p m",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  211.28,
+                  77.7,
+                  218.33,
+                  90.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m14.png",
+                  "width_pt": 10.05,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    209.78,
+                    76.2,
+                    219.83,
+                    92.2
+                  ]
+                },
+                "image_id": "p1-b1-m14"
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  218.33,
+                  77.7,
+                  225.2,
+                  90.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m15.png",
+                  "width_pt": 9.87,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    216.83,
+                    76.2,
+                    226.7,
+                    92.2
+                  ]
+                },
+                "image_id": "p1-b1-m15"
+              },
+              {
+                "text": "i hai",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              }
+            ],
+            "math": []
+          },
+          {
+            "runs": [
+              {
+                "text": "H",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  69.39,
+                  103.7,
+                  75.89,
+                  116.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m16.png",
+                  "width_pt": 9.5,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    67.89,
+                    102.2,
+                    77.39,
+                    118.2
+                  ]
+                },
+                "image_id": "p1-b1-m16"
+              },
+              {
+                "text": "c sinh",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  109.83,
+                  103.7,
+                  116.33,
+                  116.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m17.png",
+                  "width_pt": 9.5,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    108.33,
+                    102.2,
+                    117.83,
+                    118.2
+                  ]
+                },
+                "image_id": "p1-b1-m17"
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  116.33,
+                  103.7,
+                  122.83,
+                  116.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m18.png",
+                  "width_pt": 9.5,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    114.83,
+                    102.2,
+                    124.33,
+                    118.2
+                  ]
+                },
+                "image_id": "p1-b1-m18"
+              },
+              {
+                "text": "c k",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  138.35,
+                  103.7,
+                  144.85,
+                  116.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m19.png",
+                  "width_pt": 9.5,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    136.85,
+                    102.2,
+                    146.35,
+                    118.2
+                  ]
+                },
+                "image_id": "p1-b1-m19"
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  148.1,
+                  103.7,
+                  154.6,
+                  116.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m20.png",
+                  "width_pt": 9.5,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    146.6,
+                    102.2,
+                    156.1,
+                    118.2
+                  ]
+                },
+                "image_id": "p1-b1-m20"
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  154.6,
+                  103.7,
+                  160.37,
+                  116.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m21.png",
+                  "width_pt": 8.77,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    153.1,
+                    102.2,
+                    161.87,
+                    118.2
+                  ]
+                },
+                "image_id": "p1-b1-m21"
+              },
+              {
+                "text": " b",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  170.12,
+                  103.7,
+                  175.89,
+                  116.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m22.png",
+                  "width_pt": 8.77,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    168.62,
+                    102.2,
+                    177.39,
+                    118.2
+                  ]
+                },
+                "image_id": "p1-b1-m22"
+              },
+              {
+                "text": "i tr",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  190.69,
+                  103.7,
+                  197.74,
+                  116.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m23.png",
+                  "width_pt": 10.05,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    189.19,
+                    102.2,
+                    199.24,
+                    118.2
+                  ]
+                },
+                "image_id": "p1-b1-m23"
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  197.74,
+                  103.7,
+                  204.61,
+                  116.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m24.png",
+                  "width_pt": 9.87,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    196.24,
+                    102.2,
+                    206.11,
+                    118.2
+                  ]
+                },
+                "image_id": "p1-b1-m24"
+              },
+              {
+                "text": "c khi l",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  237.11,
+                  103.7,
+                  242.88,
+                  116.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m25.png",
+                  "width_pt": 8.77,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    235.61,
+                    102.2,
+                    244.38,
+                    118.2
+                  ]
+                },
+                "image_id": "p1-b1-m25"
+              },
+              {
+                "text": "m.",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              }
+            ],
+            "math": []
+          },
+          {
+            "runs": [
+              {
+                "text": "Ph",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  73.73,
+                  129.7,
+                  80.78,
+                  142.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m26.png",
+                  "width_pt": 10.05,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    72.23,
+                    128.2,
+                    82.28,
+                    144.2
+                  ]
+                },
+                "image_id": "p1-b1-m26"
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  80.78,
+                  129.7,
+                  87.65,
+                  142.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m27.png",
+                  "width_pt": 9.87,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    79.28,
+                    128.2,
+                    89.15,
+                    144.2
+                  ]
+                },
+                "image_id": "p1-b1-m27"
+              },
+              {
+                "text": "ng tr",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  111.84,
+                  129.7,
+                  115.45,
+                  142.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m28.png",
+                  "width_pt": 6.61,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    110.34,
+                    128.2,
+                    116.95,
+                    144.2
+                  ]
+                },
+                "image_id": "p1-b1-m28"
+              },
+              {
+                "text": "nh b",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  138.2,
+                  129.7,
+                  143.97,
+                  142.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m29.png",
+                  "width_pt": 8.77,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    136.7,
+                    128.2,
+                    145.47,
+                    144.2
+                  ]
+                },
+                "image_id": "p1-b1-m29"
+              },
+              {
+                "text": "c hai c",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  177.9,
+                  129.7,
+                  184.4,
+                  142.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m30.png",
+                  "width_pt": 9.5,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    176.4,
+                    128.2,
+                    185.9,
+                    144.2
+                  ]
+                },
+                "image_id": "p1-b1-m30"
+              },
+              {
+                "text": " nghi",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  210.76,
+                  129.7,
+                  216.53,
+                  142.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m31.png",
+                  "width_pt": 8.77,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    209.26,
+                    128.2,
+                    218.03,
+                    144.2
+                  ]
+                },
+                "image_id": "p1-b1-m31"
+              },
+              {
+                "text": "m th",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  240.0,
+                  129.7,
+                  247.05,
+                  142.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m32.png",
+                  "width_pt": 10.05,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    238.5,
+                    128.2,
+                    248.55,
+                    144.2
+                  ]
+                },
+                "image_id": "p1-b1-m32"
+              },
+              {
+                "text": "c khi bi",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  286.04,
+                  129.7,
+                  291.81,
+                  142.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m33.png",
+                  "width_pt": 8.77,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    284.54,
+                    128.2,
+                    293.31,
+                    144.2
+                  ]
+                },
+                "image_id": "p1-b1-m33"
+              },
+              {
+                "text": "t th",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  308.78,
+                  129.7,
+                  315.83,
+                  142.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m34.png",
+                  "width_pt": 10.05,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    307.28,
+                    128.2,
+                    317.33,
+                    144.2
+                  ]
+                },
+                "image_id": "p1-b1-m34"
+              },
+              {
+                "text": "c kh",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  337.85,
+                  129.7,
+                  344.35,
+                  142.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m35.png",
+                  "width_pt": 9.5,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    336.35,
+                    128.2,
+                    345.85,
+                    144.2
+                  ]
+                },
+                "image_id": "p1-b1-m35"
+              },
+              {
+                "text": "ng",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  360.6,
+                  129.7,
+                  366.37,
+                  142.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m36.png",
+                  "width_pt": 8.77,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    359.1,
+                    128.2,
+                    367.87,
+                    144.2
+                  ]
+                },
+                "image_id": "p1-b1-m36"
+              },
+              {
+                "text": "m.",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              }
+            ],
+            "math": []
+          },
+          {
+            "runs": [
+              {
+                "text": "Ng",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  75.89,
+                  155.7,
+                  82.93,
+                  168.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m37.png",
+                  "width_pt": 10.05,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    74.39,
+                    154.2,
+                    84.43,
+                    170.2
+                  ]
+                },
+                "image_id": "p1-b1-m37"
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  82.93,
+                  155.7,
+                  89.81,
+                  168.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m38.png",
+                  "width_pt": 9.87,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    81.43,
+                    154.2,
+                    91.31,
+                    170.2
+                  ]
+                },
+                "image_id": "p1-b1-m38"
+              },
+              {
+                "text": "i ra",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  110.02,
+                  155.7,
+                  116.52,
+                  168.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m39.png",
+                  "width_pt": 9.5,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    108.52,
+                    154.2,
+                    118.02,
+                    170.2
+                  ]
+                },
+                "image_id": "p1-b1-m39"
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  116.52,
+                  155.7,
+                  122.29,
+                  168.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m40.png",
+                  "width_pt": 8.77,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    115.02,
+                    154.2,
+                    123.79,
+                    170.2
+                  ]
+                },
+                "image_id": "p1-b1-m40"
+              },
+              {
+                "text": ": th",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  139.26,
+                  155.7,
+                  145.03,
+                  168.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m41.png",
+                  "width_pt": 8.77,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    137.76,
+                    154.2,
+                    146.53,
+                    170.2
+                  ]
+                },
+                "image_id": "p1-b1-m41"
+              },
+              {
+                "text": "y L",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  162.72,
+                  155.7,
+                  168.49,
+                  168.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m42.png",
+                  "width_pt": 8.77,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    161.22,
+                    154.2,
+                    169.99,
+                    170.2
+                  ]
+                },
+                "image_id": "p1-b1-m42"
+              },
+              {
+                "text": " V",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  181.13,
+                  155.7,
+                  186.9,
+                  168.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m43.png",
+                  "width_pt": 8.77,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    179.63,
+                    154.2,
+                    188.4,
+                    170.2
+                  ]
+                },
+                "image_id": "p1-b1-m43"
+              },
+              {
+                "text": "n Th",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  211.09,
+                  155.7,
+                  218.14,
+                  168.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m44.png",
+                  "width_pt": 10.05,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    209.59,
+                    154.2,
+                    219.64,
+                    170.2
+                  ]
+                },
+                "image_id": "p1-b1-m44"
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  218.14,
+                  155.7,
+                  225.01,
+                  168.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m45.png",
+                  "width_pt": 9.87,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    216.64,
+                    154.2,
+                    226.51,
+                    170.2
+                  ]
+                },
+                "image_id": "p1-b1-m45"
+              },
+              {
+                "text": "ng, t",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  248.13,
+                  155.7,
+                  254.63,
+                  168.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m46.png",
+                  "width_pt": 9.5,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    246.63,
+                    154.2,
+                    256.13,
+                    170.2
+                  ]
+                },
+                "image_id": "p1-b1-m46"
+              },
+              {
+                "text": " To",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  272.32,
+                  155.7,
+                  278.09,
+                  168.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m47.png",
+                  "width_pt": 8.77,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    270.82,
+                    154.2,
+                    279.59,
+                    170.2
+                  ]
+                },
+                "image_id": "p1-b1-m47"
+              },
+              {
+                "text": "n",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  287.84,
+                  155.7,
+                  294.34,
+                  168.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m48.png",
+                  "width_pt": 9.5,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    286.34,
+                    154.2,
+                    295.84,
+                    170.2
+                  ]
+                },
+                "image_id": "p1-b1-m48"
+              },
+              {
+                "text": " Tin.",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              }
+            ],
+            "math": []
+          },
+          {
+            "runs": [
+              {
+                "text": "Th",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  74.44,
+                  181.7,
+                  81.32,
+                  194.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m49.png",
+                  "width_pt": 9.87,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    72.94,
+                    180.2,
+                    82.82,
+                    196.2
+                  ]
+                },
+                "image_id": "p1-b1-m49"
+              },
+              {
+                "text": "i gian l",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  117.42,
+                  181.7,
+                  123.19,
+                  194.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m50.png",
+                  "width_pt": 8.77,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    115.92,
+                    180.2,
+                    124.69,
+                    196.2
+                  ]
+                },
+                "image_id": "p1-b1-m50"
+              },
+              {
+                "text": "m b",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  143.05,
+                  181.7,
+                  148.82,
+                  194.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m51.png",
+                  "width_pt": 8.77,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    141.55,
+                    180.2,
+                    150.32,
+                    196.2
+                  ]
+                },
+                "image_id": "p1-b1-m51"
+              },
+              {
+                "text": "i ch",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  167.95,
+                  181.7,
+                  171.57,
+                  194.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m52.png",
+                  "width_pt": 6.61,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    166.45,
+                    180.2,
+                    173.07,
+                    196.2
+                  ]
+                },
+                "image_id": "p1-b1-m52"
+              },
+              {
+                "text": "n m",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  191.43,
+                  181.7,
+                  198.47,
+                  194.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m53.png",
+                  "width_pt": 10.05,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    189.93,
+                    180.2,
+                    199.97,
+                    196.2
+                  ]
+                },
+                "image_id": "p1-b1-m53"
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  198.47,
+                  181.7,
+                  205.35,
+                  194.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m54.png",
+                  "width_pt": 9.87,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    196.97,
+                    180.2,
+                    206.85,
+                    196.2
+                  ]
+                },
+                "image_id": "p1-b1-m54"
+              },
+              {
+                "text": "i ph",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  225.21,
+                  181.7,
+                  231.71,
+                  194.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m55.png",
+                  "width_pt": 9.5,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    223.71,
+                    180.2,
+                    233.21,
+                    196.2
+                  ]
+                },
+                "image_id": "p1-b1-m55"
+              },
+              {
+                "text": "t, kh",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  254.82,
+                  181.7,
+                  261.32,
+                  194.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m56.png",
+                  "width_pt": 9.5,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    253.32,
+                    180.2,
+                    262.82,
+                    196.2
+                  ]
+                },
+                "image_id": "p1-b1-m56"
+              },
+              {
+                "text": "ng k",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  284.07,
+                  181.7,
+                  289.84,
+                  194.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m57.png",
+                  "width_pt": 8.77,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    282.57,
+                    180.2,
+                    291.34,
+                    196.2
+                  ]
+                },
+                "image_id": "p1-b1-m57"
+              },
+              {
+                "text": " th",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  303.2,
+                  181.7,
+                  310.08,
+                  194.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m58.png",
+                  "width_pt": 9.87,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    301.7,
+                    180.2,
+                    311.58,
+                    196.2
+                  ]
+                },
+                "image_id": "p1-b1-m58"
+              },
+              {
+                "text": "i gian ph",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  355.57,
+                  181.7,
+                  361.34,
+                  194.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m59.png",
+                  "width_pt": 8.77,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    354.07,
+                    180.2,
+                    362.84,
+                    196.2
+                  ]
+                },
+                "image_id": "p1-b1-m59"
+              },
+              {
+                "text": "t",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  368.2,
+                  181.7,
+                  374.7,
+                  194.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m60.png",
+                  "width_pt": 9.5,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    366.7,
+                    180.2,
+                    376.2,
+                    196.2
+                  ]
+                },
+                "image_id": "p1-b1-m60"
+              },
+              {
+                "glyph_image": true,
+                "bbox": [
+                  374.7,
+                  181.7,
+                  380.47,
+                  194.7
+                ],
+                "reason": "glyph không ánh xạ",
+                "image": {
+                  "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\work\\pdf\\assets\\p1-b1-m61.png",
+                  "width_pt": 8.77,
+                  "height_pt": 16.0,
+                  "dpi": 150,
+                  "bbox": [
+                    373.2,
+                    180.2,
+                    381.97,
+                    196.2
+                  ]
+                },
+                "image_id": "p1-b1-m61"
+              },
+              {
+                "text": ".",
+                "bold": false,
+                "italic": false,
+                "size": 13.0
+              }
+            ],
+            "math": []
+          }
+        ],
+        "text": "Trng Trung hc ph thng Nguyn Hu  kim tra mn Ton lp mi hai Hc sinhc k bi trc khi lm. Phng trnh bc hai c nghim thc khi bit thc khngm. Ngi ra: thy L Vn Thng, t Ton Tin. Thi gian lm bi chn mi pht, khng k thi gian pht.",
+        "inline_math": [],
+        "align": "left",
+        "size": 13.0,
+        "warnings": [
+          "61 cụm toán/glyph giữ bằng ảnh vùng (math_as_image)"
+        ],
+        "status": "review",
+        "inline_math_images": [
+          {
+            "id": "p1-b1-m1",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m2",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m3",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m4",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m5",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m6",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m7",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m8",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m9",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m10",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m11",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m12",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m13",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m14",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m15",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m16",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m17",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m18",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m19",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m20",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m21",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m22",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m23",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m24",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m25",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m26",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m27",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m28",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m29",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m30",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m31",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m32",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m33",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m34",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m35",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m36",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m37",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m38",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m39",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m40",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m41",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m42",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m43",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m44",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m45",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m46",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m47",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m48",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m49",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m50",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m51",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m52",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m53",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m54",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m55",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m56",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m57",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m58",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m59",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m60",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          },
+          {
+            "id": "p1-b1-m61",
+            "reason": "glyph không ánh xạ",
+            "kind": "glyph"
+          }
+        ],
+        "order": 1,
+        "parent": null,
+        "fallback_reason": null,
+        "confidence": null,
+        "source": {
+          "file": "vn_tounicode_removed.pdf",
+          "page": 1,
+          "bbox_pt": [
+            60.0,
+            51.7,
+            383.72,
+            194.7
+          ],
+          "coords": "display_topleft_pt"
+        }
+      }
+    ],
+    "build": {
+      "counts": {
+        "paragraphs": 1,
+        "omml": 0,
+        "images": 61,
+        "tables": 0,
+        "mcq": 0,
+        "layouts": 0,
+        "notices": 0
+      },
+      "placed": {
+        "p1-b1": "paragraph"
+      },
+      "not_placed": [],
+      "media": {
+        "images_added": 60,
+        "markers_replaced": 0,
+        "markers_missing": 0,
+        "markers_text_fallback": 0,
+        "logical_images": 61
+      },
+      "pages_built": 1
+    }
+  },
+  "engine_report": {
+    "engine": "pdf_reader + pdf_docx_builder",
+    "paragraphs": 1,
+    "omml": 0,
+    "images": 61,
+    "tables": 0,
+    "mcq": 0,
+    "layouts": 0,
+    "notices": 0,
+    "engine_counts_before_postprocess": {
+      "equation_nodes": null,
+      "word_tables": null,
+      "drawingml_groups": null,
+      "drawingml_shapes": null,
+      "embedded_media_files": null
+    },
+    "equation_nodes": 0,
+    "word_tables": 0,
+    "drawingml_groups": 0,
+    "drawingml_shapes": 0,
+    "embedded_media_files": 61
+  },
+  "postprocess": {
+    "accent_fix": {
+      "da_sua": 0,
+      "ky_tu": {}
+    },
+    "xml_order_fixed": 0
+  },
+  "package": {
+    "ok": true,
+    "errors": [],
+    "warnings": []
+  },
+  "counts": {
+    "ok": true,
+    "paragraphs": 1,
+    "text_chars": 268,
+    "equation_nodes": 0,
+    "omml_paragraphs": 0,
+    "word_tables": 0,
+    "tables_by_role": {},
+    "table_role_source": {},
+    "empty_tables": 0,
+    "drawingml_groups": 0,
+    "drawingml_shapes": 0,
+    "logical_images": 61,
+    "svg_backed_images": 0,
+    "media_parts": 60,
+    "marker_leaks": {
+      "truth_marker": 0,
+      "image_marker": 0,
+      "layout_sentinel": 0,
+      "engine_block_token": 0,
+      "verbatim_marker": 0
+    },
+    "marker_leaks_total": 0,
+    "l2w_notices": [],
+    "tex_residue_count": 0,
+    "tex_residue_samples": []
+  },
+  "layers": [
+    {
+      "layer": 1,
+      "name": "A. Nội dung (chữ PDF ↔ Word, dấu tiếng Việt, rò rỉ)",
+      "status": "FAIL",
+      "summary": "Giữ 30.2% từ và 100.0% chữ/số của PDF (ngoài vùng ảnh); giữ 30% token nguồn.",
+      "details": {
+        "source_tokens": 43,
+        "docx_tokens": 48,
+        "matched_tokens": 13,
+        "token_recall": 0.3023,
+        "order_ratio": 0.2198,
+        "duplicate_excess_ratio": 0.0233,
+        "generated_label_tokens": 0,
+        "missing_sample": [
+          "ng",
+          "th",
+          "tr",
+          "ph",
+          "to",
+          "kh",
+          "nguy",
+          "ki",
+          "sinh",
+          "nh",
+          "nghi",
+          "ch"
+        ],
+        "lost_diacritics_sample": [],
+        "lost_diacritics": 0,
+        "tex_residue": 0,
+        "tex_residue_sample": [],
+        "marker_leaks": 0,
+        "l2w_notices": [],
+        "metric": "token_recall = |token nguồn ∩ token Word| / |token nguồn| (đa tập, NFC, chữ thường); order_ratio = difflib ratio trên dãy token — tín hiệu thứ tự, không phải độ chính xác.",
+        "char_recall": 1.0,
+        "chars_not_in_source": 0,
+        "note": "Tham chiếu = chữ hiển thị của chính PDF (pdfplumber), trừ vùng đã giữ bằng ảnh. token_recall tính trên TỪ (≥2 chữ cái); char_recall tính mọi chữ/số kể cả trong công thức (OMML). Chữ tham chiếu theo thứ tự đường cơ sở nên order_ratio chỉ là tín hiệu."
+      },
+      "group": "A",
+      "required": true
+    },
+    {
+      "layer": 2,
+      "name": "B. Toán (OMML / ảnh vùng)",
+      "status": "PASS",
+      "summary": "0/0 OMML, 0/0 ảnh công thức (math_as_image).",
+      "details": {
+        "math_blocks": 0,
+        "math_omml_blocks": 0,
+        "inline_math_omml": 0,
+        "expected_omml": 0,
+        "omml_in_docx": 0,
+        "math_as_image": 0,
+        "math_images_found": 0,
+        "unresolved": 0,
+        "metric": "Số OMML phải bằng số khối/đoạn toán đã nhận dạng native; khối toán giữ bằng ảnh phải có ảnh mang đúng block_id. Nhận dạng toán từ PDF là heuristic (xem confidence từng khối)."
+      },
+      "group": "B",
+      "required": true
+    },
+    {
+      "layer": 3,
+      "name": "C. Hình (ảnh vùng gốc / DrawingML)",
+      "status": "PASS",
+      "summary": "0/0 khối hình có trong Word.",
+      "details": {
+        "figure_blocks": 0,
+        "found_in_docx": 0,
+        "missing_blocks": [],
+        "logical_images": 61,
+        "media_parts": 60,
+        "by_method": {},
+        "note": "Mỗi khối hình/ảnh trang phải có đúng một ảnh logic mang block_id (SVG+PNG = 1)."
+      },
+      "group": "C",
+      "required": true
+    },
+    {
+      "layer": 4,
+      "name": "D. Bảng & bố cục",
+      "status": "PASS",
+      "summary": "0/0 bảng native, 0/0 bảng giữ ảnh.",
+      "details": {
+        "table_blocks": 0,
+        "native": 0,
+        "native_found": 0,
+        "as_image": 0,
+        "as_image_found": 0,
+        "docx_tables_by_role": {},
+        "empty_tables": []
+      },
+      "group": "D",
+      "required": true
+    },
+    {
+      "layer": 5,
+      "name": "E. Hiển thị (render Word ↔ PDF nguồn)",
+      "status": "NOT_MEASURED",
+      "summary": "QA hiển thị bị tắt (qa_pdf=False) → nhóm E chưa thực hiện.",
+      "details": {
+        "enabled": false,
+        "measured": false,
+        "similarity_percent": null,
+        "reason": "QA hiển thị bị tắt (qa_pdf=False) → nhóm E chưa thực hiện."
+      },
+      "group": "E",
+      "required": true
+    }
+  ],
+  "blocks_summary": {
+    "total": 1,
+    "by_method": {
+      "text_native": 1
+    },
+    "unresolved": 0,
+    "native": 1,
+    "as_image": 0
+  },
+  "quality": {
+    "quality_status": "review_required",
+    "conversion_completed": true,
+    "reasons": [
+      "có lớp kiểm định FAIL (thiếu nội dung có biểu diễn thay thế → cần kiểm tra)",
+      "L1: Giữ 30.2% từ và 100.0% chữ/số của PDF (ngoài vùng ảnh); giữ 30% token nguồn."
+    ],
+    "not_performed": [
+      "L5 E. Hiển thị (render Word ↔ PDF nguồn): QA hiển thị bị tắt (qa_pdf=False) → nhóm E chưa thực hiện."
+    ],
+    "layer_status": {
+      "L1": "FAIL",
+      "L2": "PASS",
+      "L3": "PASS",
+      "L4": "PASS",
+      "L5": "NOT_MEASURED"
+    },
+    "scope_note": "‘passed’ chỉ có nghĩa đạt các tiêu chí tự động đã nêu cho tệp này, không phải đúng 100%."
+  },
+  "input_preserved": true,
+  "output": {
+    "docx": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\out\\vn_tounicode_removed.docx",
+    "report": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\0e67895bd433\\out\\vn_tounicode_removed.report.json",
+    "qa_pdf": null
+  },
+  "environment": {
+    "python": "3.14.7",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "libraries": {
+      "python_docx": "1.2.0",
+      "lxml": "6.1.3",
+      "pillow": "12.3.0",
+      "numpy": "2.5.4",
+      "pdfplumber": "0.11.10",
+      "pypdfium2": null,
+      "pikepdf": "10.17.0",
+      "pytesseract": "0.3.13",
+      "fastapi": "0.143.5",
+      "streamlit": "1.66.0"
+    },
+    "tools": {
+      "xelatex": "MiKTeX-XeTeX 4.18 (MiKTeX 26.5)",
+      "pdflatex": "MiKTeX-pdfTeX 4.27 (MiKTeX 26.5)",
+      "lualatex": "This is LuaHBTeX, Version 1.25.7 (MiKTeX 26.5)",
+      "pdftocairo": "pdftocairo version 24.04.0",
+      "imagemagick": "Invalid drive specification.",
+      "pandoc": "pandoc 3.12.1",
+      "docx2pdf": "0.1.8"
+    },
+    "tesseract_languages": []
+  },
+  "capabilities": {
+    "derived": {
+      "tex_upload": {
+        "available": true,
+        "detail": "engine dựng Word từ .tex/.zip"
+      },
+      "paste_smart": {
+        "available": true,
+        "detail": "tiền xử lý thông minh (dán mã)"
+      },
+      "pdf_reader": {
+        "available": true,
+        "detail": "pdfplumber (chữ/đường nét) + pypdfium2 (render/crop) + pikepdf (cấu trúc)"
+      },
+      "pdf_vector_crop": {
+        "available": true,
+        "detail": "cắt vùng PDF thành SVG bằng pdftocairo"
+      },
+      "ocr": {
+        "available": false,
+        "detail": "thiếu tesseract → trang scan giữ ảnh"
+      },
+      "math_ocr": {
+        "available": false,
+        "detail": "chưa cấu hình bộ nhận dạng công thức từ ảnh; công thức không chắc → ảnh vùng"
+      },
+      "visual_qa": {
+        "available": true,
+        "detail": "render DOCX→PDF bằng LibreOffice/Word rồi so với nguồn"
+      },
+      "tex_reference_compile": {
+        "available": true,
+        "detail": "biên dịch PDF tham chiếu từ nguồn TeX (shell-escape tắt)"
+      }
+    },
+    "tools": {
+      "xelatex": {
+        "available": true,
+        "version": "MiKTeX-XeTeX 4.18 (MiKTeX 26.5)"
+      },
+      "pdflatex": {
+        "available": true,
+        "version": "MiKTeX-pdfTeX 4.27 (MiKTeX 26.5)"
+      },
+      "lualatex": {
+        "available": true,
+        "version": "This is LuaHBTeX, Version 1.25.7 (MiKTeX 26.5)"
+      },
+      "pdftocairo": {
+        "available": true,
+        "version": "pdftocairo version 24.04.0"
+      },
+      "soffice": {
+        "available": false,
+        "version": null
+      },
+      "tesseract": {
+        "available": false,
+        "version": null
+      },
+      "ghostscript": {
+        "available": false,
+        "version": null
+      },
+      "imagemagick": {
+        "available": true,
+        "version": "Invalid drive specification."
+      },
+      "pandoc": {
+        "available": true,
+        "version": "pandoc 3.12.1"
+      },
+      "docx2pdf": {
+        "available": true,
+        "version": "0.1.8"
+      }
+    },
+    "tesseract_languages": [],
+    "missing_modules": {}
+  },
+  "finished_at": "2026-10-24T00:28:19"
+}

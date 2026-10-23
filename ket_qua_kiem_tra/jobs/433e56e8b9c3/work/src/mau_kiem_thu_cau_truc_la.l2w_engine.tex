@@ -1,0 +1,149 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amsthm,mathtools,tasks,tcolorbox,multicol,siunitx,fancyhdr,lastpage}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Trường THPT Lê Lợi}
+\rhead{Đề số 01}
+\cfoot{Trang \thepage/\pageref{LastPage}}
+\definecolor{xanh}{RGB}{0,102,204}
+\newcommand*{\mycmd}[2][Mặc định]{\textbf{#1}: #2}
+\NewDocumentCommand{\diemso}{s m O{điểm}}{\IfBooleanTF{#1}{(#2 #3)}{[#2 #3]}}
+\DeclarePairedDelimiter{\ceilx}{\lceil}{\rceil}
+\def\vect#1{\overrightarrow{#1}}
+\def\khoang#1;#2;{\left[#1;#2\right]}
+\let\epsi\varepsilon
+\theoremstyle{definition}
+\newtheorem{dn}{Định nghĩa}[section]
+\newtheorem*{nx}{Nhận xét}
+\begin{document}
+ 
+\section{Các macro lạ}
+\textbf{Mặc định}: giá trị và \textbf{Tùy chọn}: khác. Điểm: [2 điểm] hoặc (3 đ).
+Làm tròn $\left\lceil x \right\rceil$, vectơ $\overrightarrow{MN}$, khoảng $\left[a;b\right]$, $\varepsilon>0$.
+ Văn bản trong lệnh lạ  rồi  \ tiếp tục  2cm nội dung giữ lại .
+
+
+
+\textbf{Định nghĩa 1.} 
+Hàm số $f$ liên tục tại $x_0$ nếu $\lim\limits_{x\to x_0} f(x)=f(x_0)$.
+
+
+
+
+
+\textbf{Nhận xét 1.} 
+Theo Định nghĩa~[dn:1], \textit{mọi đa thức} đều liên tục.
+
+
+
+
+
+\textbf{Chứng minh.} 
+Hiển nhiên.
+
+
+
+
+\subsection{Toán học nâng cao}
+\begin{equation}\label{eq:main}
+\sum_{k=1}^{n} \binom{n}{k} = 2^n - 1, \quad \operatorname*{argmax}_{x\in X} g(x)
+\end{equation}
+\begin{gather*}
+A = \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}, \quad \det A = \begin{vmatrix} 1 & 2\\ 3 & 4\end{vmatrix} = -2
+\end{gather*}
+\[
+f(x)=\begin{cases} x^2 & \text{nếu } x\ge 0\\ -x & \text{nếu } x<0 \end{cases}, \qquad
+\underbrace{1+1+\cdots+1}_{n \text{ lần}} = n, \qquad \mathcal{F}, \mathfrak{g}, \mathbb{Z}_p
+\]
+Phương trình ([eq:main]) và $x \equiv 1 \pmod 3$, $a \nmid b$, $\vec{u}\perp\vec{v}$, $\widehat{ABC}=60^\circ$.
+
+\subsection{Danh sách và bố cục}
+
+
+a) $x=1$
+
+b) $x=2$
+
+c) $x=3$
+
+d) $x=4$
+
+
+
+
+\textbf{Định lí Vi-ét} Tổng hai nghiệm $x_1+x_2=-\frac{b}{a}$.
+
+\textbf{Hệ quả} Tích hai nghiệm.
+
+
+
+
+1. Mức 1
+  
+
+(a) Mức 2
+    
+
+i. Mức 3
+
+2. Mức 1 tiếp
+
+
+
+
+
+\textbf{Ghi nhớ}
+
+
+Công thức nghiệm: $x=\dfrac{-b\pm\sqrt{\Delta}}{2a}$.
+
+
+
+
+
+
+
+Cột trái với nhiều chữ để thấy hai cột được chia ra trong Word, có đủ nội dung để kiểm tra.
+ 
+Cột phải cũng có nội dung.
+
+
+
+
+
+
+
+\textit{Người ra đề}\\
+\textbf{Nguyễn Văn A}
+
+
+
+
+\begin{figure}[ht]
+\centering
+
+
+ZLZIMGZ00001ZEND
+
+
+\caption{Đồ thị hàm số}
+\end{figure}
+Hình~[fig:1] cho thấy\ldots{} Trích dẫn  sgk .
+
+\begin{tabularx}{\textwidth}{|X|c|}
+\hline
+  Cột rộng & Hẹp \\ \hline
+Nội dung dài dài dài &   1 \\ \hline
+\end{tabularx}
+
+
+
+
+ sgk  Bộ GD\&ĐT, \emph{Sách giáo khoa Toán 12}, NXB Giáo dục, 2024.
+
+
+
+
+Ký tự đặc biệt: \% \$ \& \# \_ \{ \} \textbackslash{}  \    50\,\% --- dấu ``nháy'' và ~cách. Accent: \'e \`a \^o \"u \~n  c   a   a .
+Mã ZLZVERBZ00001ZEND giữ nguyên.
+\end{document}

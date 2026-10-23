@@ -1,5 +1,5 @@
 /**
- * PDF & LaTeX to Word Converter — Frontend Application Logic (Unified DrawingML, OMML & PDF Decompiler Engine)
+ * PDF & LaTeX to Word Converter — Frontend (pipeline chung: TeX/ZIP/PDF → Word, báo cáo trung thực)
  * Communicates with FastAPI backend via REST API
  */
 
@@ -12,10 +12,20 @@ const state = {
   dpi: 400,
   strict: false,
   qaPdf: true,
+  answerMode: 'source',
+  showSolutions: true,
+  figurePolicy: 'auto',
   selectedFile: null,
   currentJobId: null,
-  theme: localStorage.getItem('latex2word-theme') || 'dark',
+  theme: (() => { try { return localStorage.getItem('latex2word-theme') || 'dark'; } catch { return 'dark'; } })(),
 };
+
+// Chống chèn HTML: mọi chuỗi từ máy chủ (tên tệp, tóm tắt, mã LaTeX trong báo cáo) phải escape trước khi vào innerHTML.
+function escapeHtml(value) {
+  return String(value === undefined || value === null ? '' : value)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
 
 // ─── Initialization ──────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -47,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function toggleTheme() {
   state.theme = state.theme === 'dark' ? 'light' : 'dark';
   applyTheme(state.theme);
-  localStorage.setItem('latex2word-theme', state.theme);
+  try { localStorage.setItem('latex2word-theme', state.theme); } catch { /* bỏ qua */ }
 }
 
 function applyTheme(theme) {
@@ -84,7 +94,27 @@ function toggleOption(option) {
   } else if (option === 'qa') {
     state.qaPdf = !state.qaPdf;
     document.getElementById('toggle-qa').classList.toggle('toggle--active', state.qaPdf);
+  } else if (option === 'solutions') {
+    state.showSolutions = !state.showSolutions;
+    document.getElementById('toggle-solutions').classList.toggle('toggle--active', state.showSolutions);
   }
+}
+
+function updateOption(key, value) {
+  state[key] = value;
+  if (key === 'answerMode' && value === 'student' && state.showSolutions) {
+    toggleOption('solutions');
+  }
+}
+
+function appendCommonOptions(formData) {
+  formData.append('mode', state.mode);
+  formData.append('dpi', state.dpi);
+  formData.append('strict', state.strict);
+  formData.append('qa_pdf', state.qaPdf);
+  formData.append('answer_mode', state.answerMode);
+  formData.append('show_solutions', state.showSolutions);
+  formData.append('figure_policy', state.figurePolicy);
 }
 
 // ─── File Selection ──────────────────────────────────────────────
@@ -162,10 +192,11 @@ async function checkSystemStatus() {
       text.textContent = 'Hệ thống sẵn sàng';
     } else {
       dot.className = 'status-dot status-dot--error';
-      text.textContent = 'Thiếu công cụ';
+      text.textContent = 'Thiếu thành phần — xem chi tiết';
     }
 
     window._systemTools = data.tools;
+    window._capabilities = data.capabilities || null;
   } catch {
     const dot = document.getElementById('status-dot');
     const text = document.getElementById('status-text');
@@ -175,28 +206,39 @@ async function checkSystemStatus() {
 }
 
 function showSystemStatus() {
-  const tools = window._systemTools || {};
   const container = document.getElementById('modal-tools');
-  const toolLabels = {
-    'pdf_decompiler': 'PDF to LaTeX/OMML Decompiler (.pdf / .zip)',
-    'drawingml_engine': 'Native Word Shapes (DrawingML Engine)',
-    'math_tables_engine': 'Math Tables (tkz-tab, Choice, Tabular)',
-    'omml_math_engine': 'Native OMML Math Engine (Binom, Cases, Matrix)',
-    'latex2word_py': 'latex2word.py (Unified Core)',
-    'libreoffice': 'MS Word / LibreOffice (QA PDF)',
-  };
-
-  container.innerHTML = Object.entries(toolLabels).map(([key, label]) => {
-    const ok = tools[key];
-    return `
-      <div class="tool-check">
-        <span class="tool-check__name">${label}</span>
-        <span class="tool-check__status ${ok ? 'tool-check__status--ok' : 'tool-check__status--missing'}">
-          ${ok ? '✅ Sẵn sàng' : '⚠️ Tùy chọn'}
-        </span>
-      </div>`;
-  }).join('');
-
+  const caps = window._capabilities;
+  let rows = [];
+  if (caps && caps.derived) {
+    const labels = {
+      tex_upload: 'Engine dựng Word từ TeX (.tex / .zip)',
+      paste_smart: 'Tiền xử lý thông minh (latex_preprocessor)',
+      pdf_reader: 'Bộ đọc PDF (pdfplumber + pypdfium2 + pikepdf)',
+      pdf_vector_crop: 'Cắt vùng PDF dạng vector (pdftocairo)',
+      ocr: 'OCR trang scan (tesseract)',
+      math_ocr: 'Nhận dạng công thức từ ảnh',
+      visual_qa: 'Render QA Word → PDF (LibreOffice / Word)',
+      tex_reference_compile: 'Biên dịch PDF tham chiếu từ TeX',
+    };
+    rows = Object.entries(labels).map(([key, label]) => {
+      const item = caps.derived[key] || { available: false, detail: 'không có thông tin' };
+      return `
+        <div class="tool-check">
+          <span class="tool-check__name">${escapeHtml(label)}<br><small>${escapeHtml(item.detail)}</small></span>
+          <span class="tool-check__status ${item.available ? 'tool-check__status--ok' : 'tool-check__status--missing'}">
+            ${item.available ? '✅ Có' : '❌ Không có'}
+          </span>
+        </div>`;
+    });
+  } else {
+    const tools = window._systemTools || {};
+    rows = Object.entries(tools).map(([key, ok]) => `
+        <div class="tool-check">
+          <span class="tool-check__name">${escapeHtml(key)}</span>
+          <span class="tool-check__status ${ok ? 'tool-check__status--ok' : 'tool-check__status--missing'}">${ok ? '✅ Có' : '❌ Không có'}</span>
+        </div>`);
+  }
+  container.innerHTML = rows.join('');
   document.getElementById('modal-overlay').classList.add('modal-overlay--open');
 }
 
@@ -230,11 +272,11 @@ function startProgressTimer() {
     bar.style.width = pct + '%';
 
     if (seconds < 2) {
-      step.textContent = `1️⃣ Phân tích cấu trúc tài liệu PDF / LaTeX & công thức OMML (⏱️ ${seconds}s)...`;
+      step.textContent = `1️⃣ Đọc nguồn (PDF / TeX / ZIP) và xác định khối nội dung (⏱️ ${seconds}s)...`;
     } else if (seconds < 5) {
-      step.textContent = `2️⃣ Dựng hình học & đồ thị sang Word DrawingML Shapes (⏱️ ${seconds}s)...`;
+      step.textContent = `2️⃣ Dựng Word: chữ, OMML, bảng, hình / ảnh vùng gốc (⏱️ ${seconds}s)...`;
     } else {
-      step.textContent = `3️⃣ Dựng Bảng biến thiên tkz-tab, Bảng trắc nghiệm & Đóng gói .docx (⏱️ ${seconds}s)...`;
+      step.textContent = `3️⃣ Đóng gói, render đối chiếu và kiểm định 5 nhóm (⏱️ ${seconds}s)...`;
     }
   }, 1000);
 }
@@ -283,20 +325,23 @@ async function convertPaste() {
 
   const formData = new FormData();
   formData.append('latex_source', source);
-  formData.append('mode', state.mode);
-  formData.append('dpi', state.dpi);
-  formData.append('strict', state.strict);
-  formData.append('qa_pdf', state.qaPdf);
+  appendCommonOptions(formData);
 
   try {
     const res = await fetch(`${API_BASE}/api/convert/paste`, { method: 'POST', body: formData });
     const data = await res.json();
     finishProgress();
 
-    if (res.ok && data.status === 'completed') {
+    if (data && data.job_id && (data.status === 'completed' || data.strict_violation)) {
       state.currentJobId = data.job_id;
       showResults(data);
-      showToast('🎉 Chuyển đổi thành công! Đang tự động tải file Word...');
+      if (data.strict_violation) {
+        showToast(data.error || 'Chế độ nghiêm ngặt: kết quả chưa đạt.', 'error');
+        return;
+      }
+      showToast(data.quality_status === 'passed'
+        ? '🎉 Đã tạo Word — đạt các kiểm tra tự động. Đang tải xuống...'
+        : '⚠️ Đã tạo Word — cần xem lại một số mục. Đang tải xuống...');
 
       const dlLink = document.createElement('a');
       dlLink.href = `${API_BASE}/api/download/${data.job_id}/docx`;
@@ -305,7 +350,7 @@ async function convertPaste() {
       dlLink.click();
       document.body.removeChild(dlLink);
     } else {
-      showToast(data.error || data.detail || 'Chuyển đổi thất bại.', 'error');
+      showError(data);
     }
   } catch (err) {
     finishProgress();
@@ -325,20 +370,23 @@ async function convertUpload() {
   const formData = new FormData();
   formData.append('file', state.selectedFile);
   formData.append('main_tex', document.getElementById('main-tex-input').value);
-  formData.append('mode', state.mode);
-  formData.append('dpi', state.dpi);
-  formData.append('strict', state.strict);
-  formData.append('qa_pdf', state.qaPdf);
+  appendCommonOptions(formData);
 
   try {
     const res = await fetch(`${API_BASE}/api/convert`, { method: 'POST', body: formData });
     const data = await res.json();
     finishProgress();
 
-    if (res.ok && data.status === 'completed') {
+    if (data && data.job_id && (data.status === 'completed' || data.strict_violation)) {
       state.currentJobId = data.job_id;
       showResults(data);
-      showToast('🎉 Chuyển đổi thành công! Đang tự động tải file Word...');
+      if (data.strict_violation) {
+        showToast(data.error || 'Chế độ nghiêm ngặt: kết quả chưa đạt.', 'error');
+        return;
+      }
+      showToast(data.quality_status === 'passed'
+        ? '🎉 Đã tạo Word — đạt các kiểm tra tự động. Đang tải xuống...'
+        : '⚠️ Đã tạo Word — cần xem lại một số mục. Đang tải xuống...');
 
       const dlLink = document.createElement('a');
       dlLink.href = `${API_BASE}/api/download/${data.job_id}/docx`;
@@ -347,12 +395,23 @@ async function convertUpload() {
       dlLink.click();
       document.body.removeChild(dlLink);
     } else {
-      showToast(data.error || data.detail || 'Chuyển đổi thất bại.', 'error');
+      showError(data);
     }
   } catch (err) {
     finishProgress();
     showToast('Lỗi kết nối tới API server: ' + err.message, 'error');
   }
+}
+
+function showError(data) {
+  let msg = (data && (data.error || data.detail)) || 'Chuyển đổi thất bại.';
+  if (data && Array.isArray(data.candidates) && data.candidates.length) {
+    const names = data.candidates.map(c => (typeof c === 'string' ? c : c.path)).filter(Boolean);
+    msg += ' Ứng viên: ' + names.join(', ');
+    const input = document.getElementById('main-tex-input');
+    if (input && names.length) input.placeholder = names[0];
+  }
+  showToast(msg, 'error');
 }
 
 // ─── Display Results ─────────────────────────────────────────────
@@ -368,16 +427,24 @@ function showResults(data) {
   const desc = document.getElementById('result-desc');
 
   header.className = 'result-header';
-  if (data.overall === 'passed') {
+  const quality = data.quality_status || data.overall;
+  desc.textContent = `Job ID: ${data.job_id} • Mode ${data.mode} • ${data.filename} • tạo tệp: ${data.conversion_completed ? 'có' : 'không'}`;
+  if (!data.conversion_completed && data.status !== 'completed') {
+    header.classList.add('result-header--failed');
+    icon.textContent = '❌';
+    title.textContent = 'Không tạo được gói Word hợp lệ';
+  } else if (quality === 'passed') {
     header.classList.add('result-header--passed');
     icon.textContent = '✅';
-    title.textContent = 'Chuyển đổi thành công — Tất cả kiểm thử đạt yêu cầu';
-    desc.textContent = `Job ID: ${data.job_id} • Mode ${data.mode} • ${data.filename}`;
+    title.textContent = 'Đã tạo Word — đạt các tiêu chí tự động đã nêu (không có nghĩa đúng 100%)';
+  } else if (quality === 'failed') {
+    header.classList.add('result-header--failed');
+    icon.textContent = '❌';
+    title.textContent = 'Đã tạo tệp nhưng kiểm định thất bại — xem lý do';
   } else {
     header.classList.add('result-header--review');
     icon.textContent = '⚠️';
-    title.textContent = 'Chuyển đổi hoàn tất — Cần xem xét một số cảnh báo';
-    desc.textContent = `Job ID: ${data.job_id} • Mode ${data.mode} • ${data.filename}`;
+    title.textContent = 'Đã tạo Word — cần người dùng kiểm tra (review_required)';
   }
 
   const ooxmlBanner = document.getElementById('ooxml-banner');
@@ -402,28 +469,62 @@ function showResults(data) {
     pdfBtn.style.display = 'none';
   }
 
+  renderQuality(data);
   renderLayers(data.layers || []);
   renderEngineStats(data.engine_report || {});
+}
+
+function renderQuality(data) {
+  const grid = document.getElementById('quality-grid');
+  const notes = document.getElementById('quality-notes');
+  if (!grid || !notes) return;
+  const bs = data.blocks_summary || {};
+  const q = data.quality || {};
+  const cells = [
+    ['Khối dựng native', bs.native || 0],
+    ['Khối giữ bằng ảnh', bs.as_image || 0],
+    ['Khối unresolved', bs.unresolved || 0],
+    ['Tổng khối', bs.total || 0],
+  ];
+  grid.innerHTML = cells.map(([label, value]) => `
+      <div class="report-stat">
+        <div class="report-stat__value">${escapeHtml(value)}</div>
+        <div class="report-stat__label">${escapeHtml(label)}</div>
+      </div>`).join('');
+  let html = '<div><small>Mẫu số là tổng khối trong manifest của job; đây là thống kê phương thức dựng, '
+    + 'không phải độ chính xác thị giác đã đo.</small></div>';
+  if ((q.not_performed || []).length) {
+    html += '<div><strong>Kiểm tra bắt buộc chưa thực hiện:</strong><ul>'
+      + q.not_performed.map(x => `<li>${escapeHtml(x)}</li>`).join('') + '</ul></div>';
+  }
+  if ((q.reasons || []).length) {
+    html += '<div><strong>Lý do trạng thái:</strong><ul>'
+      + q.reasons.slice(0, 15).map(x => `<li>${escapeHtml(x)}</li>`).join('') + '</ul></div>';
+  }
+  if (data.source && data.source.main) {
+    html += `<div><strong>Tệp chính:</strong> ${escapeHtml(data.source.main)} (${escapeHtml(data.source.selection || '')})</div>`;
+  }
+  notes.innerHTML = html;
 }
 
 // ─── Render 5 Validation Layers ──────────────────────────────────
 function renderLayers(layers) {
   const grid = document.getElementById('layers-grid');
   grid.innerHTML = layers.map((layer, idx) => {
-    const statusClass = (layer.status || 'skip').toLowerCase();
+    const statusClass = String(layer.status || 'skip').toLowerCase().replace(/[^a-z_]/g, '');
     const statusLabel = {
       'PASS': '✅ PASS', 'WARN': '⚠️ WARN',
-      'FAIL': '❌ FAIL', 'SKIP': '⏭️ SKIP',
-    }[layer.status] || layer.status;
+      'FAIL': '❌ FAIL', 'SKIP': '⏭️ SKIP', 'NOT_MEASURED': '⏸️ CHƯA ĐO',
+    }[layer.status] || escapeHtml(layer.status);
 
     return `
       <div class="layer-card" onclick="toggleLayerDetails(${idx})">
         <span class="layer-badge layer-badge--${statusClass}">${statusLabel}</span>
         <div class="layer-info">
-          <div class="layer-name">Layer ${layer.layer} — ${layer.name}</div>
-          <div class="layer-summary">${layer.summary}</div>
+          <div class="layer-name">Layer ${escapeHtml(layer.layer)} — ${escapeHtml(layer.name)}</div>
+          <div class="layer-summary">${escapeHtml(layer.summary)}</div>
           <div class="layer-details" id="layer-details-${idx}">
-            <pre>${JSON.stringify(layer.details, null, 2)}</pre>
+            <pre>${escapeHtml(JSON.stringify(layer.details, null, 2))}</pre>
           </div>
         </div>
       </div>`;
@@ -441,12 +542,13 @@ function renderEngineStats(report) {
   const grid = document.getElementById('report-grid');
 
   const fields = [
-    { key: 'drawingml_groups', label: 'Nhóm Hình DrawingML' },
+    { key: 'drawingml_groups', label: 'Nhóm Hình DrawingML (tệp cuối)' },
     { key: 'drawingml_shapes', label: 'Nét Vẽ Vector Word' },
     { key: 'tkz_tab_tables', label: 'Bảng Biến Thiên' },
     { key: 'choice_tables', label: 'Bảng Trắc Nghiệm' },
     { key: 'word_tables', label: 'Tổng Bảng Word' },
-    { key: 'equation_nodes', label: 'Công Thức OMML' },
+    { key: 'equation_nodes', label: 'Công Thức OMML (tệp cuối)' },
+    { key: 'embedded_media_files', label: 'Ảnh logic (SVG+PNG = 1)' },
     { key: 'smart_paste_status', label: 'Tiền Xử Lý Thông Minh (dán mã)' },
   ];
 
@@ -461,10 +563,8 @@ function renderEngineStats(report) {
     .filter(f => report[f.key] !== undefined)
     .map(f => `
       <div class="report-stat">
-        <div class="report-stat__value">${report[f.key]}</div>
-        <div class="report-stat__label">${f.label}</div>
+        <div class="report-stat__value">${escapeHtml(report[f.key])}</div>
+        <div class="report-stat__label">${escapeHtml(f.label)}</div>
       </div>`)
     .join('');
 }
-
-

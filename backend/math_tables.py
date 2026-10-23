@@ -23,6 +23,47 @@ from docx.shared import Pt
 
 from .omml_math import append_rich_latex_text_to_paragraph
 
+import contextvars
+
+#: Chế độ hiển thị đáp án do pipeline đặt cho ngữ cảnh chuyển đổi hiện tại:
+#:   "source"  — giữ đúng cách trình bày của nguồn (mặc định, như trước);
+#:   "student" — KHÔNG làm lộ đáp án (không gạch chân/in đậm phương án đúng, để trống cột Đ/S).
+ANSWER_MODE: contextvars.ContextVar[str] = contextvars.ContextVar("l2w_answer_mode", default="source")
+_EVENTS: contextvars.ContextVar[list | None] = contextvars.ContextVar("l2w_table_events", default=None)
+
+
+def start_table_events() -> list:
+    """Bật ghi sự kiện dựng bảng (đáp án có nguồn/không rõ, bảng chưa dựng được…) cho ngữ cảnh hiện tại."""
+    ev: list = []
+    _EVENTS.set(ev)
+    return ev
+
+
+def _event(kind: str, **data) -> None:
+    ev = _EVENTS.get()
+    if ev is not None:
+        ev.append({"kind": kind, **data})
+
+
+def _tag_role(table, role: str, **extra) -> None:
+    try:
+        from .ooxml_tools import set_table_role
+        set_table_role(table._tbl, role, **extra)
+    except Exception:
+        pass
+
+
+def _set_tcw(cell, value: int, wtype: str = "pct") -> None:
+    """Đặt w:tcW duy nhất (python-docx đã tạo sẵn một w:tcW — không được thêm cái thứ hai)."""
+    tcPr = cell._tc.get_or_add_tcPr()
+    for old in tcPr.findall(qn("w:tcW")):
+        tcPr.remove(old)
+    tcW = OxmlElement("w:tcW")
+    tcW.set(qn("w:w"), str(value))
+    tcW.set(qn("w:type"), wtype)
+    tcPr.insert(0, tcW) if tcPr.find(qn("w:cnfStyle")) is None else tcPr.find(qn("w:cnfStyle")).addnext(tcW)
+
+
 W_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 WP_NS = "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
 A_NS = "http://schemas.openxmlformats.org/drawingml/2006/main"
@@ -252,276 +293,437 @@ def _read_braced_groups(s: str, start_idx: int, count: int) -> list[str]:
     return groups
 
 
+def _split_top_tkz(s: str, sep: str) -> list[str]:
+    """Tách theo `sep` ở mức ngoài cùng: không tách trong {…}, […] hay $…$ (vd. $1,5$; $\frac{1}{2}$)."""
+    out: list[str] = []
+    cur: list[str] = []
+    depth = 0
+    in_math = False
+    i = 0
+    while i < len(s):
+        c = s[i]
+        if c == "\\" and i + 1 < len(s):
+            cur.append(s[i:i + 2])
+            i += 2
+            continue
+        if c == "$":
+            in_math = not in_math
+        elif c in "{[":
+            depth += 1
+        elif c in "}]":
+            depth = max(0, depth - 1)
+        if c == sep and depth == 0 and not in_math:
+            out.append("".join(cur))
+            cur = []
+        else:
+            cur.append(c)
+        i += 1
+    out.append("".join(cur))
+    return out
+
+
+_TKZ_VAR_CODE_RE = re.compile(r"^\s*([+-])?\s*(D|R)?\s*([+-])?\s*$")
+_TKZ_UNSUPPORTED_CMDS = ("tkzTabIma", "tkzTabVal", "tkzTabSlope", "tkzTabTan", "tkzTabSetup")
+
+
+def parse_tkz_tab(tikz_code: str) -> dict:
+    """Đọc `\tkzTabInit` + mọi `\tkzTabLine`/`\tkzTabVar` THEO THỨ TỰ (nhiều dòng xét dấu/biến thiên).
+    Trả về {"rows", "xs", "seq", "unsupported": [lý do…]}. Không đoán giá trị không có trong nguồn."""
+    info: dict = {"rows": [], "xs": [], "seq": [], "unsupported": []}
+    m_init = re.search(r"\\tkzTabInit", tikz_code)
+    if not m_init:
+        info["unsupported"].append("không có \\tkzTabInit")
+        return info
+    groups = _read_braced_groups(tikz_code, m_init.end(), 2)
+    if len(groups) < 2:
+        info["unsupported"].append("\\tkzTabInit thiếu đối số")
+        return info
+    for spec in _split_top_tkz(groups[0], ","):
+        if not spec.strip():
+            continue
+        parts = _split_top_tkz(spec, "/")
+        label = parts[0].strip()
+        try:
+            height = float(parts[1]) if len(parts) > 1 and parts[1].strip() else 1.0
+        except ValueError:
+            height = 1.0
+        info["rows"].append((label, height))
+    info["xs"] = [x.strip() for x in _split_top_tkz(groups[1], ",")]
+    for name in _TKZ_UNSUPPORTED_CMDS:
+        if "\\" + name in tikz_code:
+            info["unsupported"].append(f"lệnh \\{name} chưa dựng native")
+    if re.search(r"\\(?:draw|node|fill|path)\b", tikz_code):
+        info["unsupported"].append("có lệnh TikZ vẽ thêm trong bảng (\\draw/\\node…)")
+    for m in re.finditer(r"\\tkzTab(Line|Var)\b", tikz_code):
+        g = _read_braced_groups(tikz_code, m.end(), 1)
+        if not g:
+            info["unsupported"].append(f"\\tkzTab{m.group(1)} thiếu đối số")
+            continue
+        toks = [t.strip() for t in _split_top_tkz(g[0], ",")]
+        if m.group(1) == "Line":
+            for t in toks:
+                if t in ("", "+", "-", "z", "t", "d", "h") or t.startswith("$") or re.fullmatch(r"[0-9.,]+", t):
+                    continue
+                info["unsupported"].append(f"ký hiệu dòng dấu chưa hỗ trợ: {t!r}")
+            info["seq"].append(("line", toks))
+        else:
+            pts = []
+            for t in toks:
+                parts = _split_top_tkz(t, "/")
+                code = parts[0].strip()
+                vals = [v.strip() for v in parts[1:]]
+                mm = _TKZ_VAR_CODE_RE.match(code)
+                if not mm:
+                    info["unsupported"].append(f"mã biến thiên chưa hỗ trợ: {code!r}")
+                    pts.append({"code": code, "unsupported": True})
+                    continue
+                left, kind, right = mm.group(1), mm.group(2), mm.group(3)
+                if kind == "D":
+                    # -D+ : trái dưới / phải trên; D- : chỉ bên phải; -D : chỉ bên trái
+                    lv = vals[0] if left and vals else None
+                    rv = (vals[1] if left and len(vals) > 1 else (vals[0] if not left and vals else None)) if right else None
+                    pts.append({"code": code, "double": True, "left": left, "right": right, "lv": lv, "rv": rv})
+                elif kind == "R":
+                    pts.append({"code": code, "skip": True})
+                else:
+                    lvl = left or right
+                    if not lvl:
+                        info["unsupported"].append(f"mã biến thiên rỗng ở điểm {len(pts) + 1}")
+                        pts.append({"code": code, "unsupported": True})
+                        continue
+                    v = vals[0] if vals else ""
+                    pts.append({"code": code, "left": lvl, "right": lvl, "lv": v, "rv": v})
+            info["seq"].append(("var", pts))
+    n_rows_cmd = len(info["seq"])
+    if n_rows_cmd != max(0, len(info["rows"]) - 1):
+        info["unsupported"].append(
+            f"số dòng khai báo ({len(info['rows']) - 1}) khác số lệnh \\tkzTabLine/\\tkzTabVar ({n_rows_cmd})")
+    return info
+
+
+def tkz_tab_support(tikz_code: str) -> dict:
+    """Pipeline dùng để quyết định: dựng native hay chụp ảnh TeX (table_as_image)."""
+    if r"\tkzTabInit" not in tikz_code:
+        return {"native": False, "reasons": ["bảng biến thiên vẽ tay bằng TikZ — không đọc được cấu trúc an toàn"]}
+    info = parse_tkz_tab(tikz_code)
+    return {"native": not info["unsupported"], "reasons": info["unsupported"]}
+
+
+def _tkz_level_arrow(start: str | None, end: str | None) -> str | None:
+    if start is None or end is None:
+        return None
+    if start == "+" and end == "-":
+        return "down"
+    if start == "-" and end == "+":
+        return "up"
+    return "flat"
+
+
 def build_tkz_tab_word_table(doc, tikz_code: str, table_id: int = 500):
-    """Convert a `tkz-tab` (or hand-drawn TikZ BBT) block into a compact, fixed-grid Native Editable Word Table."""
+    """Dựng bảng xét dấu / biến thiên `tkz-tab` thành bảng Word sửa được.
+
+    Hỗ trợ: nhiều \\tkzTabLine/\\tkzTabVar theo thứ tự; ký hiệu dòng dấu  + - z t d h;  mã biến thiên
+    + - R  và họ D (-D+, +D-, -D-, +D+, D-, D+, -D, +D) với tiệm cận (vạch kép) và giá trị hai phía.
+    Mã khác (H, C…, \\tkzTabIma…) được ghi `unsupported`; pipeline sẽ chụp ảnh TeX thay vì dựng sai."""
     if r"\tkzTabInit" not in tikz_code:
         return _build_handdrawn_tikz_bbt_table(doc, tikz_code, table_id=table_id)
+    info = parse_tkz_tab(tikz_code)
+    if not info["rows"] or not info["xs"]:
+        return _bbt_unresolved_notice(doc, tikz_code, "không đọc được \\tkzTabInit")
+    if info["unsupported"]:
+        _event("bbt_partial", reasons=info["unsupported"][:10])
 
-    m_init = re.search(r"\\tkzTabInit", tikz_code)
-    init_groups = _read_braced_groups(tikz_code, m_init.end(), 2) if m_init else []
-    if len(init_groups) < 2:
-        return None
-
-    row_specs_raw = [r.strip() for r in init_groups[0].split(",") if r.strip()]
-    row_headers: list[str] = [rs.split("/")[0].strip() for rs in row_specs_raw]
-
-    x_vals = [x.strip() for x in init_groups[1].split(",") if x.strip()]
-    num_pts = len(x_vals)
-    num_grid_cols = max(1, 2 * num_pts - 1)
-    total_cols = 1 + num_grid_cols
-
-    line_tokens: list[str] = []
-    m_line = re.search(r"\\tkzTabLine", tikz_code)
-    if m_line:
-        lg = _read_braced_groups(tikz_code, m_line.end(), 1)
-        if lg:
-            line_tokens = [t.strip() for t in lg[0].split(",")]
-
-    var_tokens: list[str] = []
-    m_var = re.search(r"\\tkzTabVar", tikz_code)
-    if m_var:
-        vg = _read_braced_groups(tikz_code, m_var.end(), 1)
-        if vg:
-            var_tokens = [t.strip() for t in vg[0].split(",") if t.strip()]
-
-    num_rows = len(row_headers)
-    table = doc.add_table(rows=num_rows, cols=total_cols)
+    xs = info["xs"]
+    n_pts = len(xs)
+    n_grid = max(1, 2 * n_pts - 1)
+    total_cols = 1 + n_grid
+    n_rows = len(info["rows"])
+    table = doc.add_table(rows=n_rows, cols=total_cols)
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
 
-    # Compact fixed-grid widths in dxa (1 cm ≈ 567 dxa):
-    # Col 0 (header): 760 dxa (~1.34 cm)
-    # Odd cols (point/value columns): 520 dxa (~0.92 cm)
-    # Even cols (interval/arrow columns): 780 dxa (~1.38 cm)
-    col_widths_dxa = [760] + [520 if (c % 2 == 1) else 780 for c in range(1, total_cols)]
-    apply_fixed_table_grid(table, col_widths_dxa)
+    # độ rộng cột theo nội dung thật (ước lượng em), không cố định
+    def _w_em(tex: str | None) -> float:
+        return _option_width_em(tex or "") if tex else 0.0
+
+    pt_w = [max(1.2, _w_em(x)) for x in xs]
+    has_double_col = [False] * n_pts
+    for kind, toks in info["seq"]:
+        if kind == "var":
+            for i, p in enumerate(toks[:n_pts]):
+                if p.get("double"):
+                    has_double_col[i] = True
+                    pt_w[i] = max(pt_w[i], _w_em(p.get("lv")) + _w_em(p.get("rv")) + 1.2)
+                else:
+                    pt_w[i] = max(pt_w[i], _w_em(p.get("lv")))
+        else:
+            for c, t in enumerate(toks[: n_grid]):
+                if c % 2 == 0 and t not in ("", "+", "-", "z", "t", "d", "h"):
+                    pt_w[c // 2] = max(pt_w[c // 2], _w_em(t))
+    head_w = max(1.6, max(_w_em(lbl) for lbl, _h in info["rows"]))
+    em_dxa = 240  # 12pt
+    col_widths = [int(head_w * em_dxa) + 160]
+    for c in range(n_grid):
+        if c % 2 == 0:
+            col_widths.append(max(480, int(pt_w[c // 2] * em_dxa * 0.9) + 120))
+        else:
+            col_widths.append(780)
+    apply_fixed_table_grid(table, col_widths)
 
     b_solid = ("single", 6, "0F172A")
     b_none = ("none", 0, "auto")
-
     for r_idx, row in enumerate(table.rows):
         prevent_row_split(row)
         for c_idx, cell in enumerate(row.cells):
-            top_b = b_solid
-            bot_b = b_solid
             left_b = b_solid if c_idx in (0, 1) else b_none
             right_b = b_solid if c_idx in (0, total_cols - 1) else b_none
-            set_cell_borders(cell, top=top_b, bottom=bot_b, left=left_b, right=right_b)
-            set_cell_margins(cell, top=40, bottom=40, left=15, right=15)
-            cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-
-    # Populate Column 0 headers ($x$, $y'$, $y$)
-    for r_idx, h_text in enumerate(row_headers):
-        cell = table.cell(r_idx, 0)
-        p = cell.paragraphs[0]
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        p.paragraph_format.space_before = Pt(2)
-        p.paragraph_format.space_after = Pt(2)
-        append_rich_latex_text_to_paragraph(p, h_text, font_size_pt=11.0)
-
-    # Populate Row 0 ($x$ values at odd column indices 1, 3, 5, ...)
-    for i, xv in enumerate(x_vals):
-        col_i = 1 + 2 * i
-        if col_i < total_cols:
-            cell = table.cell(0, col_i)
-            p = cell.paragraphs[0]
-            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            p.paragraph_format.space_before = Pt(2)
-            p.paragraph_format.space_after = Pt(2)
-            append_rich_latex_text_to_paragraph(p, xv, font_size_pt=11.0)
-
-    # Populate Row 1 ($y'$ / $f'(x)$ signs and roots)
-    if num_rows >= 2 and line_tokens:
-        for c_offset in range(num_grid_cols):
-            col_i = 1 + c_offset
-            if c_offset >= len(line_tokens):
-                break
-            tok = line_tokens[c_offset].strip()
-            if not tok:
-                continue
-            cell = table.cell(1, col_i)
-            p = cell.paragraphs[0]
-            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            p.paragraph_format.space_before = Pt(2)
-            p.paragraph_format.space_after = Pt(2)
-            if tok in ("d", r"\doubleline", "||"):
-                append_rich_latex_text_to_paragraph(p, r"$\Vert$", font_size_pt=11.0)
-            elif tok == "z":
-                append_rich_latex_text_to_paragraph(p, "$0$", font_size_pt=11.0)
-            else:
-                math_tok = tok if tok.startswith("$") else f"${tok}$"
-                append_rich_latex_text_to_paragraph(p, math_tok, font_size_pt=11.0)
-
-    # Populate Variation Row ($y$ / $f(x)$) if present
-    var_row_idx = num_rows - 1
-    if var_tokens and var_row_idx >= 1:
-        parsed_pts: list[tuple[str, str]] = []
-        for vt in var_tokens:
-            if "/" in vt:
-                pos_code, val_str = vt.split("/", 1)
-                parsed_pts.append((pos_code.strip(), val_str.strip()))
-            else:
-                parsed_pts.append(("", vt.strip()))
-
-        for i, (pos_code, val_str) in enumerate(parsed_pts):
-            col_i = 1 + 2 * i
-            if col_i >= total_cols:
-                break
-            cell = table.cell(var_row_idx, col_i)
-            p = cell.paragraphs[0]
-            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-
-            is_top = pos_code.startswith("+")
-            if is_top:
-                cell.vertical_alignment = WD_ALIGN_VERTICAL.TOP
-                p.paragraph_format.space_before = Pt(2)
-                p.paragraph_format.space_after = Pt(22)
-            else:
-                cell.vertical_alignment = WD_ALIGN_VERTICAL.BOTTOM
-                p.paragraph_format.space_before = Pt(22)
-                p.paragraph_format.space_after = Pt(2)
-
-            append_rich_latex_text_to_paragraph(p, val_str, font_size_pt=11.0)
-
-            if i + 1 < len(parsed_pts) and (col_i + 1) < total_cols:
-                next_pos_code, _ = parsed_pts[i + 1]
-                next_is_top = next_pos_code.startswith("+")
-                going_down = is_top and not next_is_top
-                arrow_cell = table.cell(var_row_idx, col_i + 1)
-                arrow_cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-                ap = arrow_cell.paragraphs[0]
-                ap.alignment = WD_ALIGN_PARAGRAPH.CENTER
-                ap.paragraph_format.space_before = Pt(2)
-                ap.paragraph_format.space_after = Pt(2)
-                ap._p.append(
-                    _create_variation_arrow_drawingml(
-                        going_down=going_down,
-                        width_emu=460000,
-                        height_emu=280000,
-                        doc_id=table_id * 10 + i,
-                    )
-                )
-
-    keep_table_together(table)
-    if hasattr(doc, "add_paragraph"):
-        sp = doc.add_paragraph()
-        sp.paragraph_format.space_before = Pt(0)
-        sp.paragraph_format.space_after = Pt(2)
-    return table
-
-
-def _build_handdrawn_tikz_bbt_table(doc, tikz_code: str, table_id: int = 550):
-    """Convert a hand-drawn TikZ variation table (such as Câu 12 with vertical asymptote x=1) into a 7-column fixed-grid Word table."""
-    has_double = "double" in tikz_code
-    table = doc.add_table(rows=2, cols=7)
-    table.alignment = WD_TABLE_ALIGNMENT.CENTER
-
-    # Symmetric 7-column fixed grid:
-    # Col 0 (header x/y): 680 dxa
-    # Col 1, 2, 3 (left of asymptote): 480 (start val), 740 (arrow), 520 (end val before ||)
-    # Col 4, 5, 6 (right of asymptote): 520 (start val after ||), 740 (arrow), 480 (end val)
-    col_w = [680, 480, 740, 520, 520, 740, 480]
-    apply_fixed_table_grid(table, col_w)
-
-    b_solid = ("single", 6, "0F172A")
-    b_none = ("none", 0, "auto")
-    b_double = ("double", 6, "0F172A")
-
-    for r_idx, row in enumerate(table.rows):
-        prevent_row_split(row)
-        for c_idx, cell in enumerate(row.cells):
-            left_b = b_solid if c_idx in (0, 1) else (b_double if (c_idx == 4 and r_idx == 1 and has_double) else b_none)
-            right_b = b_solid if c_idx in (0, 6) else (b_double if (c_idx == 3 and r_idx == 1 and has_double) else b_none)
             set_cell_borders(cell, top=b_solid, bottom=b_solid, left=left_b, right=right_b)
             set_cell_margins(cell, top=40, bottom=40, left=15, right=15)
             cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
 
-    # Merge (0, 3) and (0, 4) (each 520 dxa) so x = 1 sits centered directly over the double border between col 3 & 4
-    merged_x1 = table.cell(0, 3).merge(table.cell(0, 4))
-    tcPr_m = merged_x1._tc.get_or_add_tcPr()
-    tcW_m = tcPr_m.find(qn("w:tcW"))
-    if tcW_m is not None:
-        tcW_m.set(qn("w:w"), str(col_w[3] + col_w[4]))
-    set_cell_borders(merged_x1, top=b_solid, bottom=b_solid, left=b_none, right=b_none)
+    def _para(cell, text: str | None, align=WD_ALIGN_PARAGRAPH.CENTER, first: bool = True, size: float = 11.0):
+        p = cell.paragraphs[0] if first else cell.add_paragraph()
+        p.alignment = align
+        p.paragraph_format.space_before = Pt(1)
+        p.paragraph_format.space_after = Pt(1)
+        if text:
+            append_rich_latex_text_to_paragraph(p, text, font_size_pt=size)
+        return p
 
-    # Row 0: x | -\infty | (empty) | 1 (centered over ||) | (empty) | +\infty
-    for col_i, txt in [(0, "$x$"), (1, r"$-\infty$"), (3, "$1$"), (6, r"$+\infty$")]:
-        p = table.cell(0, col_i).paragraphs[0]
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        p.paragraph_format.space_before = Pt(2)
-        p.paragraph_format.space_after = Pt(2)
-        append_rich_latex_text_to_paragraph(p, txt, font_size_pt=11.0)
+    for r_idx, (label, _h) in enumerate(info["rows"]):
+        _para(table.cell(r_idx, 0), label)
+    for i, xv in enumerate(xs):
+        if xv:
+            _para(table.cell(0, 1 + 2 * i), xv)
 
-    # Row 1: y | 2 (top) | \ arrow | -\infty (bottom) || +\infty (top) | \ arrow | 2 (bottom)
-    p_y = table.cell(1, 0).paragraphs[0]
-    p_y.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p_y.paragraph_format.space_before = Pt(2)
-    p_y.paragraph_format.space_after = Pt(2)
-    append_rich_latex_text_to_paragraph(p_y, "$y$", font_size_pt=11.0)
+    for k, (kind, toks) in enumerate(info["seq"]):
+        r_idx = k + 1
+        if r_idx >= n_rows:
+            break
+        if kind == "line":
+            for c_off, tok in enumerate(toks[:n_grid]):
+                cell = table.cell(r_idx, 1 + c_off)
+                if tok in ("", "t"):
+                    continue
+                if tok == "d":
+                    set_cell_borders(cell, left=b_solid, right=b_solid)
+                    _para(cell, r"$\Vert$")
+                elif tok == "z":
+                    _para(cell, "$0$")
+                elif tok == "h":
+                    cell._tc.get_or_add_tcPr().append(parse_xml(f'<w:shd {nsdecls("w")} w:val="clear" w:fill="BFBFBF"/>'))
+                elif tok in ("+", "-"):
+                    _para(cell, f"${tok}$")
+                else:
+                    _para(cell, tok if "$" in tok else f"${tok}$")
+            continue
+        # dòng biến thiên
+        pts = toks[:n_pts]
+        row = table.rows[r_idx]
+        tr_pr = row._tr.get_or_add_trPr()
+        h = OxmlElement("w:trHeight")
+        h.set(qn("w:val"), str(int(240 * 2.4)))
+        h.set(qn("w:hRule"), "atLeast")
+        tr_pr.append(h)
+        for i, p in enumerate(pts):
+            if p.get("unsupported") or p.get("skip"):
+                continue
+            cell = table.cell(r_idx, 1 + 2 * i)
+            if p.get("double"):
+                set_cell_borders(cell, left=b_solid, right=b_solid)
+                cell.vertical_alignment = WD_ALIGN_VERTICAL.TOP
+                top_l = p["lv"] if p.get("left") == "+" else None
+                top_r = p["rv"] if p.get("right") == "+" else None
+                bot_l = p["lv"] if p.get("left") == "-" else None
+                bot_r = p["rv"] if p.get("right") == "-" else None
+                tp = _para(cell, None, WD_ALIGN_PARAGRAPH.LEFT, first=True, size=10.5)
+                _two_side_line(tp, top_l, top_r, col_widths[1 + 2 * i])
+                mid = _para(cell, None, WD_ALIGN_PARAGRAPH.CENTER, first=False)
+                mid.paragraph_format.space_before = Pt(8)
+                mid.paragraph_format.space_after = Pt(8)
+                bp = _para(cell, None, WD_ALIGN_PARAGRAPH.LEFT, first=False, size=10.5)
+                _two_side_line(bp, bot_l, bot_r, col_widths[1 + 2 * i])
+            else:
+                top = p["left"] == "+"
+                cell.vertical_alignment = WD_ALIGN_VERTICAL.TOP if top else WD_ALIGN_VERTICAL.BOTTOM
+                _para(cell, p.get("lv") or "")
+        # mũi tên giữa hai điểm liên tiếp (bỏ qua R: nối tới điểm có giá trị gần nhất)
+        def right_level(idx: int):
+            j = idx
+            while j >= 0 and j < len(pts) and pts[j].get("skip"):
+                j -= 1
+            if j < 0 or j >= len(pts) or pts[j].get("unsupported"):
+                return None
+            return pts[j].get("right")
 
-    c1 = table.cell(1, 1)
-    c1.vertical_alignment = WD_ALIGN_VERTICAL.TOP
-    p1 = c1.paragraphs[0]
-    p1.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    p1.paragraph_format.space_before = Pt(2)
-    p1.paragraph_format.space_after = Pt(22)
-    append_rich_latex_text_to_paragraph(p1, "$2$", font_size_pt=11.0)
+        def left_level(idx: int):
+            j = idx
+            while j < len(pts) and pts[j].get("skip"):
+                j += 1
+            if j >= len(pts) or pts[j].get("unsupported"):
+                return None
+            return pts[j].get("left")
 
-    c2 = table.cell(1, 2)
-    c2.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-    p2 = c2.paragraphs[0]
-    p2.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p2.paragraph_format.space_before = Pt(2)
-    p2.paragraph_format.space_after = Pt(2)
-    p2._p.append(_create_variation_arrow_drawingml(going_down=True, width_emu=430000, height_emu=260000, doc_id=table_id + 1))
-
-    c3 = table.cell(1, 3)
-    c3.vertical_alignment = WD_ALIGN_VERTICAL.BOTTOM
-    p3 = c3.paragraphs[0]
-    p3.alignment = WD_ALIGN_PARAGRAPH.LEFT
-    p3.paragraph_format.space_before = Pt(22)
-    p3.paragraph_format.space_after = Pt(2)
-    append_rich_latex_text_to_paragraph(p3, r"$-\infty$", font_size_pt=10.5)
-
-    c4 = table.cell(1, 4)
-    c4.vertical_alignment = WD_ALIGN_VERTICAL.TOP
-    p4 = c4.paragraphs[0]
-    p4.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    p4.paragraph_format.space_before = Pt(2)
-    p4.paragraph_format.space_after = Pt(22)
-    append_rich_latex_text_to_paragraph(p4, r"$+\infty$", font_size_pt=10.5)
-
-    c5 = table.cell(1, 5)
-    c5.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-    p5 = c5.paragraphs[0]
-    p5.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p5.paragraph_format.space_before = Pt(2)
-    p5.paragraph_format.space_after = Pt(2)
-    p5._p.append(_create_variation_arrow_drawingml(going_down=True, width_emu=430000, height_emu=260000, doc_id=table_id + 2))
-
-    c6 = table.cell(1, 6)
-    c6.vertical_alignment = WD_ALIGN_VERTICAL.BOTTOM
-    p6 = c6.paragraphs[0]
-    p6.alignment = WD_ALIGN_PARAGRAPH.LEFT
-    p6.paragraph_format.space_before = Pt(22)
-    p6.paragraph_format.space_after = Pt(2)
-    append_rich_latex_text_to_paragraph(p6, "$2$", font_size_pt=11.0)
-
+        for i in range(len(pts) - 1):
+            direction = _tkz_level_arrow(right_level(i), left_level(i + 1))
+            if direction is None:
+                continue
+            ac = table.cell(r_idx, 2 + 2 * i)
+            ac.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+            ap = ac.paragraphs[0]
+            ap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            if direction == "flat":
+                append_rich_latex_text_to_paragraph(ap, "$\\to$", font_size_pt=11.0)
+            else:
+                ap._p.append(_create_variation_arrow_drawingml(
+                    going_down=(direction == "down"), width_emu=460000, height_emu=280000,
+                    doc_id=table_id * 100 + r_idx * 10 + i))
     keep_table_together(table)
+    _tag_role(table, "variation", source="tkz-tab", partial="1" if info["unsupported"] else None)
     if hasattr(doc, "add_paragraph"):
         sp = doc.add_paragraph()
         sp.paragraph_format.space_before = Pt(0)
         sp.paragraph_format.space_after = Pt(2)
     return table
+
+
+def _two_side_line(p, left_tex: str | None, right_tex: str | None, cell_w_dxa: int) -> None:
+    """Một dòng trong ô tiệm cận: giá trị trái sát trái, giá trị phải sát phải (tab phải)."""
+    if right_tex:
+        tabs = p._p.get_or_add_pPr()
+        tabs_el = OxmlElement("w:tabs")
+        tab = OxmlElement("w:tab")
+        tab.set(qn("w:val"), "right")
+        tab.set(qn("w:pos"), str(max(200, cell_w_dxa - 60)))
+        tabs_el.append(tab)
+        tabs.append(tabs_el)
+    if left_tex:
+        append_rich_latex_text_to_paragraph(p, left_tex, font_size_pt=10.5)
+    if right_tex:
+        p.add_run("\t")
+        append_rich_latex_text_to_paragraph(p, right_tex, font_size_pt=10.5)
+
+
+def _bbt_unresolved_notice(doc, tikz_code: str, reason: str):
+    """Không dựng được bảng biến thiên một cách chắc chắn → đoạn thông báo hiển thị (KHÔNG bịa bảng)."""
+    _event("bbt_unresolved", reason=reason, source=tikz_code[:4000])
+    if not hasattr(doc, "add_paragraph"):
+        return None
+    p = doc.add_paragraph()
+    r = p.add_run(f"[L2W: CHƯA DỰNG ĐƯỢC BẢNG BIẾN THIÊN — {reason}. Cần TeX để chụp ảnh bảng gốc; "
+                  "mã nguồn được giữ trong báo cáo.]")
+    r.bold = True
+    return None
+
+
+def _build_handdrawn_tikz_bbt_table(doc, tikz_code: str, table_id: int = 550):
+    """Bảng biến thiên vẽ tay bằng TikZ (\\draw/\\node, không có tkz-tab).
+
+    Bản cũ dựng một bảng CỐ ĐỊNH (x: −∞, 1, +∞; y: 2 ↘ −∞ ‖ +∞ ↘ 2) cho MỌI bảng vẽ tay → bịa nội dung.
+    Nay: không đoán cấu trúc; để lại thông báo hiển thị + ghi sự kiện `bbt_unresolved`. Pipeline sẽ chụp
+    ảnh TeX cho khối này trước khi tới đây khi có trình biên dịch."""
+    return _bbt_unresolved_notice(doc, tikz_code, "bảng vẽ tay bằng lệnh TikZ, không đọc được cấu trúc an toàn")
 
 
 # ==============================================================================
 # 2. BẢNG ĐÁP ÁN TRẮC NGHIỆM (4 PHƯƠNG ÁN & ĐÚNG/SAI THPT 2025)
 # ==============================================================================
 def _estimate_option_visual_length(opt_tex: str) -> int:
-    s = re.sub(r"\\(?:dfrac|frac)\s*\{([^{}]*)\}\s*\{([^{}]*)\}", r"\1/\2", opt_tex)
-    s = re.sub(r"\\[a-zA-Z]+", "", s)
-    s = re.sub(r"[{}$_^]", "", s).strip()
-    return len(s)
+    """(Giữ cho tương thích) số ký tự hiển thị ước lượng."""
+    return int(round(_option_width_em(opt_tex) * 2))
+
+
+def _option_width_em(tex: str) -> float:
+    """Ước lượng bề rộng hiển thị (đơn vị em) của nội dung LaTeX: phân số lấy max(tử, mẫu) chứ không cộng
+    dồn, căn thêm dấu căn, chỉ số trên/dưới thu nhỏ. Là ước lượng heuristic để chọn số cột."""
+    s = tex or ""
+
+    def width(t: str) -> float:
+        total = 0.0
+        i = 0
+        while i < len(t):
+            c = t[i]
+            if t.startswith("\\", i):
+                m = re.match(r"\\([A-Za-z]+)", t[i:])
+                if not m:
+                    total += 0.5
+                    i += 2
+                    continue
+                name = m.group(1)
+                j = i + m.end()
+                if name in ("frac", "dfrac", "tfrac", "cfrac", "binom", "dbinom"):
+                    a, j = _take_group(t, j)
+                    b, j = _take_group(t, j)
+                    total += max(width(a), width(b)) * (0.8 if name == "tfrac" else 1.0) + 0.3
+                elif name == "sqrt":
+                    mm = re.match(r"\s*\[([^\]]*)\]", t[j:])
+                    if mm:
+                        j += mm.end()
+                        total += 0.3
+                    a, j = _take_group(t, j)
+                    total += width(a) + 0.9
+                elif name in ("text", "textbf", "textit", "mathrm", "mathbf", "operatorname", "mbox"):
+                    a, j = _take_group(t, j)
+                    total += width(a)
+                elif name in ("left", "right", "displaystyle", "limits", "quad", "qquad"):
+                    total += 0.9 if name in ("quad", "qquad") else 0.0
+                elif name in ("int", "sum", "prod", "lim"):
+                    total += 1.2
+                else:
+                    total += 0.8 if len(name) > 1 else 0.5
+                i = j
+                continue
+            if c in "^_":
+                a, j = _take_group(t, i + 1)
+                total += width(a) * 0.7
+                i = j
+                continue
+            if c in "{}$":
+                i += 1
+                continue
+            total += 0.55 if not c.isspace() else 0.28
+            i += 1
+        return total
+
+    return width(s)
+
+
+def _take_group(t: str, j: int) -> tuple[str, int]:
+    while j < len(t) and t[j] in " \t\n":
+        j += 1
+    if j < len(t) and t[j] == "{":
+        depth = 0
+        k = j
+        while k < len(t):
+            if t[k] == "\\":
+                k += 2
+                continue
+            if t[k] == "{":
+                depth += 1
+            elif t[k] == "}":
+                depth -= 1
+                if depth == 0:
+                    return t[j + 1: k], k + 1
+            k += 1
+        return t[j + 1:], len(t)
+    if j < len(t) and t[j] == "\\":
+        m = re.match(r"\\[A-Za-z]+|\\.", t[j:])
+        return (m.group(0), j + m.end()) if m else ("", j + 1)
+    return (t[j], j + 1) if j < len(t) else ("", j)
+
+
+def choose_mcq_columns(options: list[str], avail_em: float = 40.0) -> int:
+    """Chọn 4 / 2 / 1 cột: số cột lớn nhất mà phương án DÀI NHẤT vẫn vừa một ô (trừ nhãn + lề)."""
+    widths = [_option_width_em(o) for o in options] or [0.0]
+    for cols in (4, 2, 1):
+        col_em = avail_em / cols - 2.4  # nhãn "A." + lề ô
+        if max(widths) <= col_em:
+            return cols
+    return 1
+
+
+def _label_format(label_tex: str) -> tuple[bool, bool]:
+    """(in đậm, gạch chân) của nhãn phương án như nguồn viết — chỉ để GIỮ TRÌNH BÀY, không phải bằng chứng đáp án."""
+    return ("\\textbf" in label_tex or "\\bf" in label_tex, "\\underline" in label_tex or "\\uline" in label_tex)
 
 
 def build_multiple_choice_table(
@@ -529,22 +731,26 @@ def build_multiple_choice_table(
     options: list[str],
     correct_index: int | None = None,
     force_cols: int | None = None,
+    *,
+    label_formats: list[tuple[bool, bool]] | None = None,
+    answer_source: str | None = None,
+    avail_em: float | None = None,
 ):
-    """Build a clean, borderless Word table for 4 multiple-choice options (A, B, C, D)."""
-    labels = ["A.", "B.", "C.", "D."]
-    lengths = [_estimate_option_visual_length(o) for o in options]
-    max_len = max(lengths) if lengths else 10
+    """Bảng 4 phương án A–D không viền, bố cục 1×4 / 2×2 / 4×1.
 
+    * `correct_index` chỉ được truyền khi NGUỒN đánh dấu đáp án theo quy ước rõ ràng (\\choiceA..D, \\True);
+      khi đó ghi `answer_key=explicit`. Không có → `answer_key=unknown`.
+    * `label_formats` giữ đúng định dạng nhãn như nguồn (vd. tabularx tự viết \\underline{\\textbf{B.}}) —
+      KHÔNG suy ra đáp án từ in đậm/gạch chân.
+    * Chế độ `student` (ANSWER_MODE): không gạch chân/in đậm đánh dấu phương án đúng."""
+    labels = ["A.", "B.", "C.", "D."]
+    mode = ANSWER_MODE.get()
     if force_cols in (1, 2, 4):
         num_cols = force_cols
-    elif max_len <= 14:
-        num_cols = 4
-    elif max_len <= 42:
-        num_cols = 2
     else:
-        num_cols = 1
-
-    num_rows = (4 + num_cols - 1) // num_cols
+        num_cols = choose_mcq_columns(options, avail_em or 40.0)
+    n_opts = min(len(options), 4) if options else 0
+    num_rows = max(1, (max(n_opts, 1) + num_cols - 1) // num_cols)
     table = doc.add_table(rows=num_rows, cols=num_cols)
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
     set_table_borderless(table)
@@ -557,11 +763,7 @@ def build_multiple_choice_table(
         for c_idx in range(num_cols):
             opt_idx = r_idx * num_cols + c_idx
             cell = row.cells[c_idx]
-            tcPr = cell._tc.get_or_add_tcPr()
-            tcW = OxmlElement("w:tcW")
-            tcW.set(qn("w:w"), str(col_pct))
-            tcW.set(qn("w:type"), "pct")
-            tcPr.append(tcW)
+            _set_tcw(cell, col_pct, "pct")
             set_cell_margins(cell, top=50, bottom=50, left=80, right=80)
             set_cell_borders(
                 cell,
@@ -572,7 +774,7 @@ def build_multiple_choice_table(
             )
             cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
 
-            if opt_idx < len(options):
+            if opt_idx < len(options) and opt_idx < 4:
                 p = cell.paragraphs[0]
                 p.paragraph_format.space_before = Pt(2)
                 p.paragraph_format.space_after = Pt(2)
@@ -581,17 +783,37 @@ def build_multiple_choice_table(
                 lbl_run = p.add_run(labels[opt_idx] + " ")
                 lbl_run.bold = True
                 lbl_run.font.size = Pt(12)
-                if correct_index == opt_idx:
-                    lbl_run.underline = True
+                if mode != "student":
+                    if label_formats and opt_idx < len(label_formats):
+                        b, u = label_formats[opt_idx]
+                        lbl_run.bold = True if b else lbl_run.bold
+                        if u:
+                            lbl_run.underline = True
+                    elif correct_index == opt_idx:
+                        lbl_run.underline = True
 
                 append_rich_latex_text_to_paragraph(p, options[opt_idx].strip(), font_size_pt=12.0)
+    if len(options) > 4:
+        _event("mcq_extra_options", count=len(options))
+        extra = doc.add_paragraph() if hasattr(doc, "add_paragraph") else None
+        if extra is not None:
+            for k, opt in enumerate(options[4:], start=5):
+                append_rich_latex_text_to_paragraph(extra, f"({k}) {opt}", font_size_pt=12.0)
 
     keep_table_together(table)
+    if correct_index is not None:
+        key = "explicit"
+    else:
+        key = "unknown"
+    shown = "hidden" if mode == "student" else ("shown" if (correct_index is not None or label_formats) else "none")
+    _tag_role(table, "mcq", cols=num_cols, answer_key=key, answer_source=answer_source, answer_display=shown)
+    _event("mcq", answer_key=key, answer_source=answer_source, cols=num_cols, answer_display=shown)
     return table
 
 
 def build_true_false_table(doc, statements: list[tuple[str, str]]):
-    """Build a 2025 Vietnamese High School Math True/False (Đúng/Sai) 4-statement table."""
+    """Bảng Đúng/Sai 4 mệnh đề (THPT 2025). Chế độ `student`: để trống cột Đ/S."""
+    mode = ANSWER_MODE.get()
     table = doc.add_table(rows=1 + len(statements), cols=3)
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
     set_table_width_pct(table, 5000)
@@ -604,12 +826,8 @@ def build_true_false_table(doc, statements: list[tuple[str, str]]):
     prevent_row_split(h_row)
     for c_i, h_txt in enumerate(headers):
         cell = h_row.cells[c_i]
-        tcPr = cell._tc.get_or_add_tcPr()
-        tcW = OxmlElement("w:tcW")
-        tcW.set(qn("w:w"), str(col_pcts[c_i]))
-        tcW.set(qn("w:type"), "pct")
-        tcPr.append(tcW)
-        tcPr.append(parse_xml(f'<w:shd {nsdecls("w")} w:fill="F1F5F9"/>'))
+        _set_tcw(cell, col_pcts[c_i], "pct")
+        cell._tc.get_or_add_tcPr().append(parse_xml(f'<w:shd {nsdecls("w")} w:val="clear" w:fill="F1F5F9"/>'))
         set_cell_margins(cell, top=80, bottom=80, left=120, right=120)
         set_cell_borders(cell, top=border_spec, bottom=border_spec, left=border_spec, right=border_spec)
         p = cell.paragraphs[0]
@@ -619,16 +837,13 @@ def build_true_false_table(doc, statements: list[tuple[str, str]]):
         r.font.size = Pt(11)
 
     sub_labels = ["a)", "b)", "c)", "d)"]
+    explicit = 0
     for idx, (stmt_tex, ans) in enumerate(statements):
         row = table.rows[idx + 1]
         prevent_row_split(row)
         for c_i in range(3):
             cell = row.cells[c_i]
-            tcPr = cell._tc.get_or_add_tcPr()
-            tcW = OxmlElement("w:tcW")
-            tcW.set(qn("w:w"), str(col_pcts[c_i]))
-            tcW.set(qn("w:type"), "pct")
-            tcPr.append(tcW)
+            _set_tcw(cell, col_pcts[c_i], "pct")
             set_cell_margins(cell, top=70, bottom=70, left=120, right=120)
             set_cell_borders(cell, top=border_spec, bottom=border_spec, left=border_spec, right=border_spec)
             cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
@@ -639,14 +854,19 @@ def build_true_false_table(doc, statements: list[tuple[str, str]]):
         r_lbl.font.size = Pt(11.5)
         append_rich_latex_text_to_paragraph(p0, stmt_tex, font_size_pt=11.5)
 
-        ans_up = ans.strip().upper()
-        if ans_up in ("Đ", "D", "TRUE", "1"):
+        ans_up = (ans or "").strip().upper()
+        is_true = ans_up in ("Đ", "D", "TRUE", "1")
+        is_false = ans_up in ("S", "FALSE", "0")
+        explicit += int(is_true or is_false)
+        if mode == "student":
+            continue
+        if is_true:
             p1 = row.cells[1].paragraphs[0]
             p1.alignment = WD_ALIGN_PARAGRAPH.CENTER
             r1 = p1.add_run("Đ")
             r1.bold = True
             r1.font.size = Pt(11.5)
-        elif ans_up in ("S", "FALSE", "0"):
+        elif is_false:
             p2 = row.cells[2].paragraphs[0]
             p2.alignment = WD_ALIGN_PARAGRAPH.CENTER
             r2 = p2.add_run("S")
@@ -654,6 +874,9 @@ def build_true_false_table(doc, statements: list[tuple[str, str]]):
             r2.font.size = Pt(11.5)
 
     keep_table_together(table)
+    key = "explicit" if explicit else "unknown"
+    _tag_role(table, "true_false", answer_key=key, answer_display="hidden" if mode == "student" else "shown")
+    _event("true_false", answer_key=key, explicit_answers=explicit)
     return table
 
 
@@ -744,18 +967,19 @@ def build_latex_data_table(doc, tabular_tex: str):
             if c.strip()
         ]
         if len(raw_cells) == 4:
+            # Bảng phương án tự viết bằng tabularx: GIỮ định dạng nhãn như nguồn (in đậm/gạch chân), KHÔNG coi
+            # in đậm/gạch chân là bằng chứng đáp án (bản cũ đánh dấu đáp án đúng chỉ vì ô có \textbf).
             opts: list[str] = []
-            correct_idx: int | None = None
-            for idx, rc in enumerate(raw_cells):
-                if r"\underline" in rc or r"\textbf" in rc:
-                    correct_idx = idx
-                cleaned_opt = re.sub(
-                    r"^(?:\\underline\{\\textbf\{[A-D]\.\}\}|\\textbf\{\\underline\{[A-D]\.\}\}|[A-D]\.)\s*",
-                    "",
-                    rc,
-                ).strip()
-                opts.append(cleaned_opt)
-            return build_multiple_choice_table(doc, opts, correct_index=correct_idx)
+            fmts: list[tuple[bool, bool]] = []
+            label_re = re.compile(
+                r"^\s*((?:\\(?:underline|textbf|uline)\s*\{\s*)*[A-D]\.(?:\s*\})*)\s*")
+            for rc in raw_cells:
+                m_lbl = label_re.match(rc)
+                lbl = m_lbl.group(1) if m_lbl else ""
+                fmts.append(_label_format(lbl))
+                opts.append(rc[m_lbl.end():].strip() if m_lbl else rc.strip())
+            return build_multiple_choice_table(doc, opts, correct_index=None, label_formats=fmts,
+                                               answer_source="presentation_only")
 
     m_begin = re.search(
         r"\\begin\{(?:tabular\*?|tabularx|longtable)\}(?:\{[^{}]*\})?\s*\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}",
@@ -835,6 +1059,7 @@ def build_latex_data_table(doc, tabular_tex: str):
     table = doc.add_table(rows=num_rows, cols=num_cols)
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
     set_table_width_pct(table, 4800)
+    is_long = "longtable" in tabular_tex[:40] or num_rows > 12
 
     border_color = "475569" if has_vertical_bars else "94A3B8"
     b_single = ("single", 4, border_color)
@@ -847,9 +1072,17 @@ def build_latex_data_table(doc, tabular_tex: str):
         row = table.rows[r_idx]
         prevent_row_split(row)
         is_header = r_idx == 0
+        if is_header and is_long:
+            # bảng dài/longtable: lặp dòng tiêu đề khi sang trang
+            row._tr.get_or_add_trPr().append(OxmlElement("w:tblHeader"))
 
         col_cursor = 0
+        overflow: list[str] = []
         for p_cell in r_cells:
+            # Ô giữ chỗ (rỗng) mà LaTeX yêu cầu ở cột bị \multirow phủ: ô đó CHÍNH LÀ ô bị phủ → tiêu thụ nó,
+            # không đẩy các ô sau lệch sang phải (trước đây làm rơi ô cuối hàng, vd. "Không đạt").
+            placeholder = not p_cell.text.strip() and p_cell.diagbox is None
+            covered_here = 0
             while col_cursor < num_cols and vmerge_remaining.get(col_cursor, 0) > 0:
                 cov_cell = row.cells[col_cursor]
                 cov_tcPr = cov_cell._tc.get_or_add_tcPr()
@@ -863,9 +1096,16 @@ def build_latex_data_table(doc, tabular_tex: str):
                 )
                 vmerge_remaining[col_cursor] -= 1
                 col_cursor += 1
+                covered_here += 1
+                if placeholder and covered_here >= p_cell.colspan:
+                    break
+            if placeholder and covered_here >= p_cell.colspan:
+                continue
 
             if col_cursor >= num_cols:
-                break
+                if p_cell.text.strip():
+                    overflow.append(p_cell.text)
+                continue
 
             target_cell = row.cells[col_cursor]
             if p_cell.colspan > 1 and col_cursor + p_cell.colspan - 1 < num_cols:
@@ -885,7 +1125,7 @@ def build_latex_data_table(doc, tabular_tex: str):
 
             if is_header:
                 tcPr = target_cell._tc.get_or_add_tcPr()
-                tcPr.append(parse_xml(f'<w:shd {nsdecls("w")} w:fill="F8FAFC"/>'))
+                tcPr.append(parse_xml(f'<w:shd {nsdecls("w")} w:val="clear" w:fill="F8FAFC"/>'))
 
             set_cell_borders(
                 target_cell,
@@ -925,6 +1165,13 @@ def build_latex_data_table(doc, tabular_tex: str):
 
             col_cursor += p_cell.colspan
 
+        if overflow:
+            # hàng có nhiều ô hơn số cột: KHÔNG bỏ nội dung — ghép vào ô cuối và ghi sự kiện để báo cáo
+            last = row.cells[num_cols - 1]
+            for txt in overflow:
+                append_rich_latex_text_to_paragraph(last.paragraphs[0], " " + txt, font_size_pt=11.0)
+            _event("table_row_overflow", row=r_idx, cells=len(overflow))
+
         while col_cursor < num_cols and vmerge_remaining.get(col_cursor, 0) > 0:
             cov_cell = row.cells[col_cursor]
             cov_tcPr = cov_cell._tc.get_or_add_tcPr()
@@ -939,7 +1186,9 @@ def build_latex_data_table(doc, tabular_tex: str):
             vmerge_remaining[col_cursor] -= 1
             col_cursor += 1
 
-    keep_table_together(table)
+    if not is_long:
+        keep_table_together(table)
+    _tag_role(table, "data", rows=num_rows, cols=num_cols)
     return table
 
 
@@ -954,15 +1203,11 @@ def build_immini_layout_table(doc, left_content_fn, right_drawing_el):
     set_table_width_pct(table, 5000)
 
     row = table.rows[0]
-    prevent_row_split(row)
+    # KHÔNG khoá dòng (cantSplit): ô trái có thể dài hơn một trang, khoá dòng sẽ làm Word cắt mất nội dung.
     left_cell, right_cell = row.cells[0], row.cells[1]
 
     for cell, pct in ((left_cell, 3100), (right_cell, 1900)):
-        tcPr = cell._tc.get_or_add_tcPr()
-        tcW = OxmlElement("w:tcW")
-        tcW.set(qn("w:w"), str(pct))
-        tcW.set(qn("w:type"), "pct")
-        tcPr.append(tcW)
+        _set_tcw(cell, pct, "pct")
         set_cell_margins(cell, top=40, bottom=40, left=60, right=60)
         set_cell_borders(
             cell,
@@ -980,5 +1225,5 @@ def build_immini_layout_table(doc, left_content_fn, right_drawing_el):
     rp = right_cell.paragraphs[0]
     rp.alignment = WD_ALIGN_PARAGRAPH.CENTER
     rp._p.append(right_drawing_el)
-    keep_table_together(table)
+    _tag_role(table, "layout_immini")
     return table

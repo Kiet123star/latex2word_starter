@@ -1,21 +1,36 @@
-# ─── Core Engine (latex2word.py) ───
-# External tools (optional for Layer 5 PDF preview): libreoffice / soffice, xelatex, pdftocairo
+# ─── Lõi chuyển đổi (CLI latex2word.py, pipeline chung) ───
+python-docx>=1.0.0
+lxml>=4.9.0
 
-# ─── Backend REST API ───
+# ─── Đọc PDF (nhánh .pdf) ───
+# pdfplumber: ký tự + ma trận chữ, đường/khung/ảnh, bảng; pikepdf: cấu trúc, mật khẩu, PDF vùng cắt;
+# pypdfium2: render/cắt vùng, hộp glyph chặt, cờ chữ ẩn & glyph không ánh xạ Unicode.
+pdfplumber>=0.10.0
+pikepdf>=8.0.0
+pypdfium2>=4.30.0
+pypdf>=3.17.0
+
+# ─── Ảnh / so sánh hiển thị (nhóm E) ───
+Pillow>=10.0.0
+numpy>=1.24.0
+
+# ─── OCR (tuỳ chọn; cần thêm chương trình tesseract + gói ngôn ngữ 'vie') ───
+pytesseract>=0.3.10
+
+# ─── REST API (backend/server.py) ───
 fastapi>=0.104.0
 uvicorn[standard]>=0.24.0
 python-multipart>=0.0.6
 
-# ─── OOXML & PDF Processing ───
-python-docx>=1.0.0
-lxml>=4.9.0
-pypdf>=3.17.0
+# ─── Giao diện Streamlit (app.py) ───
+streamlit>=1.30.0
 
-# ─── Visual Comparison (Layer 5) ───
-Pillow>=10.0.0
-numpy>=1.24.0
+# ─── Chỉ để chạy kiem_tra_pdf_va_file.py (sinh fixture PDF) ───
+reportlab>=4.0.0
 
-# ─── Lớp bảo hiểm phủ 100% (nhánh dán mã) ───
-# pypdfium2: bộ dựng ảnh từ PDF thuần Python — KHÔNG cần Poppler/Ghostscript/Inkscape.
-# Thiếu nó trên Windows là nguyên nhân phổ biến nhất khiến hình TikZ không dựng được.
-pypdfium2>=4.30.0
+# ─── Công cụ hệ thống (không cài bằng pip; pipeline TỰ DÒ và báo năng lực, không tự tải) ───
+# TeX (TeX Live/MiKTeX; nên có xelatex + gói vntex nếu nguồn dùng \usepackage[utf8]{vietnam}) — chụp ảnh hình
+#   TikZ khó và biên dịch PDF tham chiếu cho nhóm E;
+# LibreOffice (kèm module Math: gói libreoffice-math trên Linux) hoặc Microsoft Word — render Word → PDF;
+# pdftocairo (Poppler) — bản SVG của vùng cắt; tesseract + vie.traineddata — OCR trang scan tiếng Việt;
+# Ghostscript (gs) — chỉ cần khi nguồn \includegraphics ảnh .eps.

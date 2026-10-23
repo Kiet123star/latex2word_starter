@@ -1,0 +1,143 @@
+{
+ "schema": "l2w-pdf-manifest/1",
+ "coordinate_system": "pt; gốc trên-trái trang HIỂN THỊ (đã áp CropBox và /Rotate); y tăng xuống",
+ "source": {
+  "file": "form_xobject.pdf"
+ },
+ "document": {
+  "encrypted": false,
+  "pdf_version": "1.3",
+  "producer": "l2w-tests (reportlab)",
+  "creator": "l2w-tests",
+  "form_xobjects": 1
+ },
+ "page_count": 1,
+ "pages": [
+  {
+   "visible_chars": 68,
+   "hidden_chars": 0,
+   "image_cover": 0.0,
+   "vector_objects": 0,
+   "unmapped_chars": 0,
+   "legacy_vn_fonts": [],
+   "type": "text",
+   "page": 1,
+   "mediabox": [
+    0.0,
+    0.0,
+    595.2756,
+    841.8898
+   ],
+   "cropbox": [
+    0.0,
+    0.0,
+    595.2756,
+    841.8898
+   ],
+   "rotation": 0,
+   "width": 595.28,
+   "height": 841.89,
+   "columns": null,
+   "reference_text": "Chữ thường ngoài XObject.\nChữ nằm trong Form XObject.\nDòng thứ hai trong XObject.",
+   "reference_excluded_chars": 0,
+   "text_plausibility": {
+    "checked": true,
+    "long_token_frac": 0.0,
+    "punct_ratio": 0.044,
+    "vowelless_word_ratio": 0.0,
+    "words": 14,
+    "suspect": false
+   }
+  }
+ ],
+ "page_types": {
+  "1": "text"
+ },
+ "blocks": [
+  {
+   "block_id": "p1-b1",
+   "type": "paragraph",
+   "page": 1,
+   "bbox": [
+    60.0,
+    91.7,
+    220.5,
+    168.7
+   ],
+   "method": "text_native",
+   "lines": [
+    {
+     "runs": [
+      {
+       "text": "Chữ thường ngoài XObject.",
+       "bold": false,
+       "italic": false,
+       "size": 13.0
+      }
+     ],
+     "math": []
+    },
+    {
+     "runs": [
+      {
+       "text": "Chữ nằm trong Form XObject.",
+       "bold": false,
+       "italic": false,
+       "size": 13.0
+      }
+     ],
+     "math": []
+    },
+    {
+     "runs": [
+      {
+       "text": "Dòng thứ hai trong XObject.",
+       "bold": false,
+       "italic": false,
+       "size": 13.0
+      }
+     ],
+     "math": []
+    }
+   ],
+   "text": "Chữ thường ngoài XObject. Chữ nằm trong Form XObject. Dòng thứ hai trong XObject.",
+   "inline_math": [],
+   "align": "left",
+   "size": 13.0,
+   "warnings": [],
+   "status": "ok",
+   "order": 1,
+   "parent": null,
+   "fallback_reason": null,
+   "confidence": null,
+   "source": {
+    "file": "form_xobject.pdf",
+    "page": 1,
+    "bbox_pt": [
+     60.0,
+     91.7,
+     220.5,
+     168.7
+    ],
+    "coords": "display_topleft_pt"
+   }
+  }
+ ],
+ "issues": [],
+ "summary": {
+  "blocks": 1,
+  "by_method": {
+   "text_native": 1
+  },
+  "by_type": {
+   "paragraph": 1
+  },
+  "page_types": {
+   "text": 1
+  },
+  "unresolved": 0,
+  "inline_math_omml": 0,
+  "inline_math_images": 0,
+  "confidence_note": "confidence là heuristic nội bộ (0–1), chưa hiệu chuẩn trên tập dữ liệu thật."
+ }
+}

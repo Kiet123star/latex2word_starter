@@ -55,7 +55,7 @@ TCPR_SEQ = ["w:cnfStyle", "w:tcW", "w:gridSpan", "w:hMerge", "w:vMerge", "w:tcBo
             "w:tcMar", "w:textDirection", "w:tcFitText", "w:vAlign", "w:hideMark"]
 TBLPR_SEQ = ["w:tblStyle", "w:tblpPr", "w:tblOverlap", "w:bidiVisual", "w:tblStyleRowBandSize",
              "w:tblStyleColBandSize", "w:tblW", "w:jc", "w:tblCellSpacing", "w:tblInd", "w:tblBorders", "w:shd",
-             "w:tblLayout", "w:tblCellMar", "w:tblLook"]
+             "w:tblLayout", "w:tblCellMar", "w:tblLook", "w:tblCaption", "w:tblDescription", "w:tblPrChange"]
 SECTPR_SEQ = ["w:headerReference", "w:footerReference", "w:footnotePr", "w:endnotePr", "w:type", "w:pgSz",
               "w:pgMar", "w:paperSrc", "w:pgBorders", "w:lnNumType", "w:pgNumType", "w:cols", "w:formProt",
               "w:vAlign", "w:noEndnote", "w:titlePg", "w:textDirection", "w:bidi", "w:rtlGutter", "w:docGrid",
@@ -1190,6 +1190,24 @@ def _universal_abort(ctx) -> None:
         pass
 
 
+def _refresh_counts(report: dict[str, Any], output: Path) -> None:
+    """Số liệu trong báo cáo phải phản ánh .docx CUỐI CÙNG (sau layout markers + chèn ảnh + sửa OMML)."""
+    try:
+        from .ooxml_tools import docx_inventory
+        inv = docx_inventory(output)
+    except Exception as exc:  # không đếm được thì nói rõ, không giữ số cũ như thể đã kiểm
+        report["final_counts_error"] = f"{type(exc).__name__}: {exc}"
+        return
+    report["engine_counts_before_postprocess"] = {k: report.get(k) for k in (
+        "equation_nodes", "word_tables", "drawingml_groups", "drawingml_shapes", "embedded_media_files")}
+    report["equation_nodes"] = inv["equation_nodes"]
+    report["word_tables"] = inv["word_tables"]
+    report["drawingml_groups"] = inv["drawingml_groups"]
+    report["drawingml_shapes"] = inv["drawingml_shapes"]
+    report["embedded_media_files"] = inv["logical_images"]
+    report["final_counts"] = inv
+
+
 def convert_pasted_latex_unified(
     tex: Path,
     output: Path,
@@ -1201,75 +1219,89 @@ def convert_pasted_latex_unified(
     qa_pdf: bool = False,
     mode: int = 2,
     show_solutions: bool = True,
+    answer_mode: str = "source",
 ) -> dict[str, Any]:
     """Drop-in replacement of `convert_latex_file_unified` for pasted LaTeX code.
 
-    The preprocessed source is written (wrapped as a standalone document) to the SAME path the engine
-    would read, so the engine always converts the preprocessed text whatever its internal file logic is;
-    the original pasted source is restored right after (validators / previews still see the original).
-    """
+    Mã đã tiền xử lý được ghi vào tệp RIÊNG `<tên>.l2w_smart.tex` cạnh tệp gốc (cùng thư mục để đường dẫn
+    tương đối của ảnh/tệp con vẫn đúng) rồi đưa cho engine. Tệp gốc KHÔNG bao giờ bị ghi đè (bản cũ ghi
+    đè rồi trông chờ `finally` phục hồi)."""
     from .core_converter import convert_docx_to_pdf, convert_latex_file_unified
+    from . import math_tables as _mt
 
     tex = Path(tex).resolve()
     output = Path(output).resolve()
     engine_kwargs = {"engine": engine, "dpi": dpi, "reference": reference, "strict": strict, "mode": mode}
-    if os.environ.get("L2W_SMART_PASTE", "1").strip() in ("0", "false", "off", "no"):
-        return _call_engine(convert_latex_file_unified, tex, output, qa_pdf=qa_pdf, **engine_kwargs)
-
-    original_bytes = tex.read_bytes()
-    src = original_bytes.decode("utf-8-sig", errors="replace")
-    pre = None
-    # Bước 0 — khối nào engine chưa dựng được thì giao thẳng cho TeX dựng.
-    uf_src, uf_ctx = _universal_protect(src, tex.parent, workdir=tex.parent / "_l2w_truth")
+    answer_tok = _mt.ANSWER_MODE.set(answer_mode if answer_mode in ("source", "student") else "source")
     try:
-        pre = preprocess_latex(uf_src, base_dir=tex.parent, show_solutions=show_solutions)
-        tex.write_text(STANDALONE_HEAD + pre.text + STANDALONE_TAIL, encoding="utf-8")
-        if os.environ.get("L2W_KEEP_SMART_TEX"):
-            tex.with_name(tex.stem + ".l2w_smart.tex").write_text(STANDALONE_HEAD + pre.text + STANDALONE_TAIL,
-                                                                   encoding="utf-8")
+        if os.environ.get("L2W_SMART_PASTE", "1").strip() in ("0", "false", "off", "no"):
+            report = _call_engine(convert_latex_file_unified, tex, output, qa_pdf=qa_pdf, **engine_kwargs)
+            _refresh_counts(report, output)
+            return report
+
+        original_bytes = tex.read_bytes()
+        src = original_bytes.decode("utf-8-sig")       # tệp do pipeline ghi ở UTF-8; lỗi giải mã → ném ra
+        smart_tex = tex.with_name(tex.stem + ".l2w_smart.tex")
+        pre = None
+        # Bước 0 — khối nào engine chưa dựng được thì giao thẳng cho TeX dựng.
+        uf_src, uf_ctx = _universal_protect(src, tex.parent, workdir=tex.parent / "_l2w_truth")
         try:
-            report = _call_engine(convert_latex_file_unified, tex, output, qa_pdf=False, **engine_kwargs)
+            pre = preprocess_latex(uf_src, base_dir=tex.parent, show_solutions=show_solutions)
+            smart_tex.write_text(STANDALONE_HEAD + pre.text + STANDALONE_TAIL, encoding="utf-8")
+            report = _call_engine(convert_latex_file_unified, smart_tex, output, qa_pdf=False, **engine_kwargs)
+            layout_stats = apply_layout_markers(output, pre)
+            universal_stats = _universal_restore(output, uf_ctx)
+        except Exception as exc:  # fallback: exactly the original engine behaviour
+            _universal_abort(uf_ctx)
+            _log(f"LỖI → dùng engine gốc: {type(exc).__name__}: {exc}")
+            _log(traceback.format_exc())
+            report = _call_engine(convert_latex_file_unified, tex, output, qa_pdf=qa_pdf, **engine_kwargs)
+            report["smart_paste"] = {"status": "fallback_original_engine", "error": f"{type(exc).__name__}: {exc}",
+                                     "trace": traceback.format_exc()[-3000:]}
+            report["smart_paste_status"] = "LỖI → engine gốc"
+            report.setdefault("warnings", []).append("Tiền xử lý thông minh lỗi, đã dùng engine gốc: " + str(exc))
+            report["status"] = "review_required"
+            _refresh_counts(report, output)
+            output.with_suffix(".report.json").write_text(json.dumps(report, indent=2, ensure_ascii=False),
+                                                          encoding="utf-8")
+            return report
         finally:
-            tex.write_bytes(original_bytes)  # always give the original source back
-        layout_stats = apply_layout_markers(output, pre)
-        universal_stats = _universal_restore(output, uf_ctx)
-    except Exception as exc:  # fallback: exactly the original engine behaviour
-        _universal_abort(uf_ctx)
-        if tex.read_bytes() != original_bytes:
-            tex.write_bytes(original_bytes)
-        _log(f"LỖI → dùng engine gốc: {type(exc).__name__}: {exc}")
-        _log(traceback.format_exc())
-        report = _call_engine(convert_latex_file_unified, tex, output, qa_pdf=qa_pdf, **engine_kwargs)
-        report["smart_paste"] = {"status": "fallback_original_engine", "error": f"{type(exc).__name__}: {exc}",
-                                 "trace": traceback.format_exc()[-3000:]}
-        report["smart_paste_status"] = "LỖI → engine gốc"
-        report.setdefault("warnings", []).append("Tiền xử lý thông minh lỗi, đã dùng engine gốc: " + str(exc))
+            if not os.environ.get("L2W_KEEP_SMART_TEX") and smart_tex.exists():
+                try:
+                    smart_tex.unlink()
+                except OSError:
+                    pass
+        if tex.read_bytes() != original_bytes:  # bất biến: tệp gốc không đổi
+            report.setdefault("warnings", []).append("CẢNH BÁO NỘI BỘ: tệp nguồn gốc đã bị thay đổi trong lúc chạy.")
+        leftovers = _leftover_raw_commands(src, pre.text, _docx_plain_text(output))
+        report["input"] = str(tex)
+        report["smart_paste"] = {"status": "ok" if not leftovers else "partially_applied", **pre.summary(),
+                                 "layout": layout_stats, "raw_commands_left_in_word": leftovers,
+                                 "universal_fallback": {**(uf_ctx.summary() if uf_ctx is not None else
+                                                           {"bat": False, "ly_do": "chua nap duoc module"}),
+                                                        "ket_qua": universal_stats}}
+        report["smart_paste_status"] = "OK" if not leftovers else "CÒN LỆNH THÔ: " + ", ".join(leftovers[:5])
+        if leftovers:
+            _log("Engine vẫn in nguyên văn các lệnh: " + ", ".join(leftovers))
+        else:
+            st = pre.stats
+            _log(f"OK — {st.get('macros_expanded', 0)} macro mở rộng, {st.get('questions', 0) + st.get('exam_questions', 0)} câu hỏi, "
+                 f"{st.get('choice_tables', 0)} bảng trắc nghiệm, {len(pre.unknown_commands)} lệnh lạ tự xử lý")
+        if pre.warnings:
+            report["warnings"] = list(report.get("warnings", [])) + [w for w in pre.warnings[:50]]
+            report["status"] = "review_required"
+        unresolved = (universal_stats or {}).get("khoi_chua_dung") or []
+        if unresolved:
+            report.setdefault("warnings", []).append(f"{len(unresolved)} khối TeX chưa dựng được ảnh (giữ thông báo + mã nguồn trong Word).")
+            report["status"] = "review_required"
+        _refresh_counts(report, output)
+        if qa_pdf:
+            render_dir = output.parent / (output.stem + "_qa")
+            render_dir.mkdir(exist_ok=True)
+            target_pdf = render_dir / (output.stem + ".pdf")
+            if convert_docx_to_pdf(output, target_pdf) and target_pdf.exists():
+                report["qa_rendered_pdf"] = str(target_pdf)
         output.with_suffix(".report.json").write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
         return report
-    leftovers = _leftover_raw_commands(src, pre.text, _docx_plain_text(output))
-    report["input"] = str(tex)
-    report["smart_paste"] = {"status": "ok" if not leftovers else "partially_applied", **pre.summary(),
-                             "layout": layout_stats, "raw_commands_left_in_word": leftovers,
-                             "universal_fallback": {**(uf_ctx.summary() if uf_ctx is not None else
-                                                       {"bat": False, "ly_do": "chua nap duoc module"}),
-                                                    "ket_qua": universal_stats}}
-    report["smart_paste_status"] = "OK" if not leftovers else "CÒN LỆNH THÔ: " + ", ".join(leftovers[:5])
-    if leftovers:
-        _log("Engine vẫn in nguyên văn các lệnh: " + ", ".join(leftovers))
-    else:
-        st = pre.stats
-        _log(f"OK — {st.get('macros_expanded', 0)} macro mở rộng, {st.get('questions', 0) + st.get('exam_questions', 0)} câu hỏi, "
-             f"{st.get('choice_tables', 0)} bảng trắc nghiệm, {len(pre.unknown_commands)} lệnh lạ tự xử lý")
-    if pre.warnings:
-        report["warnings"] = list(report.get("warnings", [])) + [w for w in pre.warnings[:50]]
-        report["status"] = "review_required"
-    if qa_pdf:
-        render_dir = output.parent / (output.stem + "_qa")
-        render_dir.mkdir(exist_ok=True)
-        target_pdf = render_dir / (output.stem + ".pdf")
-        if convert_docx_to_pdf(output, target_pdf) and target_pdf.exists():
-            report["qa_rendered_pdf"] = str(target_pdf)
-    output.with_suffix(".report.json").write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
-    return report
-
-
+    finally:
+        _mt.ANSWER_MODE.reset(answer_tok)

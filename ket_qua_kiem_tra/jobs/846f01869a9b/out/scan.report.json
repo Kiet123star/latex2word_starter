@@ -1,0 +1,465 @@
+{
+  "schema": "l2w-report/2",
+  "job_id": "846f01869a9b",
+  "started_at": "2026-10-24T00:29:10",
+  "input": {
+    "name": "scan.pdf",
+    "kind": "pdf",
+    "original_name": "scan.pdf",
+    "path": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\846f01869a9b\\input\\scan.pdf",
+    "sha256": "1f1ead71fc5e12946165cca7bb45448fa24e6578d96830ba036300dfb0fe12f3",
+    "size": 37359,
+    "detection": {
+      "kind": "pdf",
+      "reason": "chữ ký %PDF-",
+      "extension": "pdf",
+      "warnings": []
+    }
+  },
+  "conversion_completed": true,
+  "quality_status": "review_required",
+  "status": "review_required",
+  "overall": "review_required",
+  "issues": [
+    {
+      "severity": "warning",
+      "code": "ocr_unavailable",
+      "message": "Trang 1 là trang scan; máy không có OCR → giữ ảnh trang.",
+      "page": 1,
+      "block_id": null
+    }
+  ],
+  "steps": [
+    {
+      "step": "analyze_pdf",
+      "seconds": 3.16,
+      "pages": 1,
+      "blocks": 1
+    },
+    {
+      "step": "build_docx",
+      "seconds": 0.08
+    },
+    {
+      "step": "package_check",
+      "seconds": 0.18,
+      "ok": true
+    }
+  ],
+  "limitations": [
+    "Không cam kết giống 100% hay sửa được 100%: ảnh SVG/PNG nhúng là ảnh, không phải OMML/Word Shapes.",
+    "‘passed’ chỉ áp dụng cho các tiêu chí tự động đã nêu trong báo cáo, không có nghĩa đúng mọi tài liệu.",
+    "Render QA dùng LibreOffice; Microsoft Word có thể ngắt dòng/trang khác.",
+    "Nhận dạng công thức từ PDF là heuristic (chỉ phân số/chỉ số đơn giản); công thức không chắc → ảnh vùng.",
+    "OCR chưa có trên máy → trang scan giữ ảnh trang."
+  ],
+  "options": {
+    "mode": 2,
+    "dpi": 150,
+    "strict": false,
+    "qa_pdf": false,
+    "engine": "xelatex",
+    "answer_mode": "source",
+    "show_solutions": true,
+    "figure_policy": "auto",
+    "preprocess": "engine",
+    "ocr": "auto",
+    "ocr_lang": null
+  },
+  "source": {
+    "pdf": "scan.pdf",
+    "pages": 1,
+    "page_types": {
+      "1": "scan"
+    },
+    "document": {
+      "encrypted": false,
+      "pdf_version": "1.3",
+      "producer": "l2w-tests (reportlab)",
+      "creator": "l2w-tests",
+      "form_xobjects": 0
+    }
+  },
+  "pdf_manifest_summary": {
+    "blocks": 1,
+    "by_method": {
+      "page_image": 1
+    },
+    "by_type": {
+      "page": 1
+    },
+    "page_types": {
+      "scan": 1
+    },
+    "unresolved": 0,
+    "inline_math_omml": 0,
+    "inline_math_images": 0,
+    "confidence_note": "confidence là heuristic nội bộ (0–1), chưa hiệu chuẩn trên tập dữ liệu thật."
+  },
+  "blocks": {
+    "items": [
+      {
+        "block_id": "p1-page",
+        "type": "page",
+        "page": 1,
+        "bbox": [
+          0.0,
+          0.0,
+          595.28,
+          841.89
+        ],
+        "method": "page_image",
+        "status": "fallback",
+        "assets": {
+          "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\846f01869a9b\\work\\pdf\\assets\\p1-page.png",
+          "width_pt": 595.28,
+          "height_pt": 841.89,
+          "dpi": 150,
+          "bbox": [
+            0.0,
+            0.0,
+            595.28,
+            841.89
+          ]
+        },
+        "text": "",
+        "fallback_reason": "trang scan, không có OCR đủ tin cậy → giữ ảnh trang (khả năng sửa giảm)",
+        "order": 1,
+        "warnings": [],
+        "parent": null,
+        "confidence": null,
+        "source": {
+          "file": "scan.pdf",
+          "page": 1,
+          "bbox_pt": [
+            0.0,
+            0.0,
+            595.28,
+            841.89
+          ],
+          "coords": "display_topleft_pt"
+        }
+      }
+    ],
+    "build": {
+      "counts": {
+        "paragraphs": 0,
+        "omml": 0,
+        "images": 1,
+        "tables": 0,
+        "mcq": 0,
+        "layouts": 0,
+        "notices": 0
+      },
+      "placed": {
+        "p1-page": "image"
+      },
+      "not_placed": [],
+      "media": {
+        "images_added": 1,
+        "markers_replaced": 0,
+        "markers_missing": 0,
+        "markers_text_fallback": 0,
+        "logical_images": 1
+      },
+      "pages_built": 1
+    }
+  },
+  "engine_report": {
+    "engine": "pdf_reader + pdf_docx_builder",
+    "paragraphs": 0,
+    "omml": 0,
+    "images": 1,
+    "tables": 0,
+    "mcq": 0,
+    "layouts": 0,
+    "notices": 0,
+    "engine_counts_before_postprocess": {
+      "equation_nodes": null,
+      "word_tables": null,
+      "drawingml_groups": null,
+      "drawingml_shapes": null,
+      "embedded_media_files": null
+    },
+    "equation_nodes": 0,
+    "word_tables": 0,
+    "drawingml_groups": 0,
+    "drawingml_shapes": 0,
+    "embedded_media_files": 1
+  },
+  "postprocess": {
+    "accent_fix": {
+      "da_sua": 0,
+      "ky_tu": {}
+    },
+    "xml_order_fixed": 0
+  },
+  "package": {
+    "ok": true,
+    "errors": [],
+    "warnings": []
+  },
+  "counts": {
+    "ok": true,
+    "paragraphs": 1,
+    "text_chars": 0,
+    "equation_nodes": 0,
+    "omml_paragraphs": 0,
+    "word_tables": 0,
+    "tables_by_role": {},
+    "table_role_source": {},
+    "empty_tables": 0,
+    "drawingml_groups": 0,
+    "drawingml_shapes": 0,
+    "logical_images": 1,
+    "svg_backed_images": 0,
+    "media_parts": 1,
+    "marker_leaks": {
+      "truth_marker": 0,
+      "image_marker": 0,
+      "layout_sentinel": 0,
+      "engine_block_token": 0,
+      "verbatim_marker": 0
+    },
+    "marker_leaks_total": 0,
+    "l2w_notices": [],
+    "tex_residue_count": 0,
+    "tex_residue_samples": []
+  },
+  "layers": [
+    {
+      "layer": 1,
+      "name": "A. Nội dung (chữ PDF ↔ Word, dấu tiếng Việt, rò rỉ)",
+      "status": "NOT_MEASURED",
+      "summary": "PDF không có lớp chữ hiển thị ngoài vùng ảnh để đối chiếu (trang scan/ảnh) — nội dung nằm trong ảnh trang, chưa kiểm được bằng chữ.",
+      "details": {
+        "source_tokens": 1,
+        "docx_tokens": 0,
+        "matched_tokens": 0,
+        "token_recall": 0.0,
+        "order_ratio": 1.0,
+        "duplicate_excess_ratio": 0.0,
+        "generated_label_tokens": 0,
+        "missing_sample": [],
+        "lost_diacritics_sample": [],
+        "lost_diacritics": 0,
+        "tex_residue": 0,
+        "tex_residue_sample": [],
+        "marker_leaks": 0,
+        "l2w_notices": [],
+        "metric": "token_recall = |token nguồn ∩ token Word| / |token nguồn| (đa tập, NFC, chữ thường); order_ratio = difflib ratio trên dãy token — tín hiệu thứ tự, không phải độ chính xác.",
+        "char_recall": 0.0,
+        "chars_not_in_source": 0,
+        "note": "Tham chiếu = chữ hiển thị của chính PDF (pdfplumber), trừ vùng đã giữ bằng ảnh. token_recall tính trên TỪ (≥2 chữ cái); char_recall tính mọi chữ/số kể cả trong công thức (OMML). Chữ tham chiếu theo thứ tự đường cơ sở nên order_ratio chỉ là tín hiệu."
+      },
+      "group": "A",
+      "required": true
+    },
+    {
+      "layer": 2,
+      "name": "B. Toán (OMML / ảnh vùng)",
+      "status": "PASS",
+      "summary": "0/0 OMML, 0/0 ảnh công thức (math_as_image).",
+      "details": {
+        "math_blocks": 0,
+        "math_omml_blocks": 0,
+        "inline_math_omml": 0,
+        "expected_omml": 0,
+        "omml_in_docx": 0,
+        "math_as_image": 0,
+        "math_images_found": 0,
+        "unresolved": 0,
+        "metric": "Số OMML phải bằng số khối/đoạn toán đã nhận dạng native; khối toán giữ bằng ảnh phải có ảnh mang đúng block_id. Nhận dạng toán từ PDF là heuristic (xem confidence từng khối)."
+      },
+      "group": "B",
+      "required": true
+    },
+    {
+      "layer": 3,
+      "name": "C. Hình (ảnh vùng gốc / DrawingML)",
+      "status": "PASS",
+      "summary": "1/1 khối hình có trong Word.",
+      "details": {
+        "figure_blocks": 1,
+        "found_in_docx": 1,
+        "missing_blocks": [],
+        "logical_images": 1,
+        "media_parts": 1,
+        "by_method": {
+          "page_image": 1
+        },
+        "note": "Mỗi khối hình/ảnh trang phải có đúng một ảnh logic mang block_id (SVG+PNG = 1)."
+      },
+      "group": "C",
+      "required": true
+    },
+    {
+      "layer": 4,
+      "name": "D. Bảng & bố cục",
+      "status": "PASS",
+      "summary": "0/0 bảng native, 0/0 bảng giữ ảnh.",
+      "details": {
+        "table_blocks": 0,
+        "native": 0,
+        "native_found": 0,
+        "as_image": 0,
+        "as_image_found": 0,
+        "docx_tables_by_role": {},
+        "empty_tables": []
+      },
+      "group": "D",
+      "required": true
+    },
+    {
+      "layer": 5,
+      "name": "E. Hiển thị (render Word ↔ PDF nguồn)",
+      "status": "NOT_MEASURED",
+      "summary": "QA hiển thị bị tắt (qa_pdf=False) → nhóm E chưa thực hiện.",
+      "details": {
+        "enabled": false,
+        "measured": false,
+        "similarity_percent": null,
+        "reason": "QA hiển thị bị tắt (qa_pdf=False) → nhóm E chưa thực hiện."
+      },
+      "group": "E",
+      "required": true
+    }
+  ],
+  "blocks_summary": {
+    "total": 1,
+    "by_method": {
+      "page_image": 1
+    },
+    "unresolved": 0,
+    "native": 0,
+    "as_image": 1
+  },
+  "quality": {
+    "quality_status": "review_required",
+    "conversion_completed": true,
+    "reasons": [
+      "chưa thực hiện: L1 A. Nội dung (chữ PDF ↔ Word, dấu tiếng Việt, rò rỉ): PDF không có lớp chữ hiển thị ngoài vùng ảnh để đối chiếu (trang scan/ảnh) — nội dung nằm trong ảnh trang, chưa kiểm được bằng chữ.",
+      "chưa thực hiện: L5 E. Hiển thị (render Word ↔ PDF nguồn): QA hiển thị bị tắt (qa_pdf=False) → nhóm E chưa thực hiện.",
+      "Trang 1 là trang scan; máy không có OCR → giữ ảnh trang."
+    ],
+    "not_performed": [
+      "L1 A. Nội dung (chữ PDF ↔ Word, dấu tiếng Việt, rò rỉ): PDF không có lớp chữ hiển thị ngoài vùng ảnh để đối chiếu (trang scan/ảnh) — nội dung nằm trong ảnh trang, chưa kiểm được bằng chữ.",
+      "L5 E. Hiển thị (render Word ↔ PDF nguồn): QA hiển thị bị tắt (qa_pdf=False) → nhóm E chưa thực hiện."
+    ],
+    "layer_status": {
+      "L1": "NOT_MEASURED",
+      "L2": "PASS",
+      "L3": "PASS",
+      "L4": "PASS",
+      "L5": "NOT_MEASURED"
+    },
+    "scope_note": "‘passed’ chỉ có nghĩa đạt các tiêu chí tự động đã nêu cho tệp này, không phải đúng 100%."
+  },
+  "input_preserved": true,
+  "output": {
+    "docx": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\846f01869a9b\\out\\scan.docx",
+    "report": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\846f01869a9b\\out\\scan.report.json",
+    "qa_pdf": null
+  },
+  "environment": {
+    "python": "3.14.7",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "libraries": {
+      "python_docx": "1.2.0",
+      "lxml": "6.1.3",
+      "pillow": "12.3.0",
+      "numpy": "2.5.4",
+      "pdfplumber": "0.11.10",
+      "pypdfium2": null,
+      "pikepdf": "10.17.0",
+      "pytesseract": "0.3.13",
+      "fastapi": "0.143.5",
+      "streamlit": "1.66.0"
+    },
+    "tools": {
+      "docx2pdf": "0.1.8"
+    },
+    "tesseract_languages": []
+  },
+  "capabilities": {
+    "derived": {
+      "tex_upload": {
+        "available": true,
+        "detail": "engine dựng Word từ .tex/.zip"
+      },
+      "paste_smart": {
+        "available": true,
+        "detail": "tiền xử lý thông minh (dán mã)"
+      },
+      "pdf_reader": {
+        "available": true,
+        "detail": "pdfplumber (chữ/đường nét) + pypdfium2 (render/crop) + pikepdf (cấu trúc)"
+      },
+      "pdf_vector_crop": {
+        "available": false,
+        "detail": "thiếu pdftocairo → hình cắt từ PDF chỉ có PNG"
+      },
+      "ocr": {
+        "available": false,
+        "detail": "thiếu tesseract → trang scan giữ ảnh"
+      },
+      "math_ocr": {
+        "available": false,
+        "detail": "chưa cấu hình bộ nhận dạng công thức từ ảnh; công thức không chắc → ảnh vùng"
+      },
+      "visual_qa": {
+        "available": true,
+        "detail": "render DOCX→PDF bằng LibreOffice/Word rồi so với nguồn"
+      },
+      "tex_reference_compile": {
+        "available": false,
+        "detail": "biên dịch PDF tham chiếu từ nguồn TeX (shell-escape tắt)"
+      }
+    },
+    "tools": {
+      "xelatex": {
+        "available": false,
+        "version": null
+      },
+      "pdflatex": {
+        "available": false,
+        "version": null
+      },
+      "lualatex": {
+        "available": false,
+        "version": null
+      },
+      "pdftocairo": {
+        "available": false,
+        "version": null
+      },
+      "soffice": {
+        "available": false,
+        "version": null
+      },
+      "tesseract": {
+        "available": false,
+        "version": null
+      },
+      "ghostscript": {
+        "available": false,
+        "version": null
+      },
+      "imagemagick": {
+        "available": false,
+        "version": null
+      },
+      "pandoc": {
+        "available": false,
+        "version": null
+      },
+      "docx2pdf": {
+        "available": true,
+        "version": "0.1.8"
+      }
+    },
+    "tesseract_languages": [],
+    "missing_modules": {}
+  },
+  "finished_at": "2026-10-24T00:29:13"
+}

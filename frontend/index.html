@@ -95,8 +95,30 @@
           </div>
 
           <div class="toggle-row">
-            <span class="toggle-row__label">Đối chiếu PDF (--qa-pdf / Layer 5)</span>
+            <span class="toggle-row__label">Đối chiếu hiển thị (render Word → PDF, nhóm E)</span>
             <button class="toggle toggle--active" id="toggle-qa" onclick="toggleOption('qa')"></button>
+          </div>
+
+          <div class="form-group" style="margin-top: 14px;">
+            <label class="form-label" for="answer-mode">Đáp án</label>
+            <select class="form-select" id="answer-mode" onchange="updateOption('answerMode', this.value)">
+              <option value="source" selected>Giữ như nguồn</option>
+              <option value="student">Bản học sinh (không lộ đáp án)</option>
+            </select>
+          </div>
+
+          <div class="toggle-row">
+            <span class="toggle-row__label">Hiện lời giải (\loigiai)</span>
+            <button class="toggle toggle--active" id="toggle-solutions" onclick="toggleOption('solutions')"></button>
+          </div>
+
+          <div class="form-group" style="margin-top: 14px;">
+            <label class="form-label" for="figure-policy">Hình TikZ</label>
+            <select class="form-select" id="figure-policy" onchange="updateOption('figurePolicy', this.value)">
+              <option value="auto" selected>Tự động: thử DrawingML, đối chiếu ảnh TeX</option>
+              <option value="native">Luôn DrawingML (sửa được, chưa kiểm chứng)</option>
+              <option value="snapshot">Luôn ảnh TeX (giống nguồn, không sửa từng nét)</option>
+            </select>
           </div>
         </div>
 
@@ -144,12 +166,12 @@
             </div>
             <div class="form-group" style="margin-top: 14px;">
               <label class="form-label">
-                Tên file .tex chính
-                <span class="form-label__hint">(tùy chọn nếu tải lên .zip chứa nhiều file)</span>
+                Tệp chính trong gói .zip
+                <span class="form-label__hint">(đường dẫn tương đối, vd. chuong/main.tex — để trống để tự xác định)</span>
               </label>
               <input type="text" class="latex-editor" id="main-tex-input"
                      style="min-height: auto; padding: 10px 14px; font-family: var(--font-mono); font-size: 0.84rem;"
-                     placeholder="example.tex (để trống nếu tải file .pdf)" value="">
+                     placeholder="main.tex (để trống nếu tải .pdf hoặc .tex đơn lẻ)" value="">
             </div>
             <div style="margin-top: 16px;">
               <button class="btn-primary" id="btn-convert-upload" onclick="convertUpload()" disabled>
@@ -189,11 +211,21 @@
             </a>
           </div>
 
+          <!-- Quality summary -->
+          <div class="card" id="quality-card" style="margin-bottom: 20px;">
+            <div class="card__title">
+              <span class="card__title-icon">🧾</span>
+              Tóm tắt kết quả
+            </div>
+            <div class="report-grid" id="quality-grid"></div>
+            <div id="quality-notes" class="quality-notes"></div>
+          </div>
+
           <!-- 5-Layer Validation -->
           <div class="card" style="margin-bottom: 20px;">
             <div class="card__title">
               <span class="card__title-icon">🛡️</span>
-              Báo cáo 5 tầng kiểm thử tự động (5 Validation Layers)
+              Kiểm định 5 nhóm (A. Nội dung · B. Toán · C. Hình · D. Bảng · E. Hiển thị)
             </div>
             <div class="layers-grid" id="layers-grid"></div>
           </div>

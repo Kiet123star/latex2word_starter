@@ -951,6 +951,12 @@ body {
 .layer-badge--warn { background: var(--accent-warning-bg); color: var(--accent-warning); }
 .layer-badge--fail { background: var(--accent-danger-bg); color: var(--accent-danger); }
 .layer-badge--skip { background: var(--accent-skip-bg); color: var(--accent-skip); }
+.layer-badge--not_measured { background: var(--accent-skip-bg); color: var(--accent-skip); }
+.form-select { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color, #334155);
+  background: transparent; color: inherit; font: inherit; font-size: 0.85rem; }
+.quality-notes { margin-top: 12px; font-size: 0.85rem; line-height: 1.5; }
+.quality-notes ul { margin: 4px 0 8px 18px; padding: 0; }
+.candidate-list { margin-top: 8px; font-family: var(--font-mono); font-size: 0.8rem; }
 
 .layer-info {
   flex: 1;

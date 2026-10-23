@@ -16,10 +16,11 @@ W_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 ET.register_namespace("m", M_NS)
 ET.register_namespace("w", W_NS)
 
-# Matches all characters forbidden in XML 1.0 (NULL \x00, control chars \x01-\x1f except \t\n\r,
-# DEL/C1 control chars \x7f-\x9f, surrogates, non-characters, and Unicode Variation Selectors \ufe00-\ufe0f)
+# Ký tự bị CẤM trong XML 1.0 (NULL, điều khiển C0 trừ \t\n\r, surrogate lẻ, U+FFFE/U+FFFF) + ký tự điều khiển
+# C1/DEL (hợp lệ về cú pháp nhưng là rác hiển thị). KHÔNG xoá variation selector U+FE00–U+FE0F hay ký tự Unicode
+# hợp lệ khác: chúng là một phần của nội dung (bản cũ xoá cả U+FE00–U+FE0F và U+FDD0–U+FDEF).
 _ILLEGAL_XML_CHARS_RE = re.compile(
-    r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f\ud800-\udfff\ufdd0-\ufdef\ufffe\uffff\ufe00-\ufe0f]"
+    r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x84\x86-\x9f\ud800-\udfff\ufffe\uffff]"
 )
 
 
@@ -142,7 +143,43 @@ LATEX_SYMBOLS: dict[str, str] = {
     r"\{": "{",
     r"\}": "}",
     r"\%": "%",
+    # ngoặc/dấu phân cách (trước đây in ra TÊN LỆNH: "lceil", "langle", …)
+    r"\lceil": "⌈", r"\rceil": "⌉", r"\lfloor": "⌊", r"\rfloor": "⌋", r"\langle": "⟨", r"\rangle": "⟩",
+    r"\lvert": "|", r"\rvert": "|", r"\vert": "|", r"\lVert": "‖", r"\rVert": "‖", r"\backslash": "∖",
+    r"\lbrace": "{", r"\rbrace": "}", r"\lbrack": "[", r"\rbrack": "]",
+    # quan hệ / phép toán
+    r"\leqslant": "⩽", r"\geqslant": "⩾", r"\leqq": "≦", r"\geqq": "≧", r"\ll": "≪", r"\gg": "≫",
+    r"\nless": "≮", r"\ngtr": "≯", r"\nleq": "≰", r"\ngeq": "≱", r"\lesssim": "≲", r"\gtrsim": "≳",
+    r"\prec": "≺", r"\succ": "≻", r"\preceq": "⪯", r"\succeq": "⪰", r"\asymp": "≍", r"\doteq": "≐",
+    r"\triangleq": "≜", r"\coloneqq": "≔", r"\nmid": "∤", r"\nparallel": "∦", r"\models": "⊨", r"\vdash": "⊢",
+    r"\subsetneq": "⊊", r"\supsetneq": "⊋", r"\nsubseteq": "⊈", r"\nsupseteq": "⊉", r"\sqcup": "⊔",
+    r"\sqcap": "⊓", r"\smallsetminus": "∖", r"\complement": "∁", r"\star": "⋆", r"\ast": "∗",
+    r"\bullet": "∙", r"\oplus": "⊕", r"\ominus": "⊖", r"\otimes": "⊗", r"\odot": "⊙", r"\circledast": "⊛",
+    r"\top": "⊤", r"\bot": "⊥", r"\because": "∵", r"\therefore": "∴", r"\dagger": "†", r"\ddagger": "‡",
+    # mũi tên
+    r"\longrightarrow": "⟶", r"\Longrightarrow": "⟹", r"\longleftarrow": "⟵", r"\Longleftarrow": "⟸",
+    r"\longleftrightarrow": "⟷", r"\Longleftrightarrow": "⟺", r"\longmapsto": "⟼", r"\hookrightarrow": "↪",
+    r"\hookleftarrow": "↩", r"\nearrow": "↗", r"\searrow": "↘", r"\nwarrow": "↖", r"\swarrow": "↙",
+    r"\rightleftharpoons": "⇌", r"\leftrightharpoons": "⇋", r"\rightrightarrows": "⇉", r"\leftleftarrows": "⇇",
+    r"\upharpoonright": "↾", r"\Uparrow": "⇑", r"\Downarrow": "⇓", r"\updownarrow": "↕", r"\gets": "←",
+    # chữ/ký hiệu
+    r"\varpi": "ϖ", r"\varrho": "ϱ", r"\varsigma": "ς", r"\varkappa": "ϰ", r"\aleph": "ℵ", r"\wp": "℘",
+    r"\imath": "ı", r"\jmath": "ȷ", r"\mho": "℧", r"\S": "§", r"\P": "¶", r"\Box": "□", r"\square": "□",
+    r"\blacksquare": "■", r"\diamond": "⋄", r"\lozenge": "◊", r"\checkmark": "✓", r"\measuredangle": "∡",
+    r"\triangledown": "▿", r"\bigtriangleup": "△", r"\bigtriangledown": "▽", r"\varDelta": "Δ",
+    r"\ldotp": ".", r"\cdotp": "⋅", r"\iddots": "⋰", r"\dotsc": "…", r"\dotsb": "⋯", r"\dotsm": "⋯",
+    r"\dotsi": "⋯", r"\dotso": "…", r"\textdegree": "°", r"\#": "#", r"\&": "&", r"\$": "$", r"\_": "_",
 }
+
+#: dấu phân cách mà \left … \right được dựng thành m:d co giãn
+STRETCHY_DELIMS = {"(", ")", "[", "]", "{", "}", "|", "‖", "⌈", "⌉", "⌊", "⌋", "⟨", "⟩", "/", "∖", "↑", "↓", ""}
+#: lệnh chỉ có tác dụng đánh số/ngắt dòng/khoảng cách trong môi trường toán → không in ra
+_MATH_NOOP_CMDS = {r"\nonumber", r"\notag", r"\allowbreak", r"\nobreak", r"\mathstrut", r"\strut", r"\relax",
+                   r"\protect", r"\displaybreak", r"\hfill", r"\hfil", r"\centering", r"\noindent", r"\cr",
+                   r"\nolinebreak", r"\linebreak", r"\newline", r"\smallskip", r"\medskip", r"\bigskip"}
+_MATH_NOOP_ARG_CMDS = {r"\label", r"\vspace", r"\hypertarget", r"\index", r"\vphantom", r"\setlength"}
+_TEXT_LIKE_CMDS = {r"\mbox", r"\hbox", r"\textnormal", r"\textup", r"\textsf", r"\texttt", r"\textsl",
+                   r"\textsc", r"\emph", r"\textmd"}
 
 BLACKBOARD_BOLD: dict[str, str] = {
     "R": "ℝ",
@@ -184,6 +221,15 @@ FUNC_NAMES: dict[str, str] = {
     r"\rank": "rank",
     r"\rk": "rk",
     r"\tr": "tr",
+    r"\sec": "sec",
+    r"\csc": "csc",
+    r"\arccot": "arccot",
+    r"\coth": "coth",
+    r"\arg": "arg",
+    r"\sgn": "sgn",
+    r"\hom": "hom",
+    r"\cotg": "cotg",
+    r"\tg": "tg",
 }
 
 LIM_OPS: dict[str, str] = {
@@ -192,6 +238,11 @@ LIM_OPS: dict[str, str] = {
     r"\min": "min",
     r"\sup": "sup",
     r"\inf": "inf",
+    r"\limsup": "lim sup",
+    r"\liminf": "lim inf",
+    r"\Pr": "Pr",
+    r"\argmax": "arg max",
+    r"\argmin": "arg min",
 }
 
 NARY_OPS: dict[str, str] = {
@@ -205,17 +256,64 @@ NARY_OPS: dict[str, str] = {
     r"\bigcap": "⋂",
 }
 
+# Dấu đặt trên (m:acc/m:chr) PHẢI là ký tự tổ hợp (combining) — Word vẽ đúng vị trí và tự giãn theo
+# độ rộng phần cơ sở. Bản cũ dùng ký tự thường (→, ^, ~, ¯, ˙, ¨) khiến mũi tên vectơ nằm ngang đè lên chữ.
 ACCENT_MAP: dict[str, str] = {
-    r"\vec": "→",
-    r"\overrightarrow": "→",
-    r"\hat": "^",
-    r"\widehat": "^",
-    r"\bar": "¯",
-    r"\tilde": "~",
-    r"\widetilde": "~",
-    r"\dot": "˙",
-    r"\ddot": "¨",
+    r"\vec": "⃗",               # combining right arrow above
+    r"\overrightarrow": "⃗",
+    r"\vv": "⃗",                # esvect — chỉ dùng khi người dùng KHÔNG tự định nghĩa \vv
+    r"\overleftarrow": "⃖",     # combining left arrow above
+    r"\overleftrightarrow": "⃡",  # combining left right arrow above
+    r"\hat": "̂",               # combining circumflex
+    r"\widehat": "̂",
+    r"\check": "̌",             # combining caron
+    r"\widecheck": "̌",
+    r"\tilde": "̃",             # combining tilde
+    r"\widetilde": "̃",
+    r"\bar": "̄",               # combining macron
+    r"\dot": "̇",               # combining dot above
+    r"\ddot": "̈",              # combining diaeresis
+    r"\dddot": "⃛",             # combining three dots above
+    r"\breve": "̆",             # combining breve
+    r"\mathring": "̊",          # combining ring above
+    r"\acute": "́",
+    r"\grave": "̀",
 }
+
+# Lệnh cỡ ngoặc: chỉ đổi cỡ, ký tự ngoặc theo sau vẫn phải giữ.
+DELIM_SIZE_CMDS = {r"\big", r"\Big", r"\bigg", r"\Bigg", r"\bigl", r"\bigr", r"\Bigl", r"\Bigr",
+                   r"\biggl", r"\biggr", r"\Biggl", r"\Biggr", r"\bigm", r"\Bigm", r"\middle"}
+# Lệnh chỉ đổi kiểu chữ trong toán: giữ nội dung.
+MATH_STYLE_CMDS = {r"\mathit": None, r"\mathsf": None, r"\mathtt": None, r"\boldsymbol": "b", r"\bm": "b",
+                   r"\mathbfit": "b", r"\pmb": "b"}
+#: kiểu chữ toán OMML (m:scr): giữ nguyên ký tự gốc trong m:t, Word đổi sang chữ hoa thảo/fraktur
+MATH_SCRIPT_CMDS = {r"\mathcal": "script", r"\mathscr": "script", r"\mathfrak": "fraktur"}
+# Cung/ngoặc nhóm trên-dưới (m:groupChr). Hiển thị trong Word CHƯA được kiểm chứng trong workspace này
+# (chỉ kiểm bằng LibreOffice) → được ghi vào thống kê `unverified_constructs`.
+GROUPCHR_MAP: dict[str, tuple[str, str]] = {
+    r"\wideparen": ("⏜", "top"), r"\overparen": ("⏜", "top"), r"\arc": ("⏜", "top"),
+    r"\underparen": ("⏝", "bot"),
+    r"\overbrace": ("⏞", "top"), r"\underbrace": ("⏟", "bot"),
+}
+UNVERIFIED_CONSTRUCTS = {r"\wideparen", r"\overparen", r"\arc", r"\underparen"}
+
+import contextvars as _cv
+
+_MATH_STATS: _cv.ContextVar[dict | None] = _cv.ContextVar("l2w_omml_stats", default=None)
+
+
+def start_math_stats() -> dict:
+    """Bật thu thập thống kê dựng OMML cho ngữ cảnh hiện tại (pipeline gọi trước khi chạy engine)."""
+    d: dict = {"unknown_commands": {}, "unverified_constructs": {}, "formulas": 0}
+    _MATH_STATS.set(d)
+    return d
+
+
+def _stat(kind: str, key: str) -> None:
+    d = _MATH_STATS.get()
+    if d is not None:
+        bucket = d.setdefault(kind, {})
+        bucket[key] = bucket.get(key, 0) + 1
 
 MATRIX_DELIMS: dict[str, tuple[str, str]] = {
     "bmatrix": ("[", "]"),
@@ -310,6 +408,196 @@ def _wrap_in_delimiter(inner_elements: list[ET.Element], beg_chr: str, end_chr: 
     return d
 
 
+def _make_script_run(text: str, scr: str) -> ET.Element:
+    """Run toán có kiểu chữ OMML (m:scr val=script|fraktur|double-struck…), dạng đứng (sty=p)."""
+    r = _m("r")
+    rpr = _m("rPr")
+    sc = _m("scr")
+    sc.set(f"{{{M_NS}}}val", scr)
+    rpr.append(sc)
+    st = _m("sty")
+    st.set(f"{{{M_NS}}}val", "p")
+    rpr.append(st)
+    r.append(rpr)
+    rPr_w = _w("rPr")
+    rFonts = _w("rFonts")
+    rFonts.set(f"{{{W_NS}}}ascii", "Cambria Math")
+    rFonts.set(f"{{{W_NS}}}hAnsi", "Cambria Math")
+    rPr_w.append(rFonts)
+    r.append(rPr_w)
+    t = _m("t")
+    t.text = sanitize_xml_text(text)
+    t.set("{http://www.w3.org/XML/1998/namespace}space", "preserve")
+    r.append(t)
+    return r
+
+
+def _build_eqarr(rows: list[str]) -> ET.Element:
+    """m:eqArr từ các hàng LaTeX. '&' cấp ngoài cùng là điểm canh của LaTeX: KHÔNG in ra chữ '&'; điểm canh
+    không được tái tạo (chưa kiểm chứng được cách Word/LibreOffice hiển thị m:aln trong workspace này) — nội dung
+    giữ đủ, chỉ mất căn thẳng cột dấu '='."""
+    arr = _m("eqArr")
+    for row in rows:
+        e = _m("e")
+        for col in _split_top_level(row, "cols"):
+            if col.strip():
+                for el in _LatexMathParser(col).parse_all():
+                    e.append(el)
+        if len(e) == 0:
+            e.append(_make_run("", normal_text=True))
+        arr.append(e)
+    return arr
+
+
+_CE_ARROWS = {"->": r"\rightarrow", "<-": r"\leftarrow", "<->": r"\leftrightarrow", "<=>": r"\rightleftharpoons",
+              "<=>>": r"\rightleftharpoons", "<<=>": r"\rightleftharpoons", "=": "=", "+": "+", "^": r"\uparrow",
+              "v": r"\downarrow", "*": r"\cdot", ".": r"\cdot"}
+_CE_PHASE = re.compile(r"\((?:s|l|g|aq|r|k|dd|rắn|lỏng|khí)\)")
+
+
+def _ce_formula(tok: str) -> str:
+    """Một công thức hoá học mhchem (tập con) → LaTeX toán: chữ đứng, số sau nguyên tố/ngoặc → chỉ số dưới,
+    ^… và dấu điện tích cuối → chỉ số trên."""
+    out: list[str] = []
+    i, n = 0, len(tok)
+    prev_atom = False
+    while i < n:
+        c = tok[i]
+        if c == "^":
+            i += 1
+            if i < n and tok[i] == "{":
+                e = tok.find("}", i)
+                e = n if e < 0 else e
+                out.append("^{" + tok[i + 1:e].replace("-", "−") + "}")
+                i = e + 1
+            else:
+                m = re.match(r"[0-9]*[+\-]?", tok[i:])
+                val = m.group(0) if m and m.group(0) else (tok[i] if i < n else "")
+                out.append("^{" + val.replace("-", "−") + "}")
+                i += max(1, len(val))
+            prev_atom = False
+            continue
+        m = _CE_PHASE.match(tok, i)
+        if m:
+            out.append(r"\mathrm{" + m.group(0) + "}")
+            i = m.end()
+            prev_atom = False
+            continue
+        if c.isalpha():
+            j = i
+            while j < n and tok[j].isalpha():
+                j += 1
+            out.append(r"\mathrm{" + tok[i:j] + "}")
+            i = j
+            prev_atom = True
+            continue
+        if c.isdigit() and prev_atom:
+            j = i
+            while j < n and tok[j].isdigit():
+                j += 1
+            if j < n and tok[j] in "+-" and j + 1 == n:
+                out.append("^{" + tok[i:j] + ("+" if tok[j] == "+" else "−") + "}")
+                i = j + 1
+            else:
+                out.append("_{" + tok[i:j] + "}")
+                i = j
+            prev_atom = False
+            continue
+        if c in "+-" and i == n - 1 and out:
+            out.append("^{" + ("+" if c == "+" else "−") + "}")
+            i += 1
+            continue
+        if c in ")]":
+            out.append(c)
+            i += 1
+            prev_atom = True
+            continue
+        if c in ".*":
+            out.append(r"\cdot ")
+            i += 1
+            prev_atom = False
+            continue
+        out.append(c)
+        i += 1
+        prev_atom = False
+    return "".join(out)
+
+
+def _ce_to_latex(src: str) -> str:
+    """\\ce{…} (mhchem, tập con thường gặp trong đề Việt Nam) → LaTeX toán để dựng OMML native.
+    Hỗ trợ: hệ số, chỉ số, điện tích, trạng thái (s)/(aq)…, mũi tên ->, <=>, ->[điều kiện], ↑ (^), ↓ (v)."""
+    parts: list[str] = []
+    for tok in re.findall(r"(?:\[[^\]]*\]|\{[^{}]*\}|\S)+", src):  # [điều kiện] có thể chứa dấu cách
+        if tok in _CE_ARROWS:
+            parts.append(_CE_ARROWS[tok])
+            continue
+        m = re.match(r"^(->|<=>|<->|<-|=)\[([^\]]*)\](?:\[([^\]]*)\])?$", tok)
+        if m:
+            arrow = _CE_ARROWS[m.group(1)]
+            cond = re.sub(r"\^\{?[o0]\}?", "°", m.group(2))  # t^o → t° (nhiệt độ)
+            above = r"\text{" + cond + "}"
+            node = r"\overset{" + above + "}{" + arrow + "}"
+            if m.group(3):
+                node = r"\underset{\text{" + re.sub(r"\^\{?[o0]\}?", "°", m.group(3)) + "}}{" + node + "}"
+            parts.append(node)
+            continue
+        m = re.match(r"^(\d+(?:/\d+)?)(?=[A-Z(\[])(.*)$", tok)
+        if m:
+            parts.append(m.group(1) + _ce_formula(m.group(2)))
+        else:
+            parts.append(_ce_formula(tok))
+    return " ".join(parts)
+
+
+def _split_top_level(body: str, what: str) -> list[str]:
+    """Tách hàng (\\\\) hoặc cột (&) ở mức ngoài cùng — không tách bên trong {…} hay
+    \\begin…\\end lồng nhau (hệ trong hệ, ma trận trong hệ…)."""
+    out: list[str] = []
+    cur: list[str] = []
+    depth = 0
+    env = 0
+    i = 0
+    n = len(body)
+    while i < n:
+        c = body[i]
+        if body.startswith("\\begin", i):
+            env += 1
+            cur.append("\\begin")
+            i += 6
+            continue
+        if body.startswith("\\end", i) and not body.startswith("\\endgroup", i):
+            env = max(0, env - 1)
+            cur.append("\\end")
+            i += 4
+            continue
+        if what == "rows" and body.startswith("\\\\", i) and depth == 0 and env == 0:
+            out.append("".join(cur))
+            cur = []
+            i += 2
+            # bỏ khoảng cách tuỳ chọn \\[2pt]
+            m = re.match(r"\s*\[[^\]]*\]", body[i:])
+            if m:
+                i += m.end()
+            continue
+        if c == "\\":
+            cur.append(body[i: i + 2])
+            i += 2
+            continue
+        if c == "{":
+            depth += 1
+        elif c == "}":
+            depth = max(0, depth - 1)
+        if what == "cols" and c == "&" and depth == 0 and env == 0:
+            out.append("".join(cur))
+            cur = []
+            i += 1
+            continue
+        cur.append(c)
+        i += 1
+    out.append("".join(cur))
+    return out
+
+
 class _LatexMathParser:
     def __init__(self, src: str) -> None:
         s = sanitize_xml_text(src).strip()
@@ -330,6 +618,13 @@ class _LatexMathParser:
         self.s = s
         self.pos = 0
         self.n = len(s)
+
+    def _at_cmd(self, name: str) -> bool:
+        """Đúng lệnh `name` tại vị trí hiện tại (không khớp tiền tố: \\right ≠ \\rightarrow, \\left ≠ \\leftarrow)."""
+        if not self.s.startswith(name, self.pos):
+            return False
+        k = self.pos + len(name)
+        return k >= self.n or not self.s[k].isalpha()
 
     def skip_ws(self) -> None:
         while self.pos < self.n and self.s[self.pos] in " \t\r\n":
@@ -405,7 +700,7 @@ class _LatexMathParser:
         inner_start = self.pos
         while self.pos < self.n and depth > 0:
             if self.s[self.pos] == "\\":
-                if self.s.startswith(r"\left", self.pos) or self.s.startswith(r"\right", self.pos):
+                if self._at_cmd(r"\left") or self._at_cmd(r"\right"):
                     break
                 self.pos += 2
                 continue
@@ -479,6 +774,150 @@ class _LatexMathParser:
             if cmd == r"\left":
                 return self._parse_left_right()
 
+            if cmd in DELIM_SIZE_CMDS:
+                # \big( … \bigr) : bỏ lệnh cỡ, giữ nguyên ký tự ngoặc theo sau
+                self.skip_ws()
+                if self.pos < self.n:
+                    if self.s[self.pos] == "\\":
+                        c2 = self.read_command()
+                        sym = LATEX_SYMBOLS.get(c2, c2.lstrip("\\"))
+                        return [_make_run(sym, normal_text=True)]
+                    ch2 = self.s[self.pos]
+                    self.pos += 1
+                    return [_make_run(ch2, normal_text=True)]
+                return []
+
+            if cmd in (r"\limits", r"\nolimits", r"\displaylimits"):
+                return []
+
+            if cmd in _MATH_NOOP_CMDS:
+                return []
+
+            if cmd in _MATH_NOOP_ARG_CMDS:
+                self.read_bracket_raw()
+                self.read_braced_raw()
+                return []
+
+            if cmd in _TEXT_LIKE_CMDS:
+                arg = self.read_braced_raw()
+                return [_make_run(arg, normal_text=True)]
+
+            if cmd == r"\intertext" or cmd == r"\shortintertext":
+                arg = self.read_braced_raw()
+                return [_make_run(" " + arg + " ", normal_text=True)]
+
+            if cmd in MATH_SCRIPT_CMDS:
+                arg = self.read_braced_raw().strip()
+                return [_make_script_run(arg, MATH_SCRIPT_CMDS[cmd])]
+
+            if cmd in (r"\pmod", r"\pod"):
+                els = self.parse_group_elements()
+                head = "(mod " if cmd == r"\pmod" else "("
+                return [_make_run(" " + head, normal_text=True), *els, _make_run(")", normal_text=True)]
+
+            if cmd in (r"\bmod", r"\mod"):
+                return [_make_run(" mod ", normal_text=True)]
+
+            if cmd in (r"\ce", r"\pu"):
+                raw = self.read_braced_raw()
+                latex = _ce_to_latex(raw) if cmd == r"\ce" else r"\mathrm{" + raw + "}"
+                return _LatexMathParser(latex).parse_all()
+
+            if cmd == r"\substack":
+                raw = self.read_braced_raw()
+                rows = [r.strip() for r in _split_top_level(raw, "rows") if r.strip()]
+                return [_build_eqarr(rows)] if len(rows) > 1 else _LatexMathParser(raw).parse_all()
+
+            if cmd in GROUPCHR_MAP:
+                chr_val, pos_val = GROUPCHR_MAP[cmd]
+                if cmd in UNVERIFIED_CONSTRUCTS:
+                    _stat("unverified_constructs", cmd)
+                body_els = self.parse_group_elements()
+                g = _m("groupChr")
+                gpr = _m("groupChrPr")
+                c_el = _m("chr")
+                c_el.set(f"{{{M_NS}}}val", chr_val)
+                gpr.append(c_el)
+                p_el = _m("pos")
+                p_el.set(f"{{{M_NS}}}val", pos_val)
+                gpr.append(p_el)
+                v_el = _m("vertJc")
+                v_el.set(f"{{{M_NS}}}val", "bot" if pos_val == "top" else "top")
+                gpr.append(v_el)
+                g.append(gpr)
+                e = _m("e")
+                for el in body_els or [_make_run("")]:
+                    e.append(el)
+                g.append(e)
+                node: ET.Element = g
+                # \overbrace{...}^{nhãn} / \underbrace{...}_{nhãn}
+                self.skip_ws()
+                want = "^" if pos_val == "top" else "_"
+                if cmd in (r"\overbrace", r"\underbrace") and self.pos < self.n and self.s[self.pos] == want:
+                    self.pos += 1
+                    lab = self.parse_single_atom()
+                    wrap = _m("limUpp" if pos_val == "top" else "limLow")
+                    e2 = _m("e")
+                    e2.append(g)
+                    lim = _m("lim")
+                    for el in lab or [_make_run("")]:
+                        lim.append(el)
+                    wrap.append(e2)
+                    wrap.append(lim)
+                    node = wrap
+                return [node]
+
+            if cmd == r"\boxed":
+                body_els = self.parse_group_elements()
+                bb = _m("borderBox")
+                e = _m("e")
+                for el in body_els or [_make_run("")]:
+                    e.append(el)
+                bb.append(e)
+                return [bb]
+
+            if cmd in MATH_STYLE_CMDS:
+                body_els = self.parse_group_elements()
+                if MATH_STYLE_CMDS[cmd] == "b":
+                    for r_el in body_els:
+                        for rpr in r_el.iter(f"{{{W_NS}}}rPr"):
+                            if rpr.find(f"{{{W_NS}}}b") is None:
+                                rpr.append(_w("b"))
+                return body_els
+
+            if cmd in (r"\textcolor", r"\colorbox"):
+                self.read_braced_raw()          # tên màu
+                return self.parse_group_elements()
+
+            if cmd in (r"\color",):
+                self.read_braced_raw()
+                return []
+
+            if cmd in (r"\phantom", r"\hphantom", r"\vphantom"):
+                self.read_braced_raw()
+                return [_make_run(" ", normal_text=True)]
+
+            if cmd in (r"\hspace", r"\hspace*", r"\mspace", r"\kern", r"\mkern"):
+                if self.pos < self.n and self.s[self.pos] == "*":
+                    self.pos += 1
+                self.read_braced_raw()
+                return [_make_run(" ", normal_text=True)]
+
+            if cmd == r"\not":
+                self.skip_ws()
+                nxt_cmd = ""
+                if self.pos < self.n and self.s[self.pos] == "\\":
+                    nxt_cmd = self.read_command()
+                    base_sym = LATEX_SYMBOLS.get(nxt_cmd, nxt_cmd.lstrip("\\"))
+                elif self.pos < self.n:
+                    base_sym = self.s[self.pos]
+                    self.pos += 1
+                else:
+                    base_sym = ""
+                negated = {"=": "≠", "∈": "∉", "⊂": "⊄", "⊆": "⊈", "≡": "≢", "∼": "≁", "<": "≮", ">": "≯",
+                           "≤": "≰", "≥": "≱", "∣": "∤", " ∣ ": "∤", "∃": "∄", "∥": "∦"}.get(base_sym)
+                return [_make_run(negated if negated else base_sym + "̸", normal_text=True)]
+
             if cmd == r"\{":
                 return self._parse_escaped_brace_group()
 
@@ -545,6 +984,8 @@ class _LatexMathParser:
                     base_node = limLow
                 return [base_node]
 
+            if cmd == r"\stackrel":
+                cmd = r"\overset"
             if cmd in (r"\overset", r"\underset"):
                 lim_els = self.parse_group_elements()
                 base_els = self.parse_group_elements()
@@ -599,7 +1040,7 @@ class _LatexMathParser:
 
             if cmd in (
                 r"\text", r"\textrm", r"\textbf", r"\textit",
-                r"\mathrm", r"\mathbf", r"\mathcal", r"\operatorname",
+                r"\mathrm", r"\mathbf", r"\operatorname",
             ):
                 arg = self.read_braced_raw()
                 is_bold = cmd in (r"\textbf", r"\mathbf")
@@ -647,6 +1088,8 @@ class _LatexMathParser:
                 return [_make_run(sym, normal_text=use_nor, italic=False)]
 
             clean_cmd = cmd.lstrip("\\")
+            if clean_cmd.isalpha():
+                _stat("unknown_commands", cmd)
             return [_make_run(clean_cmd)]
 
         self.pos += 1
@@ -678,11 +1121,14 @@ class _LatexMathParser:
         inner_els: list[ET.Element] = []
         while self.pos < self.n:
             self.skip_ws()
-            if self.s.startswith(r"\right", self.pos):
+            if self._at_cmd(r"\right"):
                 self.read_command()
                 break
+            before = self.pos
             el_list = self.parse_next_with_scripts()
             if not el_list:
+                if self.pos > before:  # lệnh không in gì (\label, \nonumber, \limits…) — đọc tiếp
+                    continue
                 break
             inner_els.extend(el_list)
 
@@ -698,7 +1144,7 @@ class _LatexMathParser:
         if right_chr == ".":
             right_chr = ""
 
-        if left_chr in ("(", "[", "{", "|", "‖") and right_chr in (")", "]", "}", "|", "‖", ""):
+        if left_chr in STRETCHY_DELIMS and right_chr in STRETCHY_DELIMS and (left_chr or right_chr):
             return [_wrap_in_delimiter(inner_els, left_chr, right_chr)]
 
         res: list[ET.Element] = []
@@ -709,11 +1155,19 @@ class _LatexMathParser:
             res.append(_make_run(right_chr, normal_text=True))
         return res
 
+    def _skip_limits_tokens(self) -> None:
+        while True:
+            self.skip_ws()
+            m = re.match(r"\\(?:limits|nolimits|displaylimits)(?![A-Za-z])", self.s[self.pos:])
+            if not m:
+                return
+            self.pos += m.end()
+
     def _parse_nary(self, symbol: str) -> ET.Element:
         sub_els: list[ET.Element] = []
         sup_els: list[ET.Element] = []
         for _ in range(2):
-            self.skip_ws()
+            self._skip_limits_tokens()
             if self.pos < self.n and self.s[self.pos] == "_":
                 self.pos += 1
                 sub_els = self.parse_single_atom()
@@ -724,10 +1178,13 @@ class _LatexMathParser:
         operand_els: list[ET.Element] = []
         while self.pos < self.n:
             self.skip_ws()
-            if self.pos >= self.n or self.s[self.pos] in "=," or self.s.startswith(r"\right", self.pos):
+            if self.pos >= self.n or self.s[self.pos] in "=," or self._at_cmd(r"\right"):
                 break
+            before = self.pos
             nxt = self.parse_next_with_scripts()
             if not nxt:
+                if self.pos > before:
+                    continue
                 break
             operand_els.extend(nxt)
         if not operand_els:
@@ -764,7 +1221,7 @@ class _LatexMathParser:
         return nary
 
     def _parse_lim_op(self, op_name: str) -> ET.Element:
-        self.skip_ws()
+        self._skip_limits_tokens()
         if self.pos < self.n and self.s[self.pos] == "_":
             self.pos += 1
             lim_els = self.parse_single_atom()
@@ -781,7 +1238,25 @@ class _LatexMathParser:
 
     def _parse_environment(self, env_name: str) -> ET.Element:
         end_token = f"\\end{{{env_name}}}"
-        idx = self.s.find(end_token, self.pos)
+        begin_token = f"\\begin{{{env_name}}}"
+        # tìm \end khớp, tính cả môi trường cùng tên lồng bên trong (hệ trong hệ)
+        depth = 1
+        scan = self.pos
+        idx = -1
+        while True:
+            nb = self.s.find(begin_token, scan)
+            ne = self.s.find(end_token, scan)
+            if ne == -1:
+                break
+            if nb != -1 and nb < ne:
+                depth += 1
+                scan = nb + len(begin_token)
+                continue
+            depth -= 1
+            if depth == 0:
+                idx = ne
+                break
+            scan = ne + len(end_token)
         if idx == -1:
             body = self.s[self.pos :]
             self.pos = self.n
@@ -799,11 +1274,12 @@ class _LatexMathParser:
 
     def _build_cases(self, body: str, left_chr: str = "{") -> ET.Element:
         """Build a native OMML system of equations with a single stretchy left brace <m:d> + <m:m>."""
-        raw_rows = [r.strip() for r in re.split(r"\\\\", body) if r.strip()]
+        raw_rows = [r.strip() for r in _split_top_level(body, "rows") if r.strip()]
         parsed_rows: list[list[str]] = []
         for r_str in raw_rows:
-            if "&" in r_str:
-                cols = [c.strip() for c in r_str.split("&")]
+            cols_top = _split_top_level(r_str, "cols")
+            if len(cols_top) > 1:
+                cols = [c.strip() for c in cols_top]
             else:
                 m_eqnum = re.match(r"^(.*?)(?:\\quad|\\qquad|\s{2,})(\(\d+\))\s*$", r_str)
                 if m_eqnum:
@@ -848,8 +1324,10 @@ class _LatexMathParser:
         """Build a native OMML matrix <m:m>, wrapped in <m:d> brackets for bmatrix/pmatrix/vmatrix/Bmatrix."""
         if env_name == "array":
             body = re.sub(r"^\s*\{[^{}]*\}", "", body, count=1)
-        raw_rows = [r.strip() for r in re.split(r"\\\\", body) if r.strip()]
-        parsed_rows = [[c.strip() for c in r_str.split("&")] for r_str in raw_rows]
+        raw_rows = [r.strip() for r in _split_top_level(body, "rows") if r.strip()]
+        raw_rows = [re.sub(r"^\\hline\s*", "", r).strip() for r in raw_rows]
+        raw_rows = [r for r in raw_rows if r and r != "\\hline"]
+        parsed_rows = [[c.strip() for c in _split_top_level(r_str, "cols")] for r_str in raw_rows]
         max_cols = max((len(r) for r in parsed_rows), default=1)
 
         m_el = _m("m")
@@ -888,10 +1366,10 @@ class _LatexMathParser:
 
     def _build_aligned(self, body: str) -> ET.Element:
         """Build a multi-line aligned equation array using a left-aligned <m:m> matrix."""
-        raw_rows = [r.strip() for r in re.split(r"\\\\", body) if r.strip()]
+        raw_rows = [r.strip() for r in _split_top_level(body, "rows") if r.strip()]
         if not raw_rows:
             return _make_run("")
-        parsed_rows = [[c.strip() for c in r_str.split("&")] for r_str in raw_rows]
+        parsed_rows = [[c.strip() for c in _split_top_level(r_str, "cols")] for r_str in raw_rows]
         max_cols = max((len(r) for r in parsed_rows), default=1)
 
         m_el = _m("m")
@@ -996,10 +1474,13 @@ class _LatexMathParser:
             self.skip_ws()
             if self.pos >= self.n:
                 break
-            if self.s.startswith(r"\right", self.pos):
+            if self._at_cmd(r"\right"):
                 break
+            before = self.pos
             nxt = self.parse_next_with_scripts()
             if not nxt:
+                if self.pos > before:
+                    continue
                 break
             elements.extend(nxt)
         if self.tag:
@@ -1020,8 +1501,15 @@ def latex_to_omml_element(latex_math: str, display: bool = False):
         clean = clean[1:-1].strip()
 
     omath = _m("oMath")
+    rows = [r for r in _split_top_level(clean, "rows") if r.strip()]
+    has_amp = any(len(_split_top_level(r, "cols")) > 1 for r in rows)
     if clean in ("+", "-", "−", "±"):
         omath.append(_make_run("−" if clean == "-" else clean, normal_text=True))
+    elif len(rows) > 1 or has_amp:
+        # thân align/eqnarray/gather được đưa thẳng vào: nhiều hàng (\\) và/hoặc điểm canh (&) ở cấp ngoài cùng
+        # → m:eqArr thay vì in ra chữ "&" và dồn các hàng thành một dòng.
+        omath.append(_build_eqarr(rows))
+        _stat("notes", "eqarr_from_toplevel_rows")
     else:
         parser = _LatexMathParser(clean)
         children = parser.parse_all()

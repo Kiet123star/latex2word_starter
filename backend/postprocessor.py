@@ -1,50 +1,46 @@
 """OOXML Table Post-Processor (`backend/postprocessor.py`).
 
-Inspects and refines Word tables without clobbering specialized math tables:
-- Preserves Variation / Sign tables (`tkz-tab`) with custom double asymptote borders
-- Preserves Side-by-Side layout tables (`\immini`)
-- Ensures Multiple-Choice tables (exact 4 options A., B., C., D.) remain borderless
-- Ensures Data / Statistical tables have clean borders and vertical centering
+Kiểm kê bảng Word theo VAI TRÒ:
+* ưu tiên metadata `w:tblDescription = "l2w:role=…"` do bộ dựng bảng ghi (mcq, true_false, variation,
+  data, layout_immini…);
+* chỉ khi bảng không có metadata (vd. engine cũ) mới đoán theo cấu trúc — và ghi rõ là heuristic.
+
+Bản cũ đoán bảng biến thiên chỉ vì ô đầu là "x" (bảng số liệu x|1|2|3 bị nhận nhầm) và nhận bảng
+dàn trang immini theo tên media; nay vai trò lấy từ metadata.
+
+Module này KHÔNG sửa nội dung bảng nên không ghi lại tệp (tránh lưu lại không cần thiết).
 """
 from __future__ import annotations
 
-import re
 from pathlib import Path
 
 try:
     import docx
-    from docx.oxml import OxmlElement
     from docx.oxml.ns import qn
+    from docx.table import Table
 
     HAS_DOCX = True
 except ImportError:
     HAS_DOCX = False
 
+from .ooxml_tools import get_table_role
+
 
 def _is_variation_table(table) -> bool:
-    """Detect if a Word table is a tkz-tab variation/sign table."""
-    if len(table.rows) < 2 or len(table.rows[0].cells) < 3:
-        return False
-    col0_texts = [r.cells[0].text.strip() for r in table.rows if r.cells]
-    # Variation tables have x in row 0 col 0, and y', f'(x), y, or f(x) below
-    if col0_texts and col0_texts[0] in ("x", "$x$"):
-        return True
-    # Also check if any cell contains a VarArrow_ DrawingML shape
-    xml_str = table._tbl.xml
-    return "VarArrow_" in xml_str
+    """Heuristic (chỉ dùng khi thiếu metadata): bảng có mũi tên biến thiên DrawingML."""
+    return "VarArrow_" in table._tbl.xml
 
 
 def _is_immini_table(table) -> bool:
-    """Detect if a Word table is a 1x2 side-by-side \immini layout table."""
+    """Heuristic (chỉ dùng khi thiếu metadata): 1×2, ô phải chứa hình (nhóm DrawingML hoặc ảnh)."""
     if len(table.rows) == 1 and len(table.rows[0].cells) == 2:
         right_xml = table.rows[0].cells[1]._tc.xml
-        if "EditableMathShapeGroup_" in right_xml:
-            return True
+        return "EditableMathShapeGroup_" in right_xml or "<pic:pic" in right_xml or "wpg:wgp" in right_xml
     return False
 
 
 def _is_multiple_choice_table(table) -> bool:
-    """Strictly detect a 4-option multiple-choice table (every non-empty cell starts with A., B., C., or D.)."""
+    """Heuristic: đúng 4 ô có chữ, lần lượt bắt đầu bằng A., B., C., D."""
     non_empty = [c.text.strip() for r in table.rows for c in r.cells if c.text.strip()]
     if len(non_empty) != 4:
         return False
@@ -52,52 +48,52 @@ def _is_multiple_choice_table(table) -> bool:
     return all(non_empty[i].startswith(expected[i]) for i in range(4))
 
 
+_ROLE_KEY = {
+    "variation": "variation_tables", "mcq": "choice_tables", "true_false": "choice_tables",
+    "layout_immini": "immini_tables", "layout_mcq_pdf": "choice_tables", "data": "data_tables",
+}
+
+
 def postprocess_docx_tables(docx_path: Path, is_mode2: bool = True) -> dict[str, int]:
-    """Audit and normalize all tables in a generated .docx document."""
+    """Kiểm kê toàn bộ bảng của tệp .docx (đọc, không ghi)."""
     stats = {
         "tables_processed": 0,
         "variation_tables": 0,
         "choice_tables": 0,
         "immini_tables": 0,
         "data_tables": 0,
+        "other_tables": 0,
         "cells_formatted": 0,
         "merged_cells_detected": 0,
+        "role_from_metadata": 0,
+        "role_from_heuristic": 0,
     }
-    if not HAS_DOCX or not docx_path.exists():
+    if not HAS_DOCX or not Path(docx_path).exists():
         return stats
 
     doc = docx.Document(str(docx_path))
-    for table in doc.tables:
+    for tbl_el in doc.element.body.iter(qn("w:tbl")):
+        table = Table(tbl_el, doc._body)
         stats["tables_processed"] += 1
-        tbl_pr = table._tbl.tblPr
-        if tbl_pr is None:
-            continue
-
-        if _is_variation_table(table):
-            stats["variation_tables"] += 1
-            for row in table.rows:
-                stats["cells_formatted"] += len(row.cells)
-            continue
-
-        if _is_immini_table(table):
-            stats["immini_tables"] += 1
-            for row in table.rows:
-                stats["cells_formatted"] += len(row.cells)
-            continue
-
-        if _is_multiple_choice_table(table):
-            stats["choice_tables"] += 1
-            for row in table.rows:
-                stats["cells_formatted"] += len(row.cells)
-            continue
-
-        stats["data_tables"] += 1
-        for row in table.rows:
-            for cell in row.cells:
-                stats["cells_formatted"] += 1
-                tc_pr = cell._tc.get_or_add_tcPr()
-                if tc_pr.find(qn("w:gridSpan")) is not None or tc_pr.find(qn("w:vMerge")) is not None:
-                    stats["merged_cells_detected"] += 1
-
-    doc.save(str(docx_path))
+        meta = get_table_role(tbl_el)
+        if meta:
+            stats["role_from_metadata"] += 1
+            role = meta["role"]
+        else:
+            stats["role_from_heuristic"] += 1
+            if _is_variation_table(table):
+                role = "variation"
+            elif _is_immini_table(table):
+                role = "layout_immini"
+            elif _is_multiple_choice_table(table):
+                role = "mcq"
+            else:
+                role = "data"
+        stats[_ROLE_KEY.get(role, "other_tables")] += 1
+        for tc in tbl_el.iter(qn("w:tc")):
+            stats["cells_formatted"] += 1
+            tc_pr = tc.find(qn("w:tcPr"))
+            if role == "data" and tc_pr is not None and (
+                    tc_pr.find(qn("w:gridSpan")) is not None or tc_pr.find(qn("w:vMerge")) is not None):
+                stats["merged_cells_detected"] += 1
     return stats

@@ -1,0 +1,1183 @@
+{
+  "schema": "l2w-report/2",
+  "job_id": "eec1c1a8735b",
+  "started_at": "2026-10-24T00:28:43",
+  "input": {
+    "name": "hai_cot.pdf",
+    "kind": "pdf",
+    "original_name": "hai_cot.pdf",
+    "path": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\eec1c1a8735b\\input\\hai_cot.pdf",
+    "sha256": "31a6dc54a747da76e12e91cf260dae5ce0900d97e4896699848f71ad631005e2",
+    "size": 53148,
+    "detection": {
+      "kind": "pdf",
+      "reason": "chữ ký %PDF-",
+      "extension": "pdf",
+      "warnings": []
+    }
+  },
+  "conversion_completed": true,
+  "quality_status": "review_required",
+  "status": "review_required",
+  "overall": "review_required",
+  "issues": [],
+  "steps": [
+    {
+      "step": "analyze_pdf",
+      "seconds": 0.11,
+      "pages": 1,
+      "blocks": 16
+    },
+    {
+      "step": "build_docx",
+      "seconds": 0.05
+    },
+    {
+      "step": "package_check",
+      "seconds": 0.11,
+      "ok": true
+    }
+  ],
+  "limitations": [
+    "Không cam kết giống 100% hay sửa được 100%: ảnh SVG/PNG nhúng là ảnh, không phải OMML/Word Shapes.",
+    "‘passed’ chỉ áp dụng cho các tiêu chí tự động đã nêu trong báo cáo, không có nghĩa đúng mọi tài liệu.",
+    "Render QA dùng LibreOffice; Microsoft Word có thể ngắt dòng/trang khác.",
+    "Nhận dạng công thức từ PDF là heuristic (chỉ phân số/chỉ số đơn giản); công thức không chắc → ảnh vùng.",
+    "OCR chưa có trên máy → trang scan giữ ảnh trang."
+  ],
+  "options": {
+    "mode": 2,
+    "dpi": 150,
+    "strict": false,
+    "qa_pdf": false,
+    "engine": "xelatex",
+    "answer_mode": "source",
+    "show_solutions": true,
+    "figure_policy": "auto",
+    "preprocess": "engine",
+    "ocr": "auto",
+    "ocr_lang": null
+  },
+  "source": {
+    "pdf": "hai_cot.pdf",
+    "pages": 1,
+    "page_types": {
+      "1": "text"
+    },
+    "document": {
+      "encrypted": false,
+      "pdf_version": "1.3",
+      "producer": "l2w-tests (reportlab)",
+      "creator": "l2w-tests",
+      "form_xobjects": 0
+    }
+  },
+  "pdf_manifest_summary": {
+    "blocks": 16,
+    "by_method": {
+      "text_native": 16
+    },
+    "by_type": {
+      "paragraph": 16
+    },
+    "page_types": {
+      "text": 1
+    },
+    "unresolved": 0,
+    "inline_math_omml": 0,
+    "inline_math_images": 0,
+    "confidence_note": "confidence là heuristic nội bộ (0–1), chưa hiệu chuẩn trên tập dữ liệu thật."
+  },
+  "blocks": {
+    "items": [
+      {
+        "block_id": "p1-b1",
+        "type": "paragraph",
+        "page": 1,
+        "bbox": [
+          50.0,
+          65.26,
+          162.72,
+          76.26
+        ],
+        "method": "text_native",
+        "lines": [
+          {
+            "runs": [
+              {
+                "text": "Cột trái câu số 1 kết thúc.",
+                "bold": false,
+                "italic": false,
+                "size": 11.0
+              }
+            ],
+            "math": []
+          }
+        ],
+        "text": "Cột trái câu số 1 kết thúc.",
+        "inline_math": [],
+        "align": "left",
+        "size": 11.0,
+        "warnings": [],
+        "status": "ok",
+        "column": 0,
+        "order": 1,
+        "parent": null,
+        "fallback_reason": null,
+        "confidence": null,
+        "source": {
+          "file": "hai_cot.pdf",
+          "page": 1,
+          "bbox_pt": [
+            50.0,
+            65.26,
+            162.72,
+            76.26
+          ],
+          "coords": "display_topleft_pt"
+        }
+      },
+      {
+        "block_id": "p1-b3",
+        "type": "paragraph",
+        "page": 1,
+        "bbox": [
+          50.0,
+          87.26,
+          162.72,
+          98.26
+        ],
+        "method": "text_native",
+        "lines": [
+          {
+            "runs": [
+              {
+                "text": "Cột trái câu số 2 kết thúc.",
+                "bold": false,
+                "italic": false,
+                "size": 11.0
+              }
+            ],
+            "math": []
+          }
+        ],
+        "text": "Cột trái câu số 2 kết thúc.",
+        "inline_math": [],
+        "align": "left",
+        "size": 11.0,
+        "warnings": [],
+        "status": "ok",
+        "column": 0,
+        "order": 2,
+        "parent": null,
+        "fallback_reason": null,
+        "confidence": null,
+        "source": {
+          "file": "hai_cot.pdf",
+          "page": 1,
+          "bbox_pt": [
+            50.0,
+            87.26,
+            162.72,
+            98.26
+          ],
+          "coords": "display_topleft_pt"
+        }
+      },
+      {
+        "block_id": "p1-b5",
+        "type": "paragraph",
+        "page": 1,
+        "bbox": [
+          50.0,
+          109.26,
+          162.72,
+          120.26
+        ],
+        "method": "text_native",
+        "lines": [
+          {
+            "runs": [
+              {
+                "text": "Cột trái câu số 3 kết thúc.",
+                "bold": false,
+                "italic": false,
+                "size": 11.0
+              }
+            ],
+            "math": []
+          }
+        ],
+        "text": "Cột trái câu số 3 kết thúc.",
+        "inline_math": [],
+        "align": "left",
+        "size": 11.0,
+        "warnings": [],
+        "status": "ok",
+        "column": 0,
+        "order": 3,
+        "parent": null,
+        "fallback_reason": null,
+        "confidence": null,
+        "source": {
+          "file": "hai_cot.pdf",
+          "page": 1,
+          "bbox_pt": [
+            50.0,
+            109.26,
+            162.72,
+            120.26
+          ],
+          "coords": "display_topleft_pt"
+        }
+      },
+      {
+        "block_id": "p1-b7",
+        "type": "paragraph",
+        "page": 1,
+        "bbox": [
+          50.0,
+          131.26,
+          162.72,
+          142.26
+        ],
+        "method": "text_native",
+        "lines": [
+          {
+            "runs": [
+              {
+                "text": "Cột trái câu số 4 kết thúc.",
+                "bold": false,
+                "italic": false,
+                "size": 11.0
+              }
+            ],
+            "math": []
+          }
+        ],
+        "text": "Cột trái câu số 4 kết thúc.",
+        "inline_math": [],
+        "align": "left",
+        "size": 11.0,
+        "warnings": [],
+        "status": "ok",
+        "column": 0,
+        "order": 4,
+        "parent": null,
+        "fallback_reason": null,
+        "confidence": null,
+        "source": {
+          "file": "hai_cot.pdf",
+          "page": 1,
+          "bbox_pt": [
+            50.0,
+            131.26,
+            162.72,
+            142.26
+          ],
+          "coords": "display_topleft_pt"
+        }
+      },
+      {
+        "block_id": "p1-b9",
+        "type": "paragraph",
+        "page": 1,
+        "bbox": [
+          50.0,
+          153.26,
+          162.72,
+          164.26
+        ],
+        "method": "text_native",
+        "lines": [
+          {
+            "runs": [
+              {
+                "text": "Cột trái câu số 5 kết thúc.",
+                "bold": false,
+                "italic": false,
+                "size": 11.0
+              }
+            ],
+            "math": []
+          }
+        ],
+        "text": "Cột trái câu số 5 kết thúc.",
+        "inline_math": [],
+        "align": "left",
+        "size": 11.0,
+        "warnings": [],
+        "status": "ok",
+        "column": 0,
+        "order": 5,
+        "parent": null,
+        "fallback_reason": null,
+        "confidence": null,
+        "source": {
+          "file": "hai_cot.pdf",
+          "page": 1,
+          "bbox_pt": [
+            50.0,
+            153.26,
+            162.72,
+            164.26
+          ],
+          "coords": "display_topleft_pt"
+        }
+      },
+      {
+        "block_id": "p1-b11",
+        "type": "paragraph",
+        "page": 1,
+        "bbox": [
+          50.0,
+          175.26,
+          162.72,
+          186.26
+        ],
+        "method": "text_native",
+        "lines": [
+          {
+            "runs": [
+              {
+                "text": "Cột trái câu số 6 kết thúc.",
+                "bold": false,
+                "italic": false,
+                "size": 11.0
+              }
+            ],
+            "math": []
+          }
+        ],
+        "text": "Cột trái câu số 6 kết thúc.",
+        "inline_math": [],
+        "align": "left",
+        "size": 11.0,
+        "warnings": [],
+        "status": "ok",
+        "column": 0,
+        "order": 6,
+        "parent": null,
+        "fallback_reason": null,
+        "confidence": null,
+        "source": {
+          "file": "hai_cot.pdf",
+          "page": 1,
+          "bbox_pt": [
+            50.0,
+            175.26,
+            162.72,
+            186.26
+          ],
+          "coords": "display_topleft_pt"
+        }
+      },
+      {
+        "block_id": "p1-b13",
+        "type": "paragraph",
+        "page": 1,
+        "bbox": [
+          50.0,
+          197.26,
+          162.72,
+          208.26
+        ],
+        "method": "text_native",
+        "lines": [
+          {
+            "runs": [
+              {
+                "text": "Cột trái câu số 7 kết thúc.",
+                "bold": false,
+                "italic": false,
+                "size": 11.0
+              }
+            ],
+            "math": []
+          }
+        ],
+        "text": "Cột trái câu số 7 kết thúc.",
+        "inline_math": [],
+        "align": "left",
+        "size": 11.0,
+        "warnings": [],
+        "status": "ok",
+        "column": 0,
+        "order": 7,
+        "parent": null,
+        "fallback_reason": null,
+        "confidence": null,
+        "source": {
+          "file": "hai_cot.pdf",
+          "page": 1,
+          "bbox_pt": [
+            50.0,
+            197.26,
+            162.72,
+            208.26
+          ],
+          "coords": "display_topleft_pt"
+        }
+      },
+      {
+        "block_id": "p1-b15",
+        "type": "paragraph",
+        "page": 1,
+        "bbox": [
+          50.0,
+          219.26,
+          162.72,
+          230.26
+        ],
+        "method": "text_native",
+        "lines": [
+          {
+            "runs": [
+              {
+                "text": "Cột trái câu số 8 kết thúc.",
+                "bold": false,
+                "italic": false,
+                "size": 11.0
+              }
+            ],
+            "math": []
+          }
+        ],
+        "text": "Cột trái câu số 8 kết thúc.",
+        "inline_math": [],
+        "align": "left",
+        "size": 11.0,
+        "warnings": [],
+        "status": "ok",
+        "column": 0,
+        "order": 8,
+        "parent": null,
+        "fallback_reason": null,
+        "confidence": null,
+        "source": {
+          "file": "hai_cot.pdf",
+          "page": 1,
+          "bbox_pt": [
+            50.0,
+            219.26,
+            162.72,
+            230.26
+          ],
+          "coords": "display_topleft_pt"
+        }
+      },
+      {
+        "block_id": "p1-b2",
+        "type": "paragraph",
+        "page": 1,
+        "bbox": [
+          320.0,
+          65.26,
+          426.79,
+          76.26
+        ],
+        "method": "text_native",
+        "lines": [
+          {
+            "runs": [
+              {
+                "text": "Cột phải dòng thứ 1 hết.",
+                "bold": false,
+                "italic": false,
+                "size": 11.0
+              }
+            ],
+            "math": []
+          }
+        ],
+        "text": "Cột phải dòng thứ 1 hết.",
+        "inline_math": [],
+        "align": "left",
+        "size": 11.0,
+        "warnings": [],
+        "status": "ok",
+        "column": 1,
+        "order": 9,
+        "parent": null,
+        "fallback_reason": null,
+        "confidence": null,
+        "source": {
+          "file": "hai_cot.pdf",
+          "page": 1,
+          "bbox_pt": [
+            320.0,
+            65.26,
+            426.79,
+            76.26
+          ],
+          "coords": "display_topleft_pt"
+        }
+      },
+      {
+        "block_id": "p1-b4",
+        "type": "paragraph",
+        "page": 1,
+        "bbox": [
+          320.0,
+          87.26,
+          426.79,
+          98.26
+        ],
+        "method": "text_native",
+        "lines": [
+          {
+            "runs": [
+              {
+                "text": "Cột phải dòng thứ 2 hết.",
+                "bold": false,
+                "italic": false,
+                "size": 11.0
+              }
+            ],
+            "math": []
+          }
+        ],
+        "text": "Cột phải dòng thứ 2 hết.",
+        "inline_math": [],
+        "align": "left",
+        "size": 11.0,
+        "warnings": [],
+        "status": "ok",
+        "column": 1,
+        "order": 10,
+        "parent": null,
+        "fallback_reason": null,
+        "confidence": null,
+        "source": {
+          "file": "hai_cot.pdf",
+          "page": 1,
+          "bbox_pt": [
+            320.0,
+            87.26,
+            426.79,
+            98.26
+          ],
+          "coords": "display_topleft_pt"
+        }
+      },
+      {
+        "block_id": "p1-b6",
+        "type": "paragraph",
+        "page": 1,
+        "bbox": [
+          320.0,
+          109.26,
+          426.79,
+          120.26
+        ],
+        "method": "text_native",
+        "lines": [
+          {
+            "runs": [
+              {
+                "text": "Cột phải dòng thứ 3 hết.",
+                "bold": false,
+                "italic": false,
+                "size": 11.0
+              }
+            ],
+            "math": []
+          }
+        ],
+        "text": "Cột phải dòng thứ 3 hết.",
+        "inline_math": [],
+        "align": "left",
+        "size": 11.0,
+        "warnings": [],
+        "status": "ok",
+        "column": 1,
+        "order": 11,
+        "parent": null,
+        "fallback_reason": null,
+        "confidence": null,
+        "source": {
+          "file": "hai_cot.pdf",
+          "page": 1,
+          "bbox_pt": [
+            320.0,
+            109.26,
+            426.79,
+            120.26
+          ],
+          "coords": "display_topleft_pt"
+        }
+      },
+      {
+        "block_id": "p1-b8",
+        "type": "paragraph",
+        "page": 1,
+        "bbox": [
+          320.0,
+          131.26,
+          426.79,
+          142.26
+        ],
+        "method": "text_native",
+        "lines": [
+          {
+            "runs": [
+              {
+                "text": "Cột phải dòng thứ 4 hết.",
+                "bold": false,
+                "italic": false,
+                "size": 11.0
+              }
+            ],
+            "math": []
+          }
+        ],
+        "text": "Cột phải dòng thứ 4 hết.",
+        "inline_math": [],
+        "align": "left",
+        "size": 11.0,
+        "warnings": [],
+        "status": "ok",
+        "column": 1,
+        "order": 12,
+        "parent": null,
+        "fallback_reason": null,
+        "confidence": null,
+        "source": {
+          "file": "hai_cot.pdf",
+          "page": 1,
+          "bbox_pt": [
+            320.0,
+            131.26,
+            426.79,
+            142.26
+          ],
+          "coords": "display_topleft_pt"
+        }
+      },
+      {
+        "block_id": "p1-b10",
+        "type": "paragraph",
+        "page": 1,
+        "bbox": [
+          320.0,
+          153.26,
+          426.79,
+          164.26
+        ],
+        "method": "text_native",
+        "lines": [
+          {
+            "runs": [
+              {
+                "text": "Cột phải dòng thứ 5 hết.",
+                "bold": false,
+                "italic": false,
+                "size": 11.0
+              }
+            ],
+            "math": []
+          }
+        ],
+        "text": "Cột phải dòng thứ 5 hết.",
+        "inline_math": [],
+        "align": "left",
+        "size": 11.0,
+        "warnings": [],
+        "status": "ok",
+        "column": 1,
+        "order": 13,
+        "parent": null,
+        "fallback_reason": null,
+        "confidence": null,
+        "source": {
+          "file": "hai_cot.pdf",
+          "page": 1,
+          "bbox_pt": [
+            320.0,
+            153.26,
+            426.79,
+            164.26
+          ],
+          "coords": "display_topleft_pt"
+        }
+      },
+      {
+        "block_id": "p1-b12",
+        "type": "paragraph",
+        "page": 1,
+        "bbox": [
+          320.0,
+          175.26,
+          426.79,
+          186.26
+        ],
+        "method": "text_native",
+        "lines": [
+          {
+            "runs": [
+              {
+                "text": "Cột phải dòng thứ 6 hết.",
+                "bold": false,
+                "italic": false,
+                "size": 11.0
+              }
+            ],
+            "math": []
+          }
+        ],
+        "text": "Cột phải dòng thứ 6 hết.",
+        "inline_math": [],
+        "align": "left",
+        "size": 11.0,
+        "warnings": [],
+        "status": "ok",
+        "column": 1,
+        "order": 14,
+        "parent": null,
+        "fallback_reason": null,
+        "confidence": null,
+        "source": {
+          "file": "hai_cot.pdf",
+          "page": 1,
+          "bbox_pt": [
+            320.0,
+            175.26,
+            426.79,
+            186.26
+          ],
+          "coords": "display_topleft_pt"
+        }
+      },
+      {
+        "block_id": "p1-b14",
+        "type": "paragraph",
+        "page": 1,
+        "bbox": [
+          320.0,
+          197.26,
+          426.79,
+          208.26
+        ],
+        "method": "text_native",
+        "lines": [
+          {
+            "runs": [
+              {
+                "text": "Cột phải dòng thứ 7 hết.",
+                "bold": false,
+                "italic": false,
+                "size": 11.0
+              }
+            ],
+            "math": []
+          }
+        ],
+        "text": "Cột phải dòng thứ 7 hết.",
+        "inline_math": [],
+        "align": "left",
+        "size": 11.0,
+        "warnings": [],
+        "status": "ok",
+        "column": 1,
+        "order": 15,
+        "parent": null,
+        "fallback_reason": null,
+        "confidence": null,
+        "source": {
+          "file": "hai_cot.pdf",
+          "page": 1,
+          "bbox_pt": [
+            320.0,
+            197.26,
+            426.79,
+            208.26
+          ],
+          "coords": "display_topleft_pt"
+        }
+      },
+      {
+        "block_id": "p1-b16",
+        "type": "paragraph",
+        "page": 1,
+        "bbox": [
+          320.0,
+          219.26,
+          426.79,
+          230.26
+        ],
+        "method": "text_native",
+        "lines": [
+          {
+            "runs": [
+              {
+                "text": "Cột phải dòng thứ 8 hết.",
+                "bold": false,
+                "italic": false,
+                "size": 11.0
+              }
+            ],
+            "math": []
+          }
+        ],
+        "text": "Cột phải dòng thứ 8 hết.",
+        "inline_math": [],
+        "align": "left",
+        "size": 11.0,
+        "warnings": [],
+        "status": "ok",
+        "column": 1,
+        "order": 16,
+        "parent": null,
+        "fallback_reason": null,
+        "confidence": null,
+        "source": {
+          "file": "hai_cot.pdf",
+          "page": 1,
+          "bbox_pt": [
+            320.0,
+            219.26,
+            426.79,
+            230.26
+          ],
+          "coords": "display_topleft_pt"
+        }
+      }
+    ],
+    "build": {
+      "counts": {
+        "paragraphs": 16,
+        "omml": 0,
+        "images": 0,
+        "tables": 0,
+        "mcq": 0,
+        "layouts": 0,
+        "notices": 0
+      },
+      "placed": {
+        "p1-b1": "paragraph",
+        "p1-b3": "paragraph",
+        "p1-b5": "paragraph",
+        "p1-b7": "paragraph",
+        "p1-b9": "paragraph",
+        "p1-b11": "paragraph",
+        "p1-b13": "paragraph",
+        "p1-b15": "paragraph",
+        "p1-b2": "paragraph",
+        "p1-b4": "paragraph",
+        "p1-b6": "paragraph",
+        "p1-b8": "paragraph",
+        "p1-b10": "paragraph",
+        "p1-b12": "paragraph",
+        "p1-b14": "paragraph",
+        "p1-b16": "paragraph"
+      },
+      "not_placed": [],
+      "media": {
+        "images_added": 0,
+        "markers_replaced": 0,
+        "markers_missing": 0,
+        "markers_text_fallback": 0,
+        "logical_images": 0
+      },
+      "pages_built": 1
+    }
+  },
+  "engine_report": {
+    "engine": "pdf_reader + pdf_docx_builder",
+    "paragraphs": 16,
+    "omml": 0,
+    "images": 0,
+    "tables": 0,
+    "mcq": 0,
+    "layouts": 0,
+    "notices": 0,
+    "engine_counts_before_postprocess": {
+      "equation_nodes": null,
+      "word_tables": null,
+      "drawingml_groups": null,
+      "drawingml_shapes": null,
+      "embedded_media_files": null
+    },
+    "equation_nodes": 0,
+    "word_tables": 0,
+    "drawingml_groups": 0,
+    "drawingml_shapes": 0,
+    "embedded_media_files": 0
+  },
+  "postprocess": {
+    "accent_fix": {
+      "da_sua": 0,
+      "ky_tu": {}
+    },
+    "xml_order_fixed": 0
+  },
+  "package": {
+    "ok": true,
+    "errors": [],
+    "warnings": []
+  },
+  "counts": {
+    "ok": true,
+    "paragraphs": 16,
+    "text_chars": 423,
+    "equation_nodes": 0,
+    "omml_paragraphs": 0,
+    "word_tables": 0,
+    "tables_by_role": {},
+    "table_role_source": {},
+    "empty_tables": 0,
+    "drawingml_groups": 0,
+    "drawingml_shapes": 0,
+    "logical_images": 0,
+    "svg_backed_images": 0,
+    "media_parts": 0,
+    "marker_leaks": {
+      "truth_marker": 0,
+      "image_marker": 0,
+      "layout_sentinel": 0,
+      "engine_block_token": 0,
+      "verbatim_marker": 0
+    },
+    "marker_leaks_total": 0,
+    "l2w_notices": [],
+    "tex_residue_count": 0,
+    "tex_residue_samples": []
+  },
+  "layers": [
+    {
+      "layer": 1,
+      "name": "A. Nội dung (chữ PDF ↔ Word, dấu tiếng Việt, rò rỉ)",
+      "status": "PASS",
+      "summary": "Giữ 100.0% từ và 100.0% chữ/số của PDF (ngoài vùng ảnh); đủ nội dung chữ.",
+      "details": {
+        "source_tokens": 88,
+        "docx_tokens": 88,
+        "matched_tokens": 88,
+        "token_recall": 1.0,
+        "order_ratio": 0.3864,
+        "duplicate_excess_ratio": 0.0,
+        "generated_label_tokens": 0,
+        "missing_sample": [],
+        "lost_diacritics_sample": [],
+        "lost_diacritics": 0,
+        "tex_residue": 0,
+        "tex_residue_sample": [],
+        "marker_leaks": 0,
+        "l2w_notices": [],
+        "metric": "token_recall = |token nguồn ∩ token Word| / |token nguồn| (đa tập, NFC, chữ thường); order_ratio = difflib ratio trên dãy token — tín hiệu thứ tự, không phải độ chính xác.",
+        "char_recall": 1.0,
+        "chars_not_in_source": 0,
+        "note": "Tham chiếu = chữ hiển thị của chính PDF (pdfplumber), trừ vùng đã giữ bằng ảnh. token_recall tính trên TỪ (≥2 chữ cái); char_recall tính mọi chữ/số kể cả trong công thức (OMML). Chữ tham chiếu theo thứ tự đường cơ sở nên order_ratio chỉ là tín hiệu."
+      },
+      "group": "A",
+      "required": true
+    },
+    {
+      "layer": 2,
+      "name": "B. Toán (OMML / ảnh vùng)",
+      "status": "PASS",
+      "summary": "0/0 OMML, 0/0 ảnh công thức (math_as_image).",
+      "details": {
+        "math_blocks": 0,
+        "math_omml_blocks": 0,
+        "inline_math_omml": 0,
+        "expected_omml": 0,
+        "omml_in_docx": 0,
+        "math_as_image": 0,
+        "math_images_found": 0,
+        "unresolved": 0,
+        "metric": "Số OMML phải bằng số khối/đoạn toán đã nhận dạng native; khối toán giữ bằng ảnh phải có ảnh mang đúng block_id. Nhận dạng toán từ PDF là heuristic (xem confidence từng khối)."
+      },
+      "group": "B",
+      "required": true
+    },
+    {
+      "layer": 3,
+      "name": "C. Hình (ảnh vùng gốc / DrawingML)",
+      "status": "PASS",
+      "summary": "0/0 khối hình có trong Word.",
+      "details": {
+        "figure_blocks": 0,
+        "found_in_docx": 0,
+        "missing_blocks": [],
+        "logical_images": 0,
+        "media_parts": 0,
+        "by_method": {},
+        "note": "Mỗi khối hình/ảnh trang phải có đúng một ảnh logic mang block_id (SVG+PNG = 1)."
+      },
+      "group": "C",
+      "required": true
+    },
+    {
+      "layer": 4,
+      "name": "D. Bảng & bố cục",
+      "status": "PASS",
+      "summary": "0/0 bảng native, 0/0 bảng giữ ảnh.",
+      "details": {
+        "table_blocks": 0,
+        "native": 0,
+        "native_found": 0,
+        "as_image": 0,
+        "as_image_found": 0,
+        "docx_tables_by_role": {},
+        "empty_tables": []
+      },
+      "group": "D",
+      "required": true
+    },
+    {
+      "layer": 5,
+      "name": "E. Hiển thị (render Word ↔ PDF nguồn)",
+      "status": "NOT_MEASURED",
+      "summary": "QA hiển thị bị tắt (qa_pdf=False) → nhóm E chưa thực hiện.",
+      "details": {
+        "enabled": false,
+        "measured": false,
+        "similarity_percent": null,
+        "reason": "QA hiển thị bị tắt (qa_pdf=False) → nhóm E chưa thực hiện."
+      },
+      "group": "E",
+      "required": true
+    }
+  ],
+  "blocks_summary": {
+    "total": 16,
+    "by_method": {
+      "text_native": 16
+    },
+    "unresolved": 0,
+    "native": 16,
+    "as_image": 0
+  },
+  "quality": {
+    "quality_status": "review_required",
+    "conversion_completed": true,
+    "reasons": [
+      "chưa thực hiện: L5 E. Hiển thị (render Word ↔ PDF nguồn): QA hiển thị bị tắt (qa_pdf=False) → nhóm E chưa thực hiện."
+    ],
+    "not_performed": [
+      "L5 E. Hiển thị (render Word ↔ PDF nguồn): QA hiển thị bị tắt (qa_pdf=False) → nhóm E chưa thực hiện."
+    ],
+    "layer_status": {
+      "L1": "PASS",
+      "L2": "PASS",
+      "L3": "PASS",
+      "L4": "PASS",
+      "L5": "NOT_MEASURED"
+    },
+    "scope_note": "‘passed’ chỉ có nghĩa đạt các tiêu chí tự động đã nêu cho tệp này, không phải đúng 100%."
+  },
+  "input_preserved": true,
+  "output": {
+    "docx": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\eec1c1a8735b\\out\\hai_cot.docx",
+    "report": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\eec1c1a8735b\\out\\hai_cot.report.json",
+    "qa_pdf": null
+  },
+  "environment": {
+    "python": "3.14.7",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "libraries": {
+      "python_docx": "1.2.0",
+      "lxml": "6.1.3",
+      "pillow": "12.3.0",
+      "numpy": "2.5.4",
+      "pdfplumber": "0.11.10",
+      "pypdfium2": null,
+      "pikepdf": "10.17.0",
+      "pytesseract": "0.3.13",
+      "fastapi": "0.143.5",
+      "streamlit": "1.66.0"
+    },
+    "tools": {
+      "xelatex": "MiKTeX-XeTeX 4.18 (MiKTeX 26.5)",
+      "pdflatex": "MiKTeX-pdfTeX 4.27 (MiKTeX 26.5)",
+      "lualatex": "This is LuaHBTeX, Version 1.25.7 (MiKTeX 26.5)",
+      "pdftocairo": "pdftocairo version 24.04.0",
+      "imagemagick": "Invalid drive specification.",
+      "pandoc": "pandoc 3.12.1",
+      "docx2pdf": "0.1.8"
+    },
+    "tesseract_languages": []
+  },
+  "capabilities": {
+    "derived": {
+      "tex_upload": {
+        "available": true,
+        "detail": "engine dựng Word từ .tex/.zip"
+      },
+      "paste_smart": {
+        "available": true,
+        "detail": "tiền xử lý thông minh (dán mã)"
+      },
+      "pdf_reader": {
+        "available": true,
+        "detail": "pdfplumber (chữ/đường nét) + pypdfium2 (render/crop) + pikepdf (cấu trúc)"
+      },
+      "pdf_vector_crop": {
+        "available": true,
+        "detail": "cắt vùng PDF thành SVG bằng pdftocairo"
+      },
+      "ocr": {
+        "available": false,
+        "detail": "thiếu tesseract → trang scan giữ ảnh"
+      },
+      "math_ocr": {
+        "available": false,
+        "detail": "chưa cấu hình bộ nhận dạng công thức từ ảnh; công thức không chắc → ảnh vùng"
+      },
+      "visual_qa": {
+        "available": true,
+        "detail": "render DOCX→PDF bằng LibreOffice/Word rồi so với nguồn"
+      },
+      "tex_reference_compile": {
+        "available": true,
+        "detail": "biên dịch PDF tham chiếu từ nguồn TeX (shell-escape tắt)"
+      }
+    },
+    "tools": {
+      "xelatex": {
+        "available": true,
+        "version": "MiKTeX-XeTeX 4.18 (MiKTeX 26.5)"
+      },
+      "pdflatex": {
+        "available": true,
+        "version": "MiKTeX-pdfTeX 4.27 (MiKTeX 26.5)"
+      },
+      "lualatex": {
+        "available": true,
+        "version": "This is LuaHBTeX, Version 1.25.7 (MiKTeX 26.5)"
+      },
+      "pdftocairo": {
+        "available": true,
+        "version": "pdftocairo version 24.04.0"
+      },
+      "soffice": {
+        "available": false,
+        "version": null
+      },
+      "tesseract": {
+        "available": false,
+        "version": null
+      },
+      "ghostscript": {
+        "available": false,
+        "version": null
+      },
+      "imagemagick": {
+        "available": true,
+        "version": "Invalid drive specification."
+      },
+      "pandoc": {
+        "available": true,
+        "version": "pandoc 3.12.1"
+      },
+      "docx2pdf": {
+        "available": true,
+        "version": "0.1.8"
+      }
+    },
+    "tesseract_languages": [],
+    "missing_modules": {}
+  },
+  "finished_at": "2026-10-24T00:28:44"
+}

@@ -1,0 +1,6551 @@
+{
+ "schema": "l2w-pdf-manifest/1",
+ "coordinate_system": "pt; gốc trên-trái trang HIỂN THỊ (đã áp CropBox và /Rotate); y tăng xuống",
+ "source": {
+  "file": "bang_hai_trang.pdf"
+ },
+ "document": {
+  "encrypted": false,
+  "pdf_version": "1.4",
+  "producer": "ReportLab PDF Library - (opensource)",
+  "creator": "l2w-tests",
+  "form_xobjects": 0
+ },
+ "page_count": 3,
+ "pages": [
+  {
+   "visible_chars": 540,
+   "hidden_chars": 0,
+   "image_cover": 0.0,
+   "vector_objects": 40,
+   "unmapped_chars": 0,
+   "legacy_vn_fonts": [],
+   "type": "text",
+   "page": 1,
+   "mediabox": [
+    0.0,
+    0.0,
+    595.2756,
+    841.8898
+   ],
+   "cropbox": [
+    0.0,
+    0.0,
+    595.2756,
+    841.8898
+   ],
+   "rotation": 0,
+   "width": 595.28,
+   "height": 841.89,
+   "columns": null,
+   "reference_text": "STT Họ và tên Điểm\n1 Học sinh số 1 7.1\n2 Học sinh số 2 4.2\n3 Học sinh số 3 1.3\n4 Học sinh số 4 8.4\n5 Học sinh số 5 5.5\n6 Học sinh số 6 2.6\n7 Học sinh số 7 9.7\n8 Học sinh số 8 6.8\n9 Học sinh số 9 3.9\n10 Học sinh số 10 0.0\n11 Học sinh số 11 7.1\n12 Học sinh số 12 4.2\n13 Học sinh số 13 1.3\n14 Học sinh số 14 8.4\n15 Học sinh số 15 5.5\n16 Học sinh số 16 2.6\n17 Học sinh số 17 9.7\n18 Học sinh số 18 6.8\n19 Học sinh số 19 3.9\n20 Học sinh số 20 0.0\n21 Học sinh số 21 7.1\n22 Học sinh số 22 4.2\n23 Học sinh số 23 1.3\n24 Học sinh số 24 8.4\n25 Học sinh số 25 5.5\n26 Học sinh số 26 2.6\n27 Học sinh số 27 9.7\n28 Học sinh số 28 6.8\n29 Học sinh số 29 3.9\n30 Học sinh số 30 0.0\n31 Học sinh số 31 7.1\n32 Học sinh số 32 4.2\n33 Học sinh số 33 1.3\n34 Học sinh số 34 8.4",
+   "reference_excluded_chars": 0,
+   "text_plausibility": {
+    "checked": true,
+    "long_token_frac": 0.0,
+    "punct_ratio": 0.063,
+    "vowelless_word_ratio": 0.014,
+    "words": 71,
+    "suspect": false
+   }
+  },
+  {
+   "visible_chars": 558,
+   "hidden_chars": 0,
+   "image_cover": 0.0,
+   "vector_objects": 44,
+   "unmapped_chars": 0,
+   "legacy_vn_fonts": [],
+   "type": "text",
+   "page": 2,
+   "mediabox": [
+    0.0,
+    0.0,
+    595.2756,
+    841.8898
+   ],
+   "cropbox": [
+    0.0,
+    0.0,
+    595.2756,
+    841.8898
+   ],
+   "rotation": 0,
+   "width": 595.28,
+   "height": 841.89,
+   "columns": null,
+   "reference_text": "STT Họ và tên Điểm\n35 Học sinh số 35 5.5\n36 Học sinh số 36 2.6\n37 Học sinh số 37 9.7\n38 Học sinh số 38 6.8\n39 Học sinh số 39 3.9\n40 Học sinh số 40 0.0\n41 Học sinh số 41 7.1\n42 Học sinh số 42 4.2\n43 Học sinh số 43 1.3\n44 Học sinh số 44 8.4\n45 Học sinh số 45 5.5\n46 Học sinh số 46 2.6\n47 Học sinh số 47 9.7\n48 Học sinh số 48 6.8\n49 Học sinh số 49 3.9\n50 Học sinh số 50 0.0\n51 Học sinh số 51 7.1\n52 Học sinh số 52 4.2\n53 Học sinh số 53 1.3\n54 Học sinh số 54 8.4\n55 Học sinh số 55 5.5\n56 Học sinh số 56 2.6\n57 Học sinh số 57 9.7\n58 Học sinh số 58 6.8\n59 Học sinh số 59 3.9\n60 Học sinh số 60 0.0\n61 Học sinh số 61 7.1\n62 Học sinh số 62 4.2\n63 Học sinh số 63 1.3\n64 Học sinh số 64 8.4\n65 Học sinh số 65 5.5\n66 Học sinh số 66 2.6\n67 Học sinh số 67 9.7\n68 Học sinh số 68 6.8",
+   "reference_excluded_chars": 0,
+   "text_plausibility": {
+    "checked": true,
+    "long_token_frac": 0.0,
+    "punct_ratio": 0.061,
+    "vowelless_word_ratio": 0.014,
+    "words": 71,
+    "suspect": false
+   }
+  },
+  {
+   "visible_chars": 46,
+   "hidden_chars": 0,
+   "image_cover": 0.0,
+   "vector_objects": 12,
+   "unmapped_chars": 0,
+   "legacy_vn_fonts": [],
+   "type": "text",
+   "page": 3,
+   "mediabox": [
+    0.0,
+    0.0,
+    595.2756,
+    841.8898
+   ],
+   "cropbox": [
+    0.0,
+    0.0,
+    595.2756,
+    841.8898
+   ],
+   "rotation": 0,
+   "width": 595.28,
+   "height": 841.89,
+   "columns": null,
+   "reference_text": "STT Họ và tên Điểm\n69 Học sinh số 69 3.9\n70 Học sinh số 70 0.0",
+   "reference_excluded_chars": 0,
+   "text_plausibility": {
+    "checked": false
+   }
+  }
+ ],
+ "page_types": {
+  "1": "text",
+  "2": "text",
+  "3": "text"
+ },
+ "blocks": [
+  {
+   "block_id": "p1-t1",
+   "type": "table",
+   "page": 1,
+   "bbox": [
+    107.64,
+    78.0,
+    487.64,
+    750.0
+   ],
+   "method": "table_native",
+   "rows": [
+    [
+     {
+      "row": 0,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       78.0,
+       157.64,
+       97.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "STT",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "STT",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 0,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       78.0,
+       407.64,
+       97.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Họ và tên",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Họ và tên",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 0,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       78.0,
+       487.64,
+       97.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Điểm",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Điểm",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 1,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       97.2,
+       157.64,
+       116.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "1",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "1",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 1,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       97.2,
+       407.64,
+       116.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 1",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 1",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 1,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       97.2,
+       487.64,
+       116.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "7.1",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "7.1",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 2,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       116.4,
+       157.64,
+       135.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "2",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "2",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 2,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       116.4,
+       407.64,
+       135.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 2",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 2",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 2,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       116.4,
+       487.64,
+       135.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "4.2",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "4.2",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 3,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       135.6,
+       157.64,
+       154.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "3",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "3",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 3,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       135.6,
+       407.64,
+       154.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 3",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 3",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 3,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       135.6,
+       487.64,
+       154.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "1.3",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "1.3",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 4,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       154.8,
+       157.64,
+       174.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "4",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "4",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 4,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       154.8,
+       407.64,
+       174.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 4",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 4",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 4,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       154.8,
+       487.64,
+       174.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "8.4",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "8.4",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 5,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       174.0,
+       157.64,
+       193.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "5",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "5",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 5,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       174.0,
+       407.64,
+       193.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 5",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 5",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 5,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       174.0,
+       487.64,
+       193.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "5.5",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "5.5",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 6,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       193.2,
+       157.64,
+       212.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "6",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "6",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 6,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       193.2,
+       407.64,
+       212.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 6",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 6",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 6,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       193.2,
+       487.64,
+       212.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "2.6",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "2.6",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 7,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       212.4,
+       157.64,
+       231.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "7",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "7",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 7,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       212.4,
+       407.64,
+       231.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 7",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 7",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 7,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       212.4,
+       487.64,
+       231.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "9.7",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "9.7",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 8,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       231.6,
+       157.64,
+       250.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "8",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "8",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 8,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       231.6,
+       407.64,
+       250.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 8",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 8",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 8,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       231.6,
+       487.64,
+       250.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "6.8",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "6.8",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 9,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       250.8,
+       157.64,
+       270.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "9",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "9",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 9,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       250.8,
+       407.64,
+       270.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 9",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 9",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 9,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       250.8,
+       487.64,
+       270.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "3.9",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "3.9",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 10,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       270.0,
+       157.64,
+       289.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "10",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "10",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 10,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       270.0,
+       407.64,
+       289.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 10",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 10",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 10,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       270.0,
+       487.64,
+       289.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "0.0",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "0.0",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 11,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       289.2,
+       157.64,
+       308.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "11",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "11",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 11,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       289.2,
+       407.64,
+       308.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 11",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 11",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 11,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       289.2,
+       487.64,
+       308.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "7.1",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "7.1",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 12,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       308.4,
+       157.64,
+       327.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "12",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "12",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 12,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       308.4,
+       407.64,
+       327.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 12",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 12",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 12,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       308.4,
+       487.64,
+       327.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "4.2",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "4.2",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 13,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       327.6,
+       157.64,
+       346.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "13",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "13",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 13,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       327.6,
+       407.64,
+       346.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 13",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 13",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 13,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       327.6,
+       487.64,
+       346.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "1.3",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "1.3",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 14,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       346.8,
+       157.64,
+       366.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "14",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "14",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 14,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       346.8,
+       407.64,
+       366.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 14",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 14",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 14,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       346.8,
+       487.64,
+       366.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "8.4",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "8.4",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 15,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       366.0,
+       157.64,
+       385.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "15",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "15",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 15,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       366.0,
+       407.64,
+       385.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 15",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 15",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 15,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       366.0,
+       487.64,
+       385.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "5.5",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "5.5",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 16,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       385.2,
+       157.64,
+       404.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "16",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "16",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 16,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       385.2,
+       407.64,
+       404.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 16",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 16",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 16,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       385.2,
+       487.64,
+       404.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "2.6",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "2.6",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 17,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       404.4,
+       157.64,
+       423.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "17",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "17",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 17,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       404.4,
+       407.64,
+       423.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 17",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 17",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 17,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       404.4,
+       487.64,
+       423.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "9.7",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "9.7",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 18,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       423.6,
+       157.64,
+       442.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "18",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "18",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 18,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       423.6,
+       407.64,
+       442.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 18",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 18",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 18,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       423.6,
+       487.64,
+       442.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "6.8",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "6.8",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 19,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       442.8,
+       157.64,
+       462.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "19",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "19",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 19,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       442.8,
+       407.64,
+       462.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 19",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 19",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 19,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       442.8,
+       487.64,
+       462.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "3.9",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "3.9",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 20,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       462.0,
+       157.64,
+       481.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "20",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "20",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 20,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       462.0,
+       407.64,
+       481.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 20",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 20",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 20,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       462.0,
+       487.64,
+       481.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "0.0",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "0.0",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 21,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       481.2,
+       157.64,
+       500.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "21",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "21",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 21,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       481.2,
+       407.64,
+       500.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 21",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 21",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 21,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       481.2,
+       487.64,
+       500.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "7.1",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "7.1",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 22,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       500.4,
+       157.64,
+       519.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "22",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "22",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 22,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       500.4,
+       407.64,
+       519.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 22",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 22",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 22,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       500.4,
+       487.64,
+       519.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "4.2",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "4.2",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 23,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       519.6,
+       157.64,
+       538.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "23",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "23",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 23,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       519.6,
+       407.64,
+       538.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 23",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 23",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 23,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       519.6,
+       487.64,
+       538.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "1.3",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "1.3",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 24,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       538.8,
+       157.64,
+       558.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "24",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "24",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 24,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       538.8,
+       407.64,
+       558.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 24",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 24",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 24,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       538.8,
+       487.64,
+       558.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "8.4",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "8.4",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 25,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       558.0,
+       157.64,
+       577.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "25",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "25",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 25,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       558.0,
+       407.64,
+       577.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 25",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 25",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 25,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       558.0,
+       487.64,
+       577.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "5.5",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "5.5",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 26,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       577.2,
+       157.64,
+       596.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "26",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "26",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 26,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       577.2,
+       407.64,
+       596.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 26",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 26",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 26,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       577.2,
+       487.64,
+       596.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "2.6",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "2.6",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 27,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       596.4,
+       157.64,
+       615.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "27",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "27",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 27,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       596.4,
+       407.64,
+       615.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 27",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 27",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 27,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       596.4,
+       487.64,
+       615.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "9.7",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "9.7",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 28,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       615.6,
+       157.64,
+       634.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "28",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "28",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 28,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       615.6,
+       407.64,
+       634.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 28",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 28",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 28,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       615.6,
+       487.64,
+       634.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "6.8",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "6.8",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 29,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       634.8,
+       157.64,
+       654.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "29",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "29",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 29,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       634.8,
+       407.64,
+       654.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 29",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 29",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 29,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       634.8,
+       487.64,
+       654.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "3.9",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "3.9",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 30,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       654.0,
+       157.64,
+       673.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "30",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "30",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 30,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       654.0,
+       407.64,
+       673.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 30",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 30",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 30,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       654.0,
+       487.64,
+       673.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "0.0",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "0.0",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 31,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       673.2,
+       157.64,
+       692.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "31",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "31",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 31,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       673.2,
+       407.64,
+       692.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 31",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 31",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 31,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       673.2,
+       487.64,
+       692.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "7.1",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "7.1",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 32,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       692.4,
+       157.64,
+       711.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "32",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "32",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 32,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       692.4,
+       407.64,
+       711.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 32",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 32",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 32,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       692.4,
+       487.64,
+       711.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "4.2",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "4.2",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 33,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       711.6,
+       157.64,
+       730.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "33",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "33",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 33,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       711.6,
+       407.64,
+       730.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 33",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 33",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 33,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       711.6,
+       487.64,
+       730.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "1.3",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "1.3",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 34,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       730.8,
+       157.64,
+       750.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "34",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "34",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 34,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       730.8,
+       407.64,
+       750.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 34",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 34",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 34,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       730.8,
+       487.64,
+       750.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "8.4",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "8.4",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ]
+   ],
+   "n_rows": 35,
+   "n_cols": 3,
+   "text": "STT Họ và tên Điểm 1 Học sinh số 1 7.1 2 Học sinh số 2 4.2 3 Học sinh số 3 1.3 4 Học sinh số 4 8.4 5 Học sinh số 5 5.5 6 Học sinh số 6 2.6 7 Học sinh số 7 9.7 8 Học sinh số 8 6.8 9 Học sinh số 9 3.9 10 Học sinh số 10 0.0 11 Học sinh số 11 7.1 12 Học sinh số 12 4.2 13 Học sinh số 13 1.3 14 Học sinh số 14 8.4 15 Học sinh số 15 5.5 16 Học sinh số 16 2.6 17 Học sinh số 17 9.7 18 Học sinh số 18 6.8 19 Học sinh số 19 3.9 20 Học sinh số 20 0.0 21 Học sinh số 21 7.1 22 Học sinh số 22 4.2 23 Học sinh số 23 1.3 24 Học sinh số 24 8.4 25 Học sinh số 25 5.5 26 Học sinh số 26 2.6 27 Học sinh số 27 9.7 28 Học sinh số 28 6.8 29 Học sinh số 29 3.9 30 Học sinh số 30 0.0 31 Học sinh số 31 7.1 32 Học sinh số 32 4.2 33 Học sinh số 33 1.3 34 Học sinh số 34 8.4",
+   "col_widths_pt": [
+    50.0,
+    250.0,
+    80.0
+   ],
+   "confidence": {
+    "value": 0.8,
+    "kind": "heuristic"
+   },
+   "inline_math": [],
+   "order": 1,
+   "warnings": [],
+   "status": "ok",
+   "parent": null,
+   "fallback_reason": null,
+   "source": {
+    "file": "bang_hai_trang.pdf",
+    "page": 1,
+    "bbox_pt": [
+     107.64,
+     78.0,
+     487.64,
+     750.0
+    ],
+    "coords": "display_topleft_pt"
+   }
+  },
+  {
+   "block_id": "p2-t1",
+   "type": "table",
+   "page": 2,
+   "bbox": [
+    107.64,
+    78.0,
+    487.64,
+    750.0
+   ],
+   "method": "table_native",
+   "rows": [
+    [
+     {
+      "row": 0,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       78.0,
+       157.64,
+       97.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "STT",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "STT",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 0,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       78.0,
+       407.64,
+       97.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Họ và tên",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Họ và tên",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 0,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       78.0,
+       487.64,
+       97.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Điểm",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Điểm",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 1,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       97.2,
+       157.64,
+       116.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "35",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "35",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 1,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       97.2,
+       407.64,
+       116.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 35",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 35",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 1,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       97.2,
+       487.64,
+       116.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "5.5",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "5.5",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 2,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       116.4,
+       157.64,
+       135.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "36",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "36",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 2,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       116.4,
+       407.64,
+       135.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 36",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 36",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 2,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       116.4,
+       487.64,
+       135.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "2.6",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "2.6",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 3,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       135.6,
+       157.64,
+       154.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "37",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "37",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 3,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       135.6,
+       407.64,
+       154.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 37",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 37",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 3,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       135.6,
+       487.64,
+       154.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "9.7",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "9.7",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 4,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       154.8,
+       157.64,
+       174.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "38",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "38",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 4,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       154.8,
+       407.64,
+       174.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 38",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 38",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 4,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       154.8,
+       487.64,
+       174.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "6.8",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "6.8",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 5,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       174.0,
+       157.64,
+       193.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "39",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "39",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 5,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       174.0,
+       407.64,
+       193.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 39",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 39",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 5,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       174.0,
+       487.64,
+       193.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "3.9",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "3.9",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 6,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       193.2,
+       157.64,
+       212.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "40",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "40",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 6,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       193.2,
+       407.64,
+       212.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 40",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 40",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 6,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       193.2,
+       487.64,
+       212.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "0.0",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "0.0",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 7,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       212.4,
+       157.64,
+       231.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "41",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "41",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 7,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       212.4,
+       407.64,
+       231.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 41",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 41",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 7,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       212.4,
+       487.64,
+       231.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "7.1",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "7.1",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 8,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       231.6,
+       157.64,
+       250.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "42",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "42",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 8,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       231.6,
+       407.64,
+       250.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 42",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 42",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 8,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       231.6,
+       487.64,
+       250.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "4.2",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "4.2",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 9,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       250.8,
+       157.64,
+       270.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "43",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "43",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 9,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       250.8,
+       407.64,
+       270.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 43",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 43",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 9,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       250.8,
+       487.64,
+       270.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "1.3",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "1.3",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 10,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       270.0,
+       157.64,
+       289.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "44",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "44",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 10,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       270.0,
+       407.64,
+       289.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 44",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 44",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 10,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       270.0,
+       487.64,
+       289.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "8.4",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "8.4",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 11,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       289.2,
+       157.64,
+       308.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "45",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "45",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 11,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       289.2,
+       407.64,
+       308.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 45",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 45",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 11,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       289.2,
+       487.64,
+       308.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "5.5",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "5.5",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 12,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       308.4,
+       157.64,
+       327.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "46",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "46",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 12,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       308.4,
+       407.64,
+       327.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 46",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 46",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 12,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       308.4,
+       487.64,
+       327.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "2.6",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "2.6",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 13,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       327.6,
+       157.64,
+       346.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "47",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "47",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 13,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       327.6,
+       407.64,
+       346.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 47",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 47",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 13,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       327.6,
+       487.64,
+       346.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "9.7",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "9.7",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 14,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       346.8,
+       157.64,
+       366.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "48",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "48",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 14,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       346.8,
+       407.64,
+       366.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 48",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 48",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 14,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       346.8,
+       487.64,
+       366.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "6.8",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "6.8",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 15,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       366.0,
+       157.64,
+       385.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "49",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "49",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 15,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       366.0,
+       407.64,
+       385.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 49",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 49",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 15,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       366.0,
+       487.64,
+       385.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "3.9",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "3.9",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 16,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       385.2,
+       157.64,
+       404.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "50",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "50",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 16,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       385.2,
+       407.64,
+       404.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 50",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 50",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 16,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       385.2,
+       487.64,
+       404.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "0.0",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "0.0",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 17,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       404.4,
+       157.64,
+       423.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "51",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "51",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 17,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       404.4,
+       407.64,
+       423.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 51",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 51",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 17,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       404.4,
+       487.64,
+       423.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "7.1",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "7.1",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 18,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       423.6,
+       157.64,
+       442.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "52",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "52",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 18,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       423.6,
+       407.64,
+       442.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 52",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 52",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 18,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       423.6,
+       487.64,
+       442.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "4.2",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "4.2",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 19,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       442.8,
+       157.64,
+       462.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "53",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "53",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 19,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       442.8,
+       407.64,
+       462.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 53",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 53",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 19,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       442.8,
+       487.64,
+       462.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "1.3",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "1.3",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 20,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       462.0,
+       157.64,
+       481.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "54",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "54",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 20,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       462.0,
+       407.64,
+       481.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 54",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 54",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 20,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       462.0,
+       487.64,
+       481.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "8.4",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "8.4",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 21,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       481.2,
+       157.64,
+       500.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "55",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "55",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 21,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       481.2,
+       407.64,
+       500.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 55",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 55",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 21,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       481.2,
+       487.64,
+       500.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "5.5",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "5.5",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 22,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       500.4,
+       157.64,
+       519.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "56",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "56",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 22,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       500.4,
+       407.64,
+       519.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 56",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 56",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 22,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       500.4,
+       487.64,
+       519.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "2.6",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "2.6",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 23,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       519.6,
+       157.64,
+       538.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "57",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "57",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 23,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       519.6,
+       407.64,
+       538.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 57",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 57",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 23,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       519.6,
+       487.64,
+       538.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "9.7",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "9.7",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 24,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       538.8,
+       157.64,
+       558.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "58",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "58",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 24,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       538.8,
+       407.64,
+       558.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 58",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 58",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 24,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       538.8,
+       487.64,
+       558.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "6.8",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "6.8",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 25,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       558.0,
+       157.64,
+       577.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "59",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "59",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 25,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       558.0,
+       407.64,
+       577.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 59",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 59",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 25,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       558.0,
+       487.64,
+       577.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "3.9",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "3.9",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 26,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       577.2,
+       157.64,
+       596.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "60",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "60",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 26,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       577.2,
+       407.64,
+       596.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 60",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 60",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 26,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       577.2,
+       487.64,
+       596.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "0.0",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "0.0",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 27,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       596.4,
+       157.64,
+       615.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "61",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "61",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 27,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       596.4,
+       407.64,
+       615.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 61",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 61",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 27,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       596.4,
+       487.64,
+       615.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "7.1",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "7.1",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 28,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       615.6,
+       157.64,
+       634.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "62",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "62",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 28,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       615.6,
+       407.64,
+       634.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 62",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 62",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 28,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       615.6,
+       487.64,
+       634.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "4.2",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "4.2",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 29,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       634.8,
+       157.64,
+       654.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "63",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "63",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 29,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       634.8,
+       407.64,
+       654.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 63",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 63",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 29,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       634.8,
+       487.64,
+       654.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "1.3",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "1.3",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 30,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       654.0,
+       157.64,
+       673.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "64",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "64",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 30,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       654.0,
+       407.64,
+       673.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 64",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 64",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 30,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       654.0,
+       487.64,
+       673.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "8.4",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "8.4",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 31,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       673.2,
+       157.64,
+       692.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "65",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "65",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 31,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       673.2,
+       407.64,
+       692.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 65",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 65",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 31,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       673.2,
+       487.64,
+       692.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "5.5",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "5.5",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 32,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       692.4,
+       157.64,
+       711.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "66",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "66",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 32,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       692.4,
+       407.64,
+       711.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 66",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 66",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 32,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       692.4,
+       487.64,
+       711.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "2.6",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "2.6",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 33,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       711.6,
+       157.64,
+       730.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "67",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "67",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 33,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       711.6,
+       407.64,
+       730.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 67",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 67",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 33,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       711.6,
+       487.64,
+       730.8
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "9.7",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "9.7",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 34,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       730.8,
+       157.64,
+       750.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "68",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "68",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 34,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       730.8,
+       407.64,
+       750.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 68",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 68",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 34,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       730.8,
+       487.64,
+       750.0
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "6.8",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "6.8",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ]
+   ],
+   "n_rows": 35,
+   "n_cols": 3,
+   "text": "STT Họ và tên Điểm 35 Học sinh số 35 5.5 36 Học sinh số 36 2.6 37 Học sinh số 37 9.7 38 Học sinh số 38 6.8 39 Học sinh số 39 3.9 40 Học sinh số 40 0.0 41 Học sinh số 41 7.1 42 Học sinh số 42 4.2 43 Học sinh số 43 1.3 44 Học sinh số 44 8.4 45 Học sinh số 45 5.5 46 Học sinh số 46 2.6 47 Học sinh số 47 9.7 48 Học sinh số 48 6.8 49 Học sinh số 49 3.9 50 Học sinh số 50 0.0 51 Học sinh số 51 7.1 52 Học sinh số 52 4.2 53 Học sinh số 53 1.3 54 Học sinh số 54 8.4 55 Học sinh số 55 5.5 56 Học sinh số 56 2.6 57 Học sinh số 57 9.7 58 Học sinh số 58 6.8 59 Học sinh số 59 3.9 60 Học sinh số 60 0.0 61 Học sinh số 61 7.1 62 Học sinh số 62 4.2 63 Học sinh số 63 1.3 64 Học sinh số 64 8.4 65 Học sinh số 65 5.5 66 Học sinh số 66 2.6 67 Học sinh số 67 9.7 68 Học sinh số 68 6.8",
+   "col_widths_pt": [
+    50.0,
+    250.0,
+    80.0
+   ],
+   "confidence": {
+    "value": 0.8,
+    "kind": "heuristic"
+   },
+   "inline_math": [],
+   "order": 2,
+   "warnings": [],
+   "status": "ok",
+   "parent": null,
+   "fallback_reason": null,
+   "source": {
+    "file": "bang_hai_trang.pdf",
+    "page": 2,
+    "bbox_pt": [
+     107.64,
+     78.0,
+     487.64,
+     750.0
+    ],
+    "coords": "display_topleft_pt"
+   }
+  },
+  {
+   "block_id": "p3-t1",
+   "type": "table",
+   "page": 3,
+   "bbox": [
+    107.64,
+    78.0,
+    487.64,
+    135.6
+   ],
+   "method": "table_native",
+   "rows": [
+    [
+     {
+      "row": 0,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       78.0,
+       157.64,
+       97.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "STT",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "STT",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 0,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       78.0,
+       407.64,
+       97.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Họ và tên",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Họ và tên",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 0,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       78.0,
+       487.64,
+       97.2
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Điểm",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Điểm",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 1,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       97.2,
+       157.64,
+       116.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "69",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "69",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 1,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       97.2,
+       407.64,
+       116.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 69",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 69",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 1,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       97.2,
+       487.64,
+       116.4
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "3.9",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "3.9",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "row": 2,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       107.64,
+       116.4,
+       157.64,
+       135.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "70",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "70",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 2,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       157.64,
+       116.4,
+       407.64,
+       135.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "Học sinh số 70",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "Học sinh số 70",
+        "has_unconverted": false
+       }
+      ]
+     },
+     {
+      "row": 2,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "bbox": [
+       407.64,
+       116.4,
+       487.64,
+       135.6
+      ],
+      "align": "left",
+      "paragraphs": [
+       {
+        "runs": [
+         {
+          "text": "0.0",
+          "bold": false,
+          "italic": false,
+          "size": 11.0
+         }
+        ],
+        "math": [],
+        "text": "0.0",
+        "has_unconverted": false
+       }
+      ]
+     }
+    ]
+   ],
+   "n_rows": 3,
+   "n_cols": 3,
+   "text": "STT Họ và tên Điểm 69 Học sinh số 69 3.9 70 Học sinh số 70 0.0",
+   "col_widths_pt": [
+    50.0,
+    250.0,
+    80.0
+   ],
+   "confidence": {
+    "value": 0.8,
+    "kind": "heuristic"
+   },
+   "inline_math": [],
+   "order": 3,
+   "warnings": [],
+   "status": "ok",
+   "parent": null,
+   "fallback_reason": null,
+   "source": {
+    "file": "bang_hai_trang.pdf",
+    "page": 3,
+    "bbox_pt": [
+     107.64,
+     78.0,
+     487.64,
+     135.6
+    ],
+    "coords": "display_topleft_pt"
+   }
+  }
+ ],
+ "issues": [],
+ "summary": {
+  "blocks": 3,
+  "by_method": {
+   "table_native": 3
+  },
+  "by_type": {
+   "table": 3
+  },
+  "page_types": {
+   "text": 3
+  },
+  "unresolved": 0,
+  "inline_math_omml": 0,
+  "inline_math_images": 0,
+  "confidence_note": "confidence là heuristic nội bộ (0–1), chưa hiệu chuẩn trên tập dữ liệu thật."
+ }
+}

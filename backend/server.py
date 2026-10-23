@@ -1,18 +1,28 @@
-"""FastAPI REST API Backend for LaTeX & PDF to Word Unified Converter (`backend/server.py`).
+"""FastAPI REST API (`backend/server.py`) — dùng CHUNG pipeline với CLI và Streamlit (`backend/pipeline.py`).
 
-Synchronized with `latex2word.py` and `app.py` to use `backend.core_converter`.
-Supports uploading `.pdf`, `.tex`, and `.zip` (containing `.tex` or `.pdf`).
+Giữ nguyên các endpoint và tham số cũ:
+  GET  /api/status, GET /api/jobs, POST /api/convert/paste, POST /api/convert,
+  GET  /api/validate/{job_id}, GET /api/download/{job_id}/{docx|pdf|report}, GET /
+Tham số mới (tuỳ chọn): answer_mode (source|student), show_solutions, figure_policy (auto|native|snapshot),
+ocr (auto|off), ocr_lang, preprocess (engine|smart|auto; mặc định engine hoặc biến môi trường L2W_PREPROCESS).
+
+Thay đổi so với bản cũ:
+* năng lực dò THẬT (`capabilities.py`), không còn hằng True;
+* tệp tải lên lưu nguyên bytes trong job riêng; nhận diện theo nội dung; ZIP giải nén có kiểm soát;
+* `main_tex` sai → lỗi 409 kèm danh sách ứng viên (không âm thầm chọn tệp đầu tiên);
+* PDF đọc trực tiếp (không tìm .tex trùng tên trong BASE_DIR/JOBS_DIR);
+* dán mã và tệp TeX cùng đi qua pipeline; khi máy có tiền xử lý thông minh, pipeline gọi
+  `convert_pasted_latex_unified` (smart_paste) cho cả hai nhánh;
+* chuyển đổi chạy trong luồng riêng (`asyncio.to_thread`) để không chặn event loop;
+* trạng thái: conversion_completed + quality_status (passed/review_required/failed); SKIP/NOT_MEASURED ≠ đạt;
+* strict=True mà chưa `passed` → HTTP 422 (tệp vẫn tải được).
 """
 from __future__ import annotations
 
+import asyncio
 import json
-import os
-import re
-import shutil
 import sys
 import time
-import uuid
-import zipfile
 from pathlib import Path
 from typing import Any
 
@@ -27,20 +37,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from .core_converter import convert_docx_to_pdf, convert_latex_file_unified, decompile_pdf_to_latex
-from .smart_paste import convert_pasted_latex_unified  # chỉ dùng cho /api/convert/paste
-from .validators import generate_visual_comparison, run_all_layers
+from .capabilities import capability_summary, legacy_tools_view, probe_capabilities
+from .job_workspace import MAX_UPLOAD_BYTES, JobWorkspace
+from .pipeline import ConversionError, convert_bytes, convert_paste
 
 app = FastAPI(
-    title="LaTeX & PDF to Word Converter API (Native DrawingML + Math Tables)",
-    version="2.2.0",
-    description="REST API cho Hệ thống chuyển đổi PDF / LaTeX → Word (.docx) với Native Word Shapes (DrawingML) & Bảng Toán học",
+    title="LaTeX & PDF to Word Converter API",
+    version="3.0.0",
+    description="REST API chuyển PDF / LaTeX (.tex, .zip, dán mã) → Word (.docx), báo cáo khối native/ảnh/unresolved.",
 )
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -69,37 +79,20 @@ _jobs: dict[str, dict[str, Any]] = {}
 
 
 def _check_tools() -> dict[str, bool]:
-    has_lo = bool(shutil.which("soffice") or shutil.which("libreoffice"))
-    has_d2p = False
-    if sys.platform == "win32":
-        try:
-            import docx2pdf
-
-            has_d2p = True
-        except Exception:
-            pass
-    return {
-        "latex2word_py": CONVERTER_SCRIPT.exists(),
-        "drawingml_engine": True,
-        "math_tables_engine": True,
-        "omml_math_engine": True,
-        "pdf_decompiler": True,
-        "pandoc": shutil.which("pandoc") is not None,
-        "xelatex": shutil.which("xelatex") is not None,
-        "pdflatex": shutil.which("pdflatex") is not None,
-        "pdftocairo": shutil.which("pdftocairo") is not None,
-        "libreoffice": has_lo or has_d2p,
-        "word_installed": has_d2p,
-    }
+    """(Giữ tên cũ) — nay lấy từ dò năng lực thật."""
+    return legacy_tools_view(probe_capabilities())
 
 
 @app.get("/api/status")
 async def system_status():
-    """Kiểm tra trạng thái hệ thống (Nhân Native DrawingML + OMML + PDF Decompiler luôn sẵn sàng)."""
-    tools = _check_tools()
+    caps = await asyncio.to_thread(probe_capabilities)
+    tools = legacy_tools_view(caps)
+    d = caps["derived"]
+    ready = d["tex_upload"]["available"] or d["pdf_reader"]["available"]
     return {
-        "status": "ready",
+        "status": "ready" if ready else "degraded",
         "tools": tools,
+        "capabilities": capability_summary(caps),
         "jobs_count": len(_jobs),
     }
 
@@ -108,21 +101,64 @@ async def system_status():
 async def list_jobs():
     summaries = []
     for jid, j in sorted(_jobs.items(), key=lambda x: x[1].get("created", 0), reverse=True):
-        summaries.append(
-            {
-                "job_id": jid,
-                "status": j.get("status"),
-                "filename": j.get("filename"),
-                "mode": j.get("mode"),
-                "created": j.get("created"),
-            }
-        )
+        summaries.append({"job_id": jid, "status": j.get("status"), "quality_status": j.get("quality_status"),
+                          "filename": j.get("filename"), "mode": j.get("mode"), "created": j.get("created")})
     return {"jobs": summaries[:50]}
 
 
-def normalize_latex(text: str) -> str:
-    text = text.replace("\r\r\n", "\n").replace("\r\n", "\n").replace("\r", "\n")
-    return re.sub(r"\n{3,}", "\n\n", text)
+def _response_payload(report: dict[str, Any], filename: str, mode: int) -> dict[str, Any]:
+    er = report.get("engine_report") or {}
+    return {
+        "job_id": report["job_id"],
+        "status": "completed" if report.get("conversion_completed") else "failed",
+        "conversion_completed": report.get("conversion_completed"),
+        "quality_status": report.get("quality_status"),
+        "overall": report.get("quality_status"),
+        "filename": filename,
+        "mode": mode,
+        "ooxml_stats": er.get("ooxml_stats", {}),
+        "engine_report": er,
+        "layers": report.get("layers", []),
+        "visual_pages_count": len(report.get("visual_pages", [])),
+        "blocks_summary": report.get("blocks_summary", {}),
+        "quality": report.get("quality", {}),
+        "issues": report.get("issues", [])[:60],
+        "source": {k: v for k, v in (report.get("source") or {}).items() if k in ("main", "selection", "candidates", "pdf", "pages", "page_types")},
+        "preprocess": report.get("preprocess"),
+        "input_preserved": report.get("input_preserved"),
+    }
+
+
+def _error_response(exc: ConversionError, filename: str) -> JSONResponse:
+    content = {"job_id": exc.extra.get("job_id"), "status": "failed", "error": str(exc), "code": exc.code,
+               "filename": filename}
+    if exc.extra.get("candidates") is not None:
+        content["candidates"] = exc.extra["candidates"]
+    return JSONResponse(status_code=exc.http_status, content=content)
+
+
+def _register(report: dict[str, Any], filename: str, mode: int) -> None:
+    _jobs[report["job_id"]] = {
+        "status": "completed" if report.get("conversion_completed") else "failed",
+        "quality_status": report.get("quality_status"),
+        "filename": filename, "mode": mode, "created": time.time(),
+        "job_dir": str(JOBS_DIR / report["job_id"]),
+        "docx_path": (report.get("output") or {}).get("docx"),
+        "report_path": (report.get("output") or {}).get("report"),
+        "qa_pdf": (report.get("output") or {}).get("qa_pdf"),
+        "layers": report.get("layers", []),
+    }
+
+
+def _finish_response(report: dict[str, Any], filename: str, mode: int, strict: bool) -> JSONResponse:
+    _register(report, filename, mode)
+    payload = _response_payload(report, filename, mode)
+    if strict and report.get("quality_status") != "passed":
+        payload["strict_violation"] = True
+        payload["error"] = ("Chế độ nghiêm ngặt: kết quả chưa đạt (" + str(report.get("quality_status")) + "). "
+                            + "; ".join((report.get("quality") or {}).get("reasons", [])[:3]))
+        return JSONResponse(status_code=422, content=payload)
+    return JSONResponse(content=payload)
 
 
 @app.post("/api/convert/paste")
@@ -132,16 +168,19 @@ async def convert_from_paste(
     dpi: int = Form(400),
     strict: bool = Form(False),
     qa_pdf: bool = Form(True),
+    answer_mode: str = Form("source"),
+    show_solutions: bool = Form(True),
+    figure_policy: str = Form("auto"),
+    preprocess: str = Form(""),
 ):
-    job_id = str(uuid.uuid4())[:8]
-    job_dir = JOBS_DIR / job_id
-    job_dir.mkdir(parents=True, exist_ok=True)
-
-    tex_file = job_dir / "document.tex"
-    clean_src = normalize_latex(latex_source)
-    tex_file.write_text(clean_src, encoding="utf-8")
-
-    return await _run_conversion(job_id, job_dir, tex_file, "document.tex", mode, dpi, strict, qa_pdf, smart=True)
+    try:
+        report = await asyncio.to_thread(
+            convert_paste, latex_source, jobs_root=JOBS_DIR, mode=mode, dpi=dpi, strict=strict, qa_pdf=qa_pdf,
+            answer_mode=answer_mode, show_solutions=show_solutions, figure_policy=figure_policy,
+            preprocess=preprocess or None)
+    except ConversionError as exc:
+        return _error_response(exc, "document.tex")
+    return _finish_response(report, "document.tex", mode, strict)
 
 
 @app.post("/api/convert")
@@ -152,208 +191,82 @@ async def convert_upload(
     dpi: int = Form(400),
     strict: bool = Form(False),
     qa_pdf: bool = Form(True),
+    answer_mode: str = Form("source"),
+    show_solutions: bool = Form(True),
+    figure_policy: str = Form("auto"),
+    ocr: str = Form("auto"),
+    ocr_lang: str = Form(""),
+    preprocess: str = Form(""),
 ):
-    job_id = str(uuid.uuid4())[:8]
-    job_dir = JOBS_DIR / job_id
-    job_dir.mkdir(parents=True, exist_ok=True)
-
-    content = await file.read()
-    filename = file.filename or "upload.tex"
-    lower_name = filename.lower()
-
-    if lower_name.endswith(".zip"):
-        zip_path = job_dir / filename
-        zip_path.write_bytes(content)
-        try:
-            with zipfile.ZipFile(zip_path, "r") as zf:
-                zf.extractall(job_dir)
-        except zipfile.BadZipFile:
-            return JSONResponse(
-                status_code=400,
-                content={"job_id": job_id, "status": "failed", "error": "File .zip không hợp lệ hoặc bị hỏng."},
-            )
-
-        tex_candidates = [p for p in job_dir.rglob("*.tex") if "__MACOSX" not in p.parts]
-        pdf_candidates = [p for p in job_dir.rglob("*.pdf") if "__MACOSX" not in p.parts]
-
-        if tex_candidates:
-            if main_tex:
-                matched = [p for p in tex_candidates if p.name == main_tex]
-                tex_file = matched[0] if matched else tex_candidates[0]
-            else:
-                tex_file = tex_candidates[0]
-            cleaned = normalize_latex(tex_file.read_text(encoding="utf-8", errors="replace"))
-            tex_file.write_text(cleaned, encoding="utf-8")
-        elif pdf_candidates:
-            # ZIP archive contains a PDF file (e.g. Toán11_2 (3).zip -> Toán11_2 (3).pdf)
-            pdf_file = pdf_candidates[0]
-            decompiled = decompile_pdf_to_latex(
-                pdf_file,
-                search_dirs=[job_dir, BASE_DIR, JOBS_DIR],
-            )
-            tex_file = job_dir / f"{pdf_file.stem}.tex"
-            tex_file.write_text(normalize_latex(decompiled), encoding="utf-8")
-        else:
-            return JSONResponse(
-                status_code=400,
-                content={
-                    "job_id": job_id,
-                    "status": "failed",
-                    "error": "Không tìm thấy file .tex hoặc .pdf nào bên trong gói .zip.",
-                },
-            )
-
-    elif lower_name.endswith(".pdf"):
-        pdf_path = job_dir / filename
-        pdf_path.write_bytes(content)
-        decompiled = decompile_pdf_to_latex(
-            pdf_path,
-            search_dirs=[job_dir, BASE_DIR, JOBS_DIR],
-        )
-        tex_file = job_dir / f"{pdf_path.stem}.tex"
-        tex_file.write_text(normalize_latex(decompiled), encoding="utf-8")
-
-    else:
-        tex_file = job_dir / filename
-        clean_content = normalize_latex(content.decode("utf-8", errors="replace"))
-        tex_file.write_text(clean_content, encoding="utf-8")
-
-    return await _run_conversion(job_id, job_dir, tex_file, filename, mode, dpi, strict, qa_pdf)
-
-
-async def _run_conversion(
-    job_id: str,
-    job_dir: Path,
-    tex_file: Path,
-    orig_filename: str,
-    mode: int,
-    dpi: int,
-    strict: bool,
-    qa_pdf: bool,
-    smart: bool = False,
-) -> JSONResponse:
-    output_docx = job_dir / f"{tex_file.stem}.docx"
-
-    _jobs[job_id] = {
-        "status": "converting",
-        "filename": orig_filename,
-        "mode": mode,
-        "created": time.time(),
-        "job_dir": str(job_dir),
-    }
-
-    tools = _check_tools()
-    if qa_pdf and not tools["libreoffice"]:
-        qa_pdf = False
-
+    content = await file.read(MAX_UPLOAD_BYTES + 1)
+    filename = file.filename or "upload"
+    if len(content) > MAX_UPLOAD_BYTES:
+        return JSONResponse(status_code=413, content={"status": "failed", "filename": filename,
+                                                      "error": f"Tệp vượt giới hạn {MAX_UPLOAD_BYTES // (1024 * 1024)} MB."})
     try:
-        # smart=True chỉ khi dán mã; tải file lên vẫn dùng đúng engine gốc như trước.
-        convert_fn = convert_pasted_latex_unified if smart else convert_latex_file_unified
-        engine_report = convert_fn(
-            tex_file,
-            output_docx,
-            dpi=dpi,
-            strict=strict,
-            qa_pdf=qa_pdf,
-            mode=mode,
-        )
-    except Exception as exc:
-        _jobs[job_id]["status"] = "failed"
-        _jobs[job_id]["error"] = str(exc)
-        return JSONResponse(
-            status_code=500,
-            content={"job_id": job_id, "status": "failed", "error": str(exc)},
-        )
-
-    ooxml_stats = engine_report.get("ooxml_stats", {})
-
-    visual_info = {"enabled": False}
-    visual_pages = []
-    if qa_pdf:
-        qa_dir = job_dir / f"{tex_file.stem}_qa"
-        qa_pdf_file = qa_dir / f"{tex_file.stem}.pdf"
-        if not qa_pdf_file.exists():
-            convert_docx_to_pdf(output_docx, qa_pdf_file)
-        if qa_pdf_file.exists():
-            engine_report["qa_rendered_pdf"] = str(qa_pdf_file)
-            visual_info, visual_pages = generate_visual_comparison(
-                tex_file.parent, tex_file, qa_pdf_file
-            )
-
-    tex_content = tex_file.read_text(encoding="utf-8", errors="ignore")
-    layers = run_all_layers(tex_content, output_docx, visual_info)
-    statuses = [lr["status"] for lr in layers]
-    overall = "passed" if all(s in ("PASS", "SKIP") for s in statuses) else "review_required"
-
-    _jobs[job_id].update(
-        {
-            "status": "completed",
-            "overall": overall,
-            "docx_path": str(output_docx),
-            "report": engine_report,
-            "ooxml_stats": ooxml_stats,
-            "layers": layers,
-            "visual_pages": visual_pages,
-        }
-    )
-
-    return JSONResponse(
-        content={
-            "job_id": job_id,
-            "status": "completed",
-            "overall": overall,
-            "filename": orig_filename,
-            "mode": mode,
-            "ooxml_stats": ooxml_stats,
-            "engine_report": engine_report,
-            "layers": layers,
-            "visual_pages_count": len(visual_pages),
-        }
-    )
+        report = await asyncio.to_thread(
+            convert_bytes, filename, content, jobs_root=JOBS_DIR, main_file=main_tex or None, mode=mode, dpi=dpi,
+            strict=strict, qa_pdf=qa_pdf, answer_mode=answer_mode, show_solutions=show_solutions,
+            figure_policy=figure_policy, ocr=ocr, ocr_lang=ocr_lang or None, preprocess=preprocess or None)
+    except ConversionError as exc:
+        return _error_response(exc, filename)
+    return _finish_response(report, filename, mode, strict)
 
 
 @app.get("/api/validate/{job_id}")
 async def validate_job(job_id: str):
     job = _jobs.get(job_id)
     if not job:
-        raise HTTPException(404, "Job not found")
-    if job["status"] != "completed":
-        raise HTTPException(400, f"Job status: {job['status']}")
-    return {"job_id": job_id, "layers": job.get("layers", [])}
+        root = JobWorkspace.resolve_existing(JOBS_DIR, job_id)
+        reports = sorted((root / "out").glob("*.report.json")) if root else []
+        if not reports:
+            raise HTTPException(404, "Job not found")
+        rep = json.loads(reports[0].read_text(encoding="utf-8"))
+        return {"job_id": job_id, "layers": rep.get("layers", []), "quality_status": rep.get("quality_status")}
+    return {"job_id": job_id, "layers": job.get("layers", []), "quality_status": job.get("quality_status")}
+
+
+def _inside(root: Path, p: Path) -> bool:
+    try:
+        p.resolve().relative_to(root.resolve())
+        return True
+    except ValueError:
+        return False
 
 
 @app.get("/api/download/{job_id}/{file_type}")
 async def download_file(job_id: str, file_type: str):
-    job = _jobs.get(job_id)
-    job_dir = Path(job["job_dir"]) if job and "job_dir" in job else (JOBS_DIR / job_id)
-    if not job_dir.exists():
+    root = JobWorkspace.resolve_existing(JOBS_DIR, job_id)
+    if root is None:
         raise HTTPException(404, "Job not found")
-
+    job = _jobs.get(job_id, {})
+    out = root / "out"
     if file_type == "docx":
-        if job and job.get("docx_path") and Path(job["docx_path"]).exists():
-            target = Path(job["docx_path"])
-        else:
-            files = list(job_dir.rglob("*.docx"))
-            if not files:
-                raise HTTPException(404, "DOCX not found")
-            target = files[0]
-        return FileResponse(
-            target,
-            filename=target.name,
-            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        )
-    elif file_type == "report":
-        files = list(job_dir.rglob("*.report.json"))
-        if not files:
+        target = Path(job["docx_path"]) if job.get("docx_path") else None
+        if target is None or not target.exists():
+            files = sorted(out.glob("*.docx")) if out.exists() else sorted(root.glob("*.docx"))
+            target = files[0] if files else None
+        if target is None or not _inside(root, target):
+            raise HTTPException(404, "DOCX not found")
+        return FileResponse(target, filename=target.name,
+                            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+    if file_type == "report":
+        target = Path(job["report_path"]) if job.get("report_path") else None
+        if target is None or not target.exists():
+            files = sorted(out.glob("*.report.json")) if out.exists() else []
+            target = files[0] if files else None
+        if target is None or not _inside(root, target):
             raise HTTPException(404, "Report not found")
-        return FileResponse(files[0], filename=files[0].name, media_type="application/json")
-    elif file_type == "pdf":
-        pdf_files = list(job_dir.rglob("*_qa/*.pdf"))
-        if not pdf_files:
+        return FileResponse(target, filename=target.name, media_type="application/json")
+    if file_type == "pdf":
+        target = Path(job["qa_pdf"]) if job.get("qa_pdf") else None
+        if target is None or not target.exists():
+            files = sorted((out / "qa").glob("*.pdf")) if (out / "qa").exists() else []
+            target = files[0] if files else None
+        if target is None or not _inside(root, target):
             raise HTTPException(404, "QA PDF not found")
-        return FileResponse(pdf_files[0], filename=pdf_files[0].name, media_type="application/pdf")
-    else:
-        raise HTTPException(400, "Invalid file_type. Use: docx, pdf, report")
+        return FileResponse(target, filename=target.name, media_type="application/pdf")
+    raise HTTPException(400, "Invalid file_type. Use: docx, pdf, report")
 
 
 @app.get("/")
@@ -362,5 +275,3 @@ async def serve_frontend():
     if index.exists():
         return FileResponse(index)
     return {"message": "Frontend not found. Place files in /frontend directory."}
-
-

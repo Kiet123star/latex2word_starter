@@ -1,0 +1,835 @@
+{
+ "schema": "l2w-pdf-manifest/1",
+ "coordinate_system": "pt; gốc trên-trái trang HIỂN THỊ (đã áp CropBox và /Rotate); y tăng xuống",
+ "source": {
+  "file": "b.pdf"
+ },
+ "document": {
+  "encrypted": false,
+  "pdf_version": "1.3",
+  "producer": "l2w-tests (reportlab)",
+  "creator": "l2w-tests",
+  "form_xobjects": 0
+ },
+ "page_count": 1,
+ "pages": [
+  {
+   "visible_chars": 320,
+   "hidden_chars": 0,
+   "image_cover": 0.0,
+   "vector_objects": 0,
+   "unmapped_chars": 0,
+   "legacy_vn_fonts": [],
+   "type": "text",
+   "page": 1,
+   "mediabox": [
+    0.0,
+    0.0,
+    595.2756,
+    841.8898
+   ],
+   "cropbox": [
+    0.0,
+    0.0,
+    595.2756,
+    841.8898
+   ],
+   "rotation": 0,
+   "width": 595.28,
+   "height": 841.89,
+   "columns": {
+    "gutter": [
+     166.0,
+     320.0
+    ],
+    "left_lines": 8,
+    "right_lines": 8,
+    "lines_split_at_gutter": 8
+   },
+   "reference_text": "Cột trái câu số 1 kết thúc. Cột phải dòng thứ 1 hết.\nCột trái câu số 2 kết thúc. Cột phải dòng thứ 2 hết.\nCột trái câu số 3 kết thúc. Cột phải dòng thứ 3 hết.\nCột trái câu số 4 kết thúc. Cột phải dòng thứ 4 hết.\nCột trái câu số 5 kết thúc. Cột phải dòng thứ 5 hết.\nCột trái câu số 6 kết thúc. Cột phải dòng thứ 6 hết.\nCột trái câu số 7 kết thúc. Cột phải dòng thứ 7 hết.\nCột trái câu số 8 kết thúc. Cột phải dòng thứ 8 hết.",
+   "reference_excluded_chars": 0,
+   "text_plausibility": {
+    "checked": true,
+    "long_token_frac": 0.0,
+    "punct_ratio": 0.05,
+    "vowelless_word_ratio": 0.0,
+    "words": 80,
+    "suspect": false
+   }
+  }
+ ],
+ "page_types": {
+  "1": "text"
+ },
+ "blocks": [
+  {
+   "block_id": "p1-b1",
+   "type": "paragraph",
+   "page": 1,
+   "bbox": [
+    50.0,
+    65.26,
+    162.72,
+    76.26
+   ],
+   "method": "text_native",
+   "lines": [
+    {
+     "runs": [
+      {
+       "text": "Cột trái câu số 1 kết thúc.",
+       "bold": false,
+       "italic": false,
+       "size": 11.0
+      }
+     ],
+     "math": []
+    }
+   ],
+   "text": "Cột trái câu số 1 kết thúc.",
+   "inline_math": [],
+   "align": "left",
+   "size": 11.0,
+   "warnings": [],
+   "status": "ok",
+   "column": 0,
+   "order": 1,
+   "parent": null,
+   "fallback_reason": null,
+   "confidence": null,
+   "source": {
+    "file": "b.pdf",
+    "page": 1,
+    "bbox_pt": [
+     50.0,
+     65.26,
+     162.72,
+     76.26
+    ],
+    "coords": "display_topleft_pt"
+   }
+  },
+  {
+   "block_id": "p1-b3",
+   "type": "paragraph",
+   "page": 1,
+   "bbox": [
+    50.0,
+    87.26,
+    162.72,
+    98.26
+   ],
+   "method": "text_native",
+   "lines": [
+    {
+     "runs": [
+      {
+       "text": "Cột trái câu số 2 kết thúc.",
+       "bold": false,
+       "italic": false,
+       "size": 11.0
+      }
+     ],
+     "math": []
+    }
+   ],
+   "text": "Cột trái câu số 2 kết thúc.",
+   "inline_math": [],
+   "align": "left",
+   "size": 11.0,
+   "warnings": [],
+   "status": "ok",
+   "column": 0,
+   "order": 2,
+   "parent": null,
+   "fallback_reason": null,
+   "confidence": null,
+   "source": {
+    "file": "b.pdf",
+    "page": 1,
+    "bbox_pt": [
+     50.0,
+     87.26,
+     162.72,
+     98.26
+    ],
+    "coords": "display_topleft_pt"
+   }
+  },
+  {
+   "block_id": "p1-b5",
+   "type": "paragraph",
+   "page": 1,
+   "bbox": [
+    50.0,
+    109.26,
+    162.72,
+    120.26
+   ],
+   "method": "text_native",
+   "lines": [
+    {
+     "runs": [
+      {
+       "text": "Cột trái câu số 3 kết thúc.",
+       "bold": false,
+       "italic": false,
+       "size": 11.0
+      }
+     ],
+     "math": []
+    }
+   ],
+   "text": "Cột trái câu số 3 kết thúc.",
+   "inline_math": [],
+   "align": "left",
+   "size": 11.0,
+   "warnings": [],
+   "status": "ok",
+   "column": 0,
+   "order": 3,
+   "parent": null,
+   "fallback_reason": null,
+   "confidence": null,
+   "source": {
+    "file": "b.pdf",
+    "page": 1,
+    "bbox_pt": [
+     50.0,
+     109.26,
+     162.72,
+     120.26
+    ],
+    "coords": "display_topleft_pt"
+   }
+  },
+  {
+   "block_id": "p1-b7",
+   "type": "paragraph",
+   "page": 1,
+   "bbox": [
+    50.0,
+    131.26,
+    162.72,
+    142.26
+   ],
+   "method": "text_native",
+   "lines": [
+    {
+     "runs": [
+      {
+       "text": "Cột trái câu số 4 kết thúc.",
+       "bold": false,
+       "italic": false,
+       "size": 11.0
+      }
+     ],
+     "math": []
+    }
+   ],
+   "text": "Cột trái câu số 4 kết thúc.",
+   "inline_math": [],
+   "align": "left",
+   "size": 11.0,
+   "warnings": [],
+   "status": "ok",
+   "column": 0,
+   "order": 4,
+   "parent": null,
+   "fallback_reason": null,
+   "confidence": null,
+   "source": {
+    "file": "b.pdf",
+    "page": 1,
+    "bbox_pt": [
+     50.0,
+     131.26,
+     162.72,
+     142.26
+    ],
+    "coords": "display_topleft_pt"
+   }
+  },
+  {
+   "block_id": "p1-b9",
+   "type": "paragraph",
+   "page": 1,
+   "bbox": [
+    50.0,
+    153.26,
+    162.72,
+    164.26
+   ],
+   "method": "text_native",
+   "lines": [
+    {
+     "runs": [
+      {
+       "text": "Cột trái câu số 5 kết thúc.",
+       "bold": false,
+       "italic": false,
+       "size": 11.0
+      }
+     ],
+     "math": []
+    }
+   ],
+   "text": "Cột trái câu số 5 kết thúc.",
+   "inline_math": [],
+   "align": "left",
+   "size": 11.0,
+   "warnings": [],
+   "status": "ok",
+   "column": 0,
+   "order": 5,
+   "parent": null,
+   "fallback_reason": null,
+   "confidence": null,
+   "source": {
+    "file": "b.pdf",
+    "page": 1,
+    "bbox_pt": [
+     50.0,
+     153.26,
+     162.72,
+     164.26
+    ],
+    "coords": "display_topleft_pt"
+   }
+  },
+  {
+   "block_id": "p1-b11",
+   "type": "paragraph",
+   "page": 1,
+   "bbox": [
+    50.0,
+    175.26,
+    162.72,
+    186.26
+   ],
+   "method": "text_native",
+   "lines": [
+    {
+     "runs": [
+      {
+       "text": "Cột trái câu số 6 kết thúc.",
+       "bold": false,
+       "italic": false,
+       "size": 11.0
+      }
+     ],
+     "math": []
+    }
+   ],
+   "text": "Cột trái câu số 6 kết thúc.",
+   "inline_math": [],
+   "align": "left",
+   "size": 11.0,
+   "warnings": [],
+   "status": "ok",
+   "column": 0,
+   "order": 6,
+   "parent": null,
+   "fallback_reason": null,
+   "confidence": null,
+   "source": {
+    "file": "b.pdf",
+    "page": 1,
+    "bbox_pt": [
+     50.0,
+     175.26,
+     162.72,
+     186.26
+    ],
+    "coords": "display_topleft_pt"
+   }
+  },
+  {
+   "block_id": "p1-b13",
+   "type": "paragraph",
+   "page": 1,
+   "bbox": [
+    50.0,
+    197.26,
+    162.72,
+    208.26
+   ],
+   "method": "text_native",
+   "lines": [
+    {
+     "runs": [
+      {
+       "text": "Cột trái câu số 7 kết thúc.",
+       "bold": false,
+       "italic": false,
+       "size": 11.0
+      }
+     ],
+     "math": []
+    }
+   ],
+   "text": "Cột trái câu số 7 kết thúc.",
+   "inline_math": [],
+   "align": "left",
+   "size": 11.0,
+   "warnings": [],
+   "status": "ok",
+   "column": 0,
+   "order": 7,
+   "parent": null,
+   "fallback_reason": null,
+   "confidence": null,
+   "source": {
+    "file": "b.pdf",
+    "page": 1,
+    "bbox_pt": [
+     50.0,
+     197.26,
+     162.72,
+     208.26
+    ],
+    "coords": "display_topleft_pt"
+   }
+  },
+  {
+   "block_id": "p1-b15",
+   "type": "paragraph",
+   "page": 1,
+   "bbox": [
+    50.0,
+    219.26,
+    162.72,
+    230.26
+   ],
+   "method": "text_native",
+   "lines": [
+    {
+     "runs": [
+      {
+       "text": "Cột trái câu số 8 kết thúc.",
+       "bold": false,
+       "italic": false,
+       "size": 11.0
+      }
+     ],
+     "math": []
+    }
+   ],
+   "text": "Cột trái câu số 8 kết thúc.",
+   "inline_math": [],
+   "align": "left",
+   "size": 11.0,
+   "warnings": [],
+   "status": "ok",
+   "column": 0,
+   "order": 8,
+   "parent": null,
+   "fallback_reason": null,
+   "confidence": null,
+   "source": {
+    "file": "b.pdf",
+    "page": 1,
+    "bbox_pt": [
+     50.0,
+     219.26,
+     162.72,
+     230.26
+    ],
+    "coords": "display_topleft_pt"
+   }
+  },
+  {
+   "block_id": "p1-b2",
+   "type": "paragraph",
+   "page": 1,
+   "bbox": [
+    320.0,
+    65.26,
+    426.79,
+    76.26
+   ],
+   "method": "text_native",
+   "lines": [
+    {
+     "runs": [
+      {
+       "text": "Cột phải dòng thứ 1 hết.",
+       "bold": false,
+       "italic": false,
+       "size": 11.0
+      }
+     ],
+     "math": []
+    }
+   ],
+   "text": "Cột phải dòng thứ 1 hết.",
+   "inline_math": [],
+   "align": "left",
+   "size": 11.0,
+   "warnings": [],
+   "status": "ok",
+   "column": 1,
+   "order": 9,
+   "parent": null,
+   "fallback_reason": null,
+   "confidence": null,
+   "source": {
+    "file": "b.pdf",
+    "page": 1,
+    "bbox_pt": [
+     320.0,
+     65.26,
+     426.79,
+     76.26
+    ],
+    "coords": "display_topleft_pt"
+   }
+  },
+  {
+   "block_id": "p1-b4",
+   "type": "paragraph",
+   "page": 1,
+   "bbox": [
+    320.0,
+    87.26,
+    426.79,
+    98.26
+   ],
+   "method": "text_native",
+   "lines": [
+    {
+     "runs": [
+      {
+       "text": "Cột phải dòng thứ 2 hết.",
+       "bold": false,
+       "italic": false,
+       "size": 11.0
+      }
+     ],
+     "math": []
+    }
+   ],
+   "text": "Cột phải dòng thứ 2 hết.",
+   "inline_math": [],
+   "align": "left",
+   "size": 11.0,
+   "warnings": [],
+   "status": "ok",
+   "column": 1,
+   "order": 10,
+   "parent": null,
+   "fallback_reason": null,
+   "confidence": null,
+   "source": {
+    "file": "b.pdf",
+    "page": 1,
+    "bbox_pt": [
+     320.0,
+     87.26,
+     426.79,
+     98.26
+    ],
+    "coords": "display_topleft_pt"
+   }
+  },
+  {
+   "block_id": "p1-b6",
+   "type": "paragraph",
+   "page": 1,
+   "bbox": [
+    320.0,
+    109.26,
+    426.79,
+    120.26
+   ],
+   "method": "text_native",
+   "lines": [
+    {
+     "runs": [
+      {
+       "text": "Cột phải dòng thứ 3 hết.",
+       "bold": false,
+       "italic": false,
+       "size": 11.0
+      }
+     ],
+     "math": []
+    }
+   ],
+   "text": "Cột phải dòng thứ 3 hết.",
+   "inline_math": [],
+   "align": "left",
+   "size": 11.0,
+   "warnings": [],
+   "status": "ok",
+   "column": 1,
+   "order": 11,
+   "parent": null,
+   "fallback_reason": null,
+   "confidence": null,
+   "source": {
+    "file": "b.pdf",
+    "page": 1,
+    "bbox_pt": [
+     320.0,
+     109.26,
+     426.79,
+     120.26
+    ],
+    "coords": "display_topleft_pt"
+   }
+  },
+  {
+   "block_id": "p1-b8",
+   "type": "paragraph",
+   "page": 1,
+   "bbox": [
+    320.0,
+    131.26,
+    426.79,
+    142.26
+   ],
+   "method": "text_native",
+   "lines": [
+    {
+     "runs": [
+      {
+       "text": "Cột phải dòng thứ 4 hết.",
+       "bold": false,
+       "italic": false,
+       "size": 11.0
+      }
+     ],
+     "math": []
+    }
+   ],
+   "text": "Cột phải dòng thứ 4 hết.",
+   "inline_math": [],
+   "align": "left",
+   "size": 11.0,
+   "warnings": [],
+   "status": "ok",
+   "column": 1,
+   "order": 12,
+   "parent": null,
+   "fallback_reason": null,
+   "confidence": null,
+   "source": {
+    "file": "b.pdf",
+    "page": 1,
+    "bbox_pt": [
+     320.0,
+     131.26,
+     426.79,
+     142.26
+    ],
+    "coords": "display_topleft_pt"
+   }
+  },
+  {
+   "block_id": "p1-b10",
+   "type": "paragraph",
+   "page": 1,
+   "bbox": [
+    320.0,
+    153.26,
+    426.79,
+    164.26
+   ],
+   "method": "text_native",
+   "lines": [
+    {
+     "runs": [
+      {
+       "text": "Cột phải dòng thứ 5 hết.",
+       "bold": false,
+       "italic": false,
+       "size": 11.0
+      }
+     ],
+     "math": []
+    }
+   ],
+   "text": "Cột phải dòng thứ 5 hết.",
+   "inline_math": [],
+   "align": "left",
+   "size": 11.0,
+   "warnings": [],
+   "status": "ok",
+   "column": 1,
+   "order": 13,
+   "parent": null,
+   "fallback_reason": null,
+   "confidence": null,
+   "source": {
+    "file": "b.pdf",
+    "page": 1,
+    "bbox_pt": [
+     320.0,
+     153.26,
+     426.79,
+     164.26
+    ],
+    "coords": "display_topleft_pt"
+   }
+  },
+  {
+   "block_id": "p1-b12",
+   "type": "paragraph",
+   "page": 1,
+   "bbox": [
+    320.0,
+    175.26,
+    426.79,
+    186.26
+   ],
+   "method": "text_native",
+   "lines": [
+    {
+     "runs": [
+      {
+       "text": "Cột phải dòng thứ 6 hết.",
+       "bold": false,
+       "italic": false,
+       "size": 11.0
+      }
+     ],
+     "math": []
+    }
+   ],
+   "text": "Cột phải dòng thứ 6 hết.",
+   "inline_math": [],
+   "align": "left",
+   "size": 11.0,
+   "warnings": [],
+   "status": "ok",
+   "column": 1,
+   "order": 14,
+   "parent": null,
+   "fallback_reason": null,
+   "confidence": null,
+   "source": {
+    "file": "b.pdf",
+    "page": 1,
+    "bbox_pt": [
+     320.0,
+     175.26,
+     426.79,
+     186.26
+    ],
+    "coords": "display_topleft_pt"
+   }
+  },
+  {
+   "block_id": "p1-b14",
+   "type": "paragraph",
+   "page": 1,
+   "bbox": [
+    320.0,
+    197.26,
+    426.79,
+    208.26
+   ],
+   "method": "text_native",
+   "lines": [
+    {
+     "runs": [
+      {
+       "text": "Cột phải dòng thứ 7 hết.",
+       "bold": false,
+       "italic": false,
+       "size": 11.0
+      }
+     ],
+     "math": []
+    }
+   ],
+   "text": "Cột phải dòng thứ 7 hết.",
+   "inline_math": [],
+   "align": "left",
+   "size": 11.0,
+   "warnings": [],
+   "status": "ok",
+   "column": 1,
+   "order": 15,
+   "parent": null,
+   "fallback_reason": null,
+   "confidence": null,
+   "source": {
+    "file": "b.pdf",
+    "page": 1,
+    "bbox_pt": [
+     320.0,
+     197.26,
+     426.79,
+     208.26
+    ],
+    "coords": "display_topleft_pt"
+   }
+  },
+  {
+   "block_id": "p1-b16",
+   "type": "paragraph",
+   "page": 1,
+   "bbox": [
+    320.0,
+    219.26,
+    426.79,
+    230.26
+   ],
+   "method": "text_native",
+   "lines": [
+    {
+     "runs": [
+      {
+       "text": "Cột phải dòng thứ 8 hết.",
+       "bold": false,
+       "italic": false,
+       "size": 11.0
+      }
+     ],
+     "math": []
+    }
+   ],
+   "text": "Cột phải dòng thứ 8 hết.",
+   "inline_math": [],
+   "align": "left",
+   "size": 11.0,
+   "warnings": [],
+   "status": "ok",
+   "column": 1,
+   "order": 16,
+   "parent": null,
+   "fallback_reason": null,
+   "confidence": null,
+   "source": {
+    "file": "b.pdf",
+    "page": 1,
+    "bbox_pt": [
+     320.0,
+     219.26,
+     426.79,
+     230.26
+    ],
+    "coords": "display_topleft_pt"
+   }
+  }
+ ],
+ "issues": [],
+ "summary": {
+  "blocks": 16,
+  "by_method": {
+   "text_native": 16
+  },
+  "by_type": {
+   "paragraph": 16
+  },
+  "page_types": {
+   "text": 1
+  },
+  "unresolved": 0,
+  "inline_math_omml": 0,
+  "inline_math_images": 0,
+  "confidence_note": "confidence là heuristic nội bộ (0–1), chưa hiệu chuẩn trên tập dữ liệu thật."
+ }
+}

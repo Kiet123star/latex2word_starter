@@ -1,0 +1,226 @@
+{
+ "schema": "l2w-pdf-manifest/1",
+ "coordinate_system": "pt; gốc trên-trái trang HIỂN THỊ (đã áp CropBox và /Rotate); y tăng xuống",
+ "source": {
+  "file": "hon_hop.pdf"
+ },
+ "document": {
+  "encrypted": false,
+  "pdf_version": "1.3",
+  "producer": "l2w-tests (reportlab)",
+  "creator": "l2w-tests",
+  "form_xobjects": 0
+ },
+ "page_count": 1,
+ "pages": [
+  {
+   "visible_chars": 75,
+   "hidden_chars": 0,
+   "image_cover": 0.306,
+   "vector_objects": 0,
+   "unmapped_chars": 0,
+   "legacy_vn_fonts": [],
+   "type": "mixed",
+   "page": 1,
+   "mediabox": [
+    0.0,
+    0.0,
+    595.2756,
+    841.8898
+   ],
+   "cropbox": [
+    0.0,
+    0.0,
+    595.2756,
+    841.8898
+   ],
+   "rotation": 0,
+   "width": 595.28,
+   "height": 841.89,
+   "columns": null,
+   "reference_text": "Trang hỗn hợp có chữ và ảnh chụp.\nChú thích dưới ảnh chụp minh hoạ.\nĐoạn văn tiếp theo sau ảnh.",
+   "reference_excluded_chars": 0,
+   "text_plausibility": {
+    "checked": true,
+    "long_token_frac": 0.0,
+    "punct_ratio": 0.04,
+    "vowelless_word_ratio": 0.0,
+    "words": 19,
+    "suspect": false
+   }
+  }
+ ],
+ "page_types": {
+  "1": "mixed"
+ },
+ "blocks": [
+  {
+   "block_id": "p1-b1",
+   "type": "paragraph",
+   "page": 1,
+   "bbox": [
+    60.0,
+    41.7,
+    244.31,
+    54.7
+   ],
+   "method": "text_native",
+   "lines": [
+    {
+     "runs": [
+      {
+       "text": "Trang hỗn hợp có chữ và ảnh chụp.",
+       "bold": false,
+       "italic": false,
+       "size": 13.0
+      }
+     ],
+     "math": []
+    }
+   ],
+   "text": "Trang hỗn hợp có chữ và ảnh chụp.",
+   "inline_math": [],
+   "align": "left",
+   "size": 13.0,
+   "warnings": [],
+   "status": "ok",
+   "order": 1,
+   "parent": null,
+   "fallback_reason": null,
+   "confidence": null,
+   "source": {
+    "file": "hon_hop.pdf",
+    "page": 1,
+    "bbox_pt": [
+     60.0,
+     41.7,
+     244.31,
+     54.7
+    ],
+    "coords": "display_topleft_pt"
+   }
+  },
+  {
+   "block_id": "p1-f1",
+   "type": "image",
+   "page": 1,
+   "bbox": [
+    60.0,
+    101.89,
+    540.0,
+    421.89
+   ],
+   "method": "raster_image",
+   "status": "fallback",
+   "assets": {
+    "png": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\f72045b70f89\\work\\pdf\\assets\\p1-f1.png",
+    "width_pt": 485.0,
+    "height_pt": 325.0,
+    "dpi": 96,
+    "bbox": [
+     57.5,
+     99.39,
+     542.5,
+     424.39
+    ]
+   },
+   "warnings": [
+    "ảnh gốc độ phân giải thấp (~96 dpi hiệu dụng) — không tăng DPI giả"
+   ],
+   "fallback_reason": "hình giữ bằng ảnh vùng gốc (chưa dựng lại DrawingML từ PDF)",
+   "objects": {
+    "image": 1
+   },
+   "order": 2,
+   "parent": null,
+   "confidence": null,
+   "source": {
+    "file": "hon_hop.pdf",
+    "page": 1,
+    "bbox_pt": [
+     60.0,
+     101.89,
+     540.0,
+     421.89
+    ],
+    "coords": "display_topleft_pt"
+   }
+  },
+  {
+   "block_id": "p1-b2",
+   "type": "paragraph",
+   "page": 1,
+   "bbox": [
+    60.0,
+    451.7,
+    243.98,
+    494.7
+   ],
+   "method": "text_native",
+   "lines": [
+    {
+     "runs": [
+      {
+       "text": "Chú thích dưới ảnh chụp minh hoạ.",
+       "bold": false,
+       "italic": false,
+       "size": 13.0
+      }
+     ],
+     "math": []
+    },
+    {
+     "runs": [
+      {
+       "text": "Đoạn văn tiếp theo sau ảnh.",
+       "bold": false,
+       "italic": false,
+       "size": 13.0
+      }
+     ],
+     "math": []
+    }
+   ],
+   "text": "Chú thích dưới ảnh chụp minh hoạ. Đoạn văn tiếp theo sau ảnh.",
+   "inline_math": [],
+   "align": "left",
+   "size": 13.0,
+   "warnings": [],
+   "status": "ok",
+   "order": 3,
+   "parent": null,
+   "fallback_reason": null,
+   "confidence": null,
+   "source": {
+    "file": "hon_hop.pdf",
+    "page": 1,
+    "bbox_pt": [
+     60.0,
+     451.7,
+     243.98,
+     494.7
+    ],
+    "coords": "display_topleft_pt"
+   }
+  }
+ ],
+ "issues": [],
+ "summary": {
+  "blocks": 3,
+  "by_method": {
+   "text_native": 2,
+   "raster_image": 1
+  },
+  "by_type": {
+   "paragraph": 2,
+   "image": 1
+  },
+  "page_types": {
+   "mixed": 1
+  },
+  "unresolved": 0,
+  "inline_math_omml": 0,
+  "inline_math_images": 0,
+  "confidence_note": "confidence là heuristic nội bộ (0–1), chưa hiệu chuẩn trên tập dữ liệu thật."
+ }
+}

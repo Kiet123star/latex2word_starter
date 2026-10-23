@@ -1,0 +1,529 @@
+{
+  "schema": "l2w-report/2",
+  "job_id": "6b203efe6b75",
+  "started_at": "2026-10-24T00:28:32",
+  "input": {
+    "name": "hinh_don_gian.tex",
+    "kind": "tex",
+    "original_name": "hinh_don_gian.tex",
+    "path": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\6b203efe6b75\\input\\hinh_don_gian.tex",
+    "sha256": "826470e849b3d0d503a4e3546b63341f2b325408fe6f24f6055b29a688af571f",
+    "size": 333,
+    "detection": {
+      "kind": "tex",
+      "reason": "văn bản có lệnh TeX (\\...)",
+      "extension": "tex",
+      "warnings": []
+    }
+  },
+  "conversion_completed": true,
+  "quality_status": "review_required",
+  "status": "review_required",
+  "overall": "review_required",
+  "issues": [],
+  "steps": [
+    {
+      "step": "resolve_source",
+      "seconds": 0.0,
+      "files": 1
+    },
+    {
+      "step": "prepare_blocks",
+      "seconds": 4.29,
+      "blocks": 1
+    },
+    {
+      "step": "engine",
+      "seconds": 0.13
+    },
+    {
+      "step": "inject_blocks",
+      "seconds": 0.03,
+      "fallback": 1
+    },
+    {
+      "step": "package_check",
+      "seconds": 0.11,
+      "ok": true
+    }
+  ],
+  "limitations": [
+    "Không cam kết giống 100% hay sửa được 100%: ảnh SVG/PNG nhúng là ảnh, không phải OMML/Word Shapes.",
+    "‘passed’ chỉ áp dụng cho các tiêu chí tự động đã nêu trong báo cáo, không có nghĩa đúng mọi tài liệu.",
+    "Render QA dùng LibreOffice; Microsoft Word có thể ngắt dòng/trang khác.",
+    "Nhận dạng công thức từ PDF là heuristic (chỉ phân số/chỉ số đơn giản); công thức không chắc → ảnh vùng.",
+    "OCR chưa có trên máy → trang scan giữ ảnh trang."
+  ],
+  "options": {
+    "mode": 2,
+    "dpi": 150,
+    "strict": false,
+    "qa_pdf": false,
+    "engine": "xelatex",
+    "answer_mode": "source",
+    "show_solutions": true,
+    "figure_policy": "auto",
+    "preprocess": "engine",
+    "ocr": "auto",
+    "ocr_lang": null
+  },
+  "source": {
+    "main": "hinh_don_gian.tex",
+    "selection": "user_exact_path",
+    "candidates": [
+      "hinh_don_gian.tex"
+    ],
+    "files": [
+      {
+        "path": "hinh_don_gian.tex",
+        "encoding": "utf-8",
+        "lines": 16,
+        "depth": 0
+      }
+    ],
+    "includes": [],
+    "graphicspath": [],
+    "issues": []
+  },
+  "preprocess": {
+    "mode": "engine",
+    "requested": "engine",
+    "reason": "mặc định: nhánh engine của pipeline — có quản lý khối hình/ảnh, provenance từng khối, thông báo khối thiếu"
+  },
+  "transforms": {
+    "newif": {
+      "resolved": {},
+      "skipped": {}
+    },
+    "user_macros": {
+      "expanded": {},
+      "skipped": {},
+      "defined": []
+    },
+    "macro_fidelity": {
+      "macro_da_no": {},
+      "macro_bo_qua": {},
+      "co_dieu_kien": [],
+      "lenh_danh_dau": []
+    },
+    "lists": {
+      "itemize": 0,
+      "enumerate": 0,
+      "description": 0,
+      "items": 0
+    },
+    "structure": {
+      "unwrapped": {},
+      "titled": {},
+      "user_envs_expanded": {},
+      "unknown_commands": {},
+      "kept_args_of_unknown": 0,
+      "exam_conventions": {
+        "cau": 0,
+        "bonpa": 0,
+        "choiceTF4": 0
+      }
+    }
+  },
+  "blocks": {
+    "items": [
+      {
+        "block_id": "tex-fig-0001",
+        "kind": "figure",
+        "source": {
+          "file": "hinh_don_gian.tex",
+          "line": 7
+        },
+        "tex": "\\begin{tikzpicture}\n\\draw[thick] (0,0) -- (4,0) -- (1,3) -- cycle;\n\\node[below left] at (0,0) {$A$};\n\\node[below right] at (4,0) {$B$};\n\\node[above] at (1,3) {$C$};\n\\end{tikzpicture}",
+        "index": 1,
+        "method": "vector_image",
+        "status": "fallback",
+        "reason": "thiếu LibreOffice để render thử DrawingML",
+        "warnings": [],
+        "asset": {
+          "ext": "svg",
+          "width_pt": 151.97999572753906,
+          "height_pt": 121.69999694824219,
+          "engine": "xelatex",
+          "geom_png": "b'\\x89PNG\\r\\n\\x1a\\n\\x00\\x00\\x00\\rIHDR\\x00\\x00\\x01=\\x00\\x00\\x00\\xfe\\x08\\x02\\x00\\x00\\x00\\xc7\\xf2Ed\\x00\\x00\\x0c\\xd3IDATx\\x9c\\xed\\xddKS\\x14\\xe7\\x1e\\xc7\\xf1q\\xb6.-F\\x05\\x11\\xaf\\xa4@\\xe3\\xddr\\xdb\\xe3K09\\xa8\\xa0\\xdc\\x95\\x81\\xc1w\\xe1;\\x90\\xab\\xe0\\x05\\x14L\\x86\\xca\"U\\x01qc\\xb7&\\x9a\\xbc\\x01c\"^@\\xbc\\xe0\\xc2\\x8d:\\xa0+N\\x95\\x9c\\xb2\\xfa\\xc8 \\x03\\xd3\\xdd\\xcf\\xf3\\x7f\\x9e\\xefg\\x95\\xa2\\xac\\xd0\\x99\\xa9_\\xfd~\\xf6-k\\xe6\\xe7\\xe7c\\x00D\\x89\\xab>\\x00\\x00+Fn\\x01y\\xc8- \\x0f\\xb9\\x05\\xe4!\\xb7\\x80<\\xe4\\x16\\x90\\x87\\xdc\\x02\\xf2\\x90[@\\x1er\\x0b\\xc8Cn\\x01y\\xc8- \\x0f\\xb9\\x05\\xe4!\\xb7\\x80<\\xe4\\x16\\x90\\x87\\xdc\\x02\\xf2\\x90[@\\x1er\\x0b\\xc8Cn\\x01y\\xc8- \\x0f\\xb9\\x05\\xe4!\\xb7\\x80<\\xe4\\x16\\x90\\x87\\xdc\\x02\\xf2\\x90[@\\x1er\\x0b\\xc8Cn\\x01y\\xc8- \\x0f\\xb9\\x05\\xe4!\\xb7\\x80<\\xe4\\x16\\x90\\x87\\xdc\\x02\\xf2\\x90[@\\x1er\\x0b\\xc8Cn\\x01y\\xc8- \\x0f\\xb9\\xcd\\xcb\\xfb\\xf7\\xef\\xc3\\xfe&\\x80\\xfc\\x91\\xdb\\xe5e\\xb3\\xd9\\x83\\x07\\x0fNLL\\xac\\xe0s\\x05\\xc2Dn\\x977:::11Q^^Nt\\xa1\\tr\\xbb\\xbcL&\\xb3\\xf0\\x0f\\xc9d\\x92\\xe8B\\x07\\xe4v\\x19\\xd9lvll\\xccq\\x9cL&\\xf3\\xe6\\xcd\\x1b\\xa2\\x0b\\x1d\\x90\\xdbe\\x8c\\x8e\\x8e\\xce\\xcd\\xcd\\xfd\\xe7\\xb3\\xe1\\xe1a\\xa2\\x0b\\x1d\\x90\\xdbed2\\x99x<\\xfe\\xc3\\x0f?\\xc4b1\\x7ft\\x1f?~\\x1c\\xcd7\\x04,\\xb6f~~>\\xc7\\x8f\\xf1Y6\\x9b-**:r\\xe4\\x88\\xeb\\xba_>\\x92\\x91\\x91\\x91\\xea\\xea\\xea\\xf5\\xeb\\xd7{\\x9e\\xb7c\\xc7\\x0e>*D\\x8f\\xbe\\xcdk$\\xfb\\x7f\\xf8\\xa5u\\x1d\\xc7\\xa1u\\xa1\\x04\\xb9\\xfd\\x96\\x91\\x91\\x91x<~\\xec\\xd8\\xb1\\xaf~Nt\\xa1\\x16;yI\\xd9l6\\x91H\\x1c>|\\xd8\\xf3\\xbc\\x9c\\x7f \\x93\\xc9\\xd4\\xd4\\xd40\\x98\\x11=\\xfavI\\xa3\\xa3\\xa3\\xb3\\xb3\\xb3UUUK\\xfd\\x81\\xaa\\xaa\\xaa\\xa1\\xa1!\\x063\\xa2GnW<\\x92\\xfd\\x88.\\x94`\\'\\xafr$/\\x1e\\xcc\\x1b6lp]\\x973\\xcc\\x88\\x00}\\xbb\\xca\\x91\\xbc\\xb8ugff\\xb8\\xae\\x8bh\\x90\\xdb\\xd5\\x8fd?\\xa2\\x8b(\\xb1\\x93s\\x98\\x9d\\x9d-**\\xcas$\\xfbe2\\x99\\xea\\xea\\xea\\x8d\\x1b72\\x98\\x11*\\xfa6\\x87\\xdf~\\xfbmvv\\xf6\\xab\\xdb-\\xf2QUU5<<\\xfc\\xfa\\xf5k\\x063BEn\\x97\\x1c\\xc9\\x0b\\xf7$\\x17\\x12\\xdd\\'O\\x9e\\x14\\xfe\\r\\x01\\x8b\\xb1\\x93\\x03\\x1b\\xc99\\x07\\xb3\\xe7y\\xdb\\xb7o_\\xf5\\xbf\\x07\\xc8\\x89\\xbe\\xcd}&y\\x15#9g\\xeb:\\x8eC\\xeb\"p\\xe4\\xf6[\\x0f\\xee\\x15\\x82\\xe8\"<\\xec\\xe4\\xe0G\\xb2\\xdf\\xcf?\\xff\\\\SS\\xc3`F\\xb0\\xe8\\xdb\\xe0G\\xb2\\xdf\\xf1\\xe3\\xc7\\x87\\x86\\x86\\x18\\xcc\\x08\\x16\\xb9\\re$\\xfb\\x11]\\x04\\x8e\\x9d\\x1c\\xe2H^<\\x98\\x8b\\x8b\\x8b]\\xd7\\xe5\\x0c3\\nD\\xdf\\x868\\x92\\x17\\xb7\\xee\\xabW\\xaf\\xb8\\xae\\x8b\\xc2\\x91\\xdb`n\\xb7\\xc8\\x07\\xd1EP\\xd8\\xc9\\xff7\\x92\\x0f\\x1d:t\\xe7\\xce\\x9dX\\x98\\x18\\xcc(\\x1c}\\xbb\\x9a\\x07\\xf7\\nq\\xfc\\xf8\\xf1\\xeb\\xd7\\xaf3\\x98Q\\x08r\\x1b\\xd1H\\xf6;q\\xe2\\xc4\\x97\\xe8>}\\xfa4\\x82\\xdf\\x08\\xc3\\xb0\\x93#\\x1d\\xc9~?\\xfd\\xf4\\xd3\\xa9S\\xa7\\x8a\\x8b\\x8b=\\xcf\\xdb\\xb6m[d\\xbf\\x17\\x06\\xa0o#\\x1d\\xc99[\\xd7q\\x1cZ\\x17+Bn\\xa3\\x1e\\xc9~D\\x17\\xab\\xc3NV3\\x92\\xfd\\x18\\xccX)\\xfa6\\xdc\\xdb-\\xf2q\\xe2\\xc4\\x89k\\xd7\\xae1\\x98\\x91?r\\xfb\\xbf\\x91\\xfc\\xe3\\x8f?\\xc6\\xd49y\\xf2$\\xd1E\\xfel\\xdf\\xc9\\xcaG\\xb2\\xdf\\x8d\\x1b7N\\x9f>]RR\\xe2\\xba.g\\x98\\xf1\\r\\xb6\\xf7\\xad\\xf2\\x91\\xbc\\xb8u_\\xbe|\\xc9u]|\\x9b\\xed\\xb9\\xd5a$\\xfb\\x11]\\xe4\\xc3\\xea\\x9d\\xac\\xd5H\\xf6c0\\xe3\\xdb\\xac\\xee\\xdb\\xb1\\xb11}F\\xb2\\xdf\\xc9\\x93\\'\\x07\\x07\\x07\\x19\\xccX\\x8a\\xd5\\xb9\\r\\xe3\\xed\\x16A\\xa9\\xae\\xae\\xfe\\x12\\xddg\\xcf\\x9e\\xa9>\\x1c\\xe8\\xc5\\xde\\x9d\\xac\\xedH\\xf6\\x1b\\x1e\\x1e\\xae\\xad\\xad-))\\xf1<o\\xeb\\xd6\\xad\\xaa\\x0f\\x07\\xba\\xb0\\xb7o\\xb5\\x1d\\xc99[\\xd7q\\x1cZ\\x17_\\xd8\\x9b[\\x9dG\\xb2\\x1f\\xd1\\xc5b\\x96\\xeed\\x11#\\xd9\\x8f\\xc1\\x0c?K\\xfbV\\xc4H\\xf6\\xa3u\\xe1ginU=\\xb8W\\x88\\xea\\xea\\xea\\x81\\x81\\x01\\xfe\\xae\\x0bKw\\xf2\\xec\\xecl\"\\x918p\\xe0\\xc0\\xdd\\xbbwc\\xd2\\x0c\\r\\r\\xd5\\xd5\\xd5m\\xda\\xb4\\xc9u]\\xce0[\\xcb\\xc6\\xbe\\x1d\\x1b\\x1b\\xcbf\\xb3\\x11\\xbf\\xdd\"(555\\x03\\x03\\x03/^\\xbc\\xe0\\xba\\xae\\xcdl\\xcc\\xad\\xc4\\x91\\xecGta\\xddN\\x16=\\x92\\xfd\\x18\\xcc6\\xb3\\xaeoE\\x8fd?Z\\xd7f\\xd6\\xe5V\\xfaH^\\x1c\\xdd\\xe9\\xe9\\xe9d2999\\xa9\\xfap\\x10\\x1d\\xbbv\\xf2\\xdc\\xdc\\\\QQ\\x91\\x01#\\xd9ohh\\xa8\\xb6\\xb6\\xb6\\xb4\\xb4\\xd4\\xf3\\xbc-[\\xb6\\xa8>\\x1cD\\xc1\\xae\\xbe\\x1d\\x1d\\x1d\\xcdf\\xb3\\x82n\\xb7\\xc8GMM\\xcd\\xe0\\xe0\\xe0\\xf4\\xf4\\xb4\\xe38\\xb4\\xae%\\xec\\xca\\xadno\\xb7\\x08\\n\\xd1\\xb5\\x8dE;\\xd9\\xc8\\x91\\xec\\xc7`\\xb6\\x87E}k\\xe4H\\xf6\\xa3u\\xedaQnM:\\x93\\xbc\\xec\\x19f\\xfe\\xaek6[v\\xb2\\xf1#\\xd9\\xef\\xfa\\xf5\\xebuuu\\x9ca6X\\xdc\\xaa\\xdb-\\x0c\\x1e\\xc9~\\xa7N\\x9d\\xa2u\\xcdfKn\\xa5\\xbc\\xdd\"(D\\xd7lV\\xecd\\xabF\\xb2\\x1f\\x83\\xd9TV\\xf4\\xadU#\\xd9\\x8f\\xd65\\x95\\x15\\xb9\\xcdd2k\\xd6\\xac\\xb1g$/\\x15\\xdd\\xa9\\xa9)\\xd5\\x87\\x83`\\x98\\xbf\\x93\\x17F\\xf2\\xfe\\xfd\\xfb\\x7f\\xff\\xfd\\xf7\\x98\\xad\\xae]\\xbbV__\\xbfy\\xf3f\\xcf\\xf3\\xca\\xca\\xcaT\\x1f\\x0e\\ne~\\xdf\\x1a\\xf3\\xe0^!N\\x9f>}\\xf5\\xea\\xd5\\xe7\\xcf\\x9f\\xd3\\xbaf0?\\xb7###\\xd6\\x8ed?\\xa2k\\x12\\xc3w2#\\xf9+\\x0cf3\\x18\\xde\\xb7\\x8c\\xe4\\xaf\\xd0\\xbaf0<\\xb7\\x8c\\xe4\\xc5\\x88\\xae\\x01L\\xde\\xc9\\x8c\\xe4o\\x18\\x1c\\x1clhh(++s]\\x973\\xcc\\xe2\\x98\\xdc\\xb7\\xd6\\xden\\x91\\x8f\\xda\\xda\\xda+W\\xaeLMM%\\x93I\\xae\\xeb\\x8a\\x137~$\\x9b\\xf7v\\x8b\\xa0\\x10]\\xb9\\x8c\\xdd\\xc9\\x8c\\xe4<1\\x98%2\\xb6o\\x19\\xc9y\\xa2u%26\\xb7\\x8c\\xe4\\xd5E\\xf7\\xf9\\xf3\\xe7!~+\\x08\\x88\\x99;\\x99\\x91\\xbc\\n\\x03\\x03\\x03\\x8d\\x8d\\x8deee\\x9e\\xe7m\\xde\\xbc9\\xf8o\\x05\\xc11\\xb3oo\\xde\\xbc\\xc9\\x99\\xe4\\x95\\xaa\\xab\\xab\\xbb|\\xf9\\xf2\\xd4\\xd4\\x94\\xe38\\xb4\\xae\\xe6\\xe2\\x06?\\xb8\\xc7\\x99\\xe4\\x95\"\\xbaR\\x18\\xb8\\x93\\x19\\xc9\\x05b0\\xeb\\xcf\\xc0\\xbee$\\x17\\x88\\xd6\\xd5\\x9f\\x81\\xb9\\xb5\\xf9\\xed\\x16A!\\xba\\x9a3m\\'/\\x8c\\xe4}\\xfb\\xf6\\xfd\\xf1\\xc7\\x1f\\xaa\\x8f\\xc5\\x90\\xc1\\xbce\\xcb\\x16\\xd7u9\\xc3\\xac\\x95\\xb8\\x91#\\xd9\\xf2\\xb7[\\x04\\xa5\\xae\\xae\\xee\\xd2\\xa5K\\x93\\x93\\x93\\\\\\xd7\\xd5\\x8di\\xb9\\xe5\\xc1\\xbd`\\xd5\\xd7\\xd7\\x13]\\r\\x19\\xb5\\x93\\xe7\\xe6\\xe6\\x12\\x89\\xc4\\xde\\xbd{\\x19\\xc9\\xc1\\xbaz\\xf5jSS\\x13\\x83Y\\x1fF\\xf5\\xed\\xcd\\x9b7?|\\xf8\\xc0H\\x0e\\x1c\\xad\\xab\\x1b\\xa3r\\xcbH\\x8e&\\xba\\xd3\\xd3\\xd3!\\xfe&X\\xb5\\x93\\x19\\xc9Q\\x0ef\\xcf\\xf3JKK\\xa3\\xf8\\x950\\xbbo\\x17F2o\\xb7\\x08U}}}\\x7f\\x7f\\xff\\xe4\\xe4\\xa4\\xe38\\xb4\\xaeB\\xe6\\xe4\\x96\\x07\\xf7\\xa2\\xd1\\xd0\\xd0@t\\x953d\\'\\x7f\\xfc\\xf8\\xb1\\xa8\\xa8\\x883\\xc9\\x91\\xb9r\\xe5Jss3\\x83Y\\x15C\\xfavll\\x8c\\x91\\x1c%ZW-Cr\\xcbH\\x8e\\x1e\\xd1U\\xc8\\x84\\x9d\\xccHV>\\x98\\xb7n\\xdd\\xea\\xba.g\\x98#cB\\xdf2\\x92\\x15jhh\\xe8\\xeb\\xeb{\\xfa\\xf4)\\xd7u\\xa3dBn\\x19\\xc9j566\\xf6\\xf7\\xf7\\x13\\xdd(\\x89\\xdf\\xc9\\x8cdM\\\\\\xbe|\\xb9\\xb9\\xb9y\\xdb\\xb6m\\x0c\\xe6\\x08\\x88\\xef[n\\xb7\\xd0\\x04\\xad\\x1b%\\xf1\\xb9\\xe5\\x15pzF\\xf7\\xc5\\x8b\\x17\\xaa\\x0f\\xc7d\\xb2w2#Y\\xe7\\xc1\\xecy\\xde\\xa6M\\x9bT\\x1f\\x8e\\x99d\\xf7-#Y\\xe7\\xd6u\\x1c\\x87\\xd6\\r\\x89\\xec\\xdc2\\x92\\xf5Dt\\xc3&x\\'/\\x8c\\xe4={\\xf6\\xdc\\xbbwO\\xf5\\xb1 \\x07\\x06sx\\x04\\xf7-o\\xb7\\xd0\\x1c\\xad\\x1b\\x1e\\xc1\\xb9\\xe5v\\x0b\\xfd\\x11\\xdd\\x90H\\xdd\\xc9\\x8cdq\\x83y\\xfb\\xf6\\xed\\xae\\xebr\\x86\\xd9\\xea\\xbee$\\x8bk\\xdd\\'O\\x9ep]\\xd7\\xf6\\xdc2\\x92eill\\xec\\xeb\\xeb#\\xbaV\\xefdF\\xb2P\\x97.]:s\\xe6\\x0c\\x83\\xd9\\xd2\\xbe\\xe5v\\x0b\\xa1\\x9a\\x9a\\x9ah]{s\\xbb0\\x92yu\\xa3\\xf4\\xe8\\xbe|\\xf9R\\xf5\\xe1H%o\\'3\\x92M\\x1a\\xcc\\x9e\\xe7\\x95\\x94\\x94\\xa8>\\x1cy\\xe4\\xf5-#\\xd9\\xa4\\xd6u\\x1c\\x87\\xd6\\xb5\"\\xb7\\x9cI6CSS\\xd3\\xc5\\x8b\\x17\\x89\\xae\\x15;\\x99\\x91l\\x98\\xfe\\xfe\\xfe\\xb3g\\xcf2\\x98\\r\\xef[F\\xb2a\\x9a\\x9b\\x9bi]\\xf3s\\xcbH6\\x0f\\xd15|\\'3\\x92\\x8d\\x1f\\xcc;v\\xecp]\\x973\\xccF\\xf5\\xed\\xf8\\xf88\\xff3\\x11\\xb3[\\xf7\\xf1\\xe3\\xc7\\\\\\xd75-\\xb7\\xbc\\xdd\\xc2lD\\xd7\\xc0\\x9d\\xbc0\\x92\\xbf\\xff\\xfe\\xfb\\xfb\\xf7\\xef\\xab>\\x16\\x84\\xa8\\xaf\\xaf\\xaf\\xa5\\xa5\\x85\\xc1lH\\xdf.\\x8c\\xe4\\xaa\\xaa*\\xd5\\x07\\x82p\\x9d9s\\xa6\\xb7\\xb7\\x97\\xc1lHn\\x19\\xc9vF\\xf7\\xd5\\xabW\\xaa\\x0fGG2v2#\\xd9\\xe6\\xc1\\xecy^qq\\xb1\\xea\\xc3\\xd1\\x8b\\x8c\\xbee$\\xdb\\xdc\\xba\\x8e\\xe3\\xd0\\xba\"s\\xcb\\xed\\x16v\"\\xba\\x82w\\xf2\\xc7\\x8f\\x1f\\x13\\x89\\xc4\\xee\\xdd\\xbb9\\x93l\\xa7\\x8b\\x17/\\xa6R)\\x06\\xb3\\xb0\\xbe\\x1d\\x1f\\x1f\\x7f\\xff\\xfe=O\\xc9[\\xeb\\xec\\xd9\\xb3===\\x0cfa\\xb9\\xe5\\xed\\x16 \\xba\\xc2v2#\\x19_\\r\\xe6\\x9d;w\\xba\\xaek\\xf9\\x19f\\xdd\\xfb\\x96\\x91\\x8c\\xafZwbb\\x82\\xeb\\xba\\xba\\xe7\\x96\\x91\\x0c?\\xa2+`\\'3\\x92\\x91Soookk\\xab\\xcd\\x83Y\\xeb\\xbee$#\\xa7\\x96\\x96\\x96\\xee\\xeen\\x9b\\x07\\xb3\\xd6\\xb9\\xe5v\\x0b,\\xa5\\xc5\\xee\\xe8\\xea\\xbb\\x93\\x19\\xc9\\xc8\\x7f0{\\x9e\\xb7q\\xe3F{>1}\\xfb\\xf6\\xd6\\xad[\\xdcn\\x81<[\\xd7q\\x9c\\xd7\\xaf_\\xdb\\xf3q\\xe9\\x9b[\\x1e\\xdcC>Z\\xac\\x8c\\xae\\xa6;ya$\\xef\\xda\\xb5\\xeb\\xcf?\\xffT},\\x10\\xa0\\xd7\\xb2\\xc1\\x1c\\xd7y$\\xf3v\\x0b\\xe4\\xa9\\xa5\\xa5\\xa5\\xab\\xab\\xcb\\x9e\\xd6\\xd54\\xb7\\x8cd\\xacT*\\x95\\xb2\\'\\xba:\\xeedF2V\\xad\\xa7\\xa7\\xa7\\xad\\xad\\xad\\xbc\\xbc\\xdcu]\\x83\\x07\\xb3\\x8e}\\xcbHF\\x81\\xad\\xfb\\xe8\\xd1\\xa3d2ip\\xeb\\xea\\x98[n\\xb7@!R\\x16DW\\xbb\\x9d\\xccHF z\\x8c\\x1e\\xcc\\xda\\xf5-\\xb7[ \\x10\\xa9T\\xaa\\xb3\\xb3\\xd3\\xd4\\xd6\\xd5.\\xb7<\\xb8\\x87\\xa0\\xb4\\xb6\\xb6\\x9a\\x1a]\\xbdv2#\\x19\\x81\\xeb\\xee\\xeeN\\xa7\\xd3\\xe5\\xe5\\xe5\\x9e\\xe7m\\xd8\\xb0\\xc1\\x8cOX\\xaf\\xbee$#\\xbc\\xd6u\\x1cgff\\xc6\\x8cOX\\xaf\\xdc2\\x92\\x11\\x86V\\xe3\\xa2\\xab\\xd1N\\xfe\\xf4\\xe9S\"\\x91\\xa8\\xac\\xac\\xe4\\x9ed\\x84\\xa1\\xdb\\xa0\\xc1\\xacQ\\xdf\\x8e\\x8f\\x8f\\xbf{\\xf7\\x8e\\xf7$#$\\xad\\xad\\xad\\x1d\\x1d\\x1df\\xb4\\xaeF\\xb9\\xe5v\\x0b\\x84\\xad\\xad\\xad\\xcd\\x8c\\xe8\\xea\\xb2\\x93\\x19\\xc9\\x88LWWW{{\\xfbw\\xdf}\\xe7\\xba\\xae\\xd0\\xc1\\xacK\\xdf2\\x92\\x11q\\xeb\\xfe\\xfb\\xef\\xbf\\xc9dRh\\xeb\\xea\\x92[F2\\xa2\\xd4&<\\xbaZ\\xecdF2\\x94\\xe8\\x12;\\x98\\xb5\\xe8\\xdb[\\xb7nq&\\x19\\xaaZ\\xf7\\x9f\\x7f\\xfe\\x11\\xd7\\xbaZ\\xe4\\x96\\xb7[@\\x95\\xb6\\xb6\\xb6\\xce\\xceNq\\xd1U\\xbf\\x93\\x17FrEE\\xc5_\\x7f\\xfd\\xa5\\xf6H`\\xad\\xae\\xae\\xaet:]QQq\\xfb\\xf6m\\x11\\x839\\xae\\xc9H\\xe6\\x15pP\\xde\\xba\\x0f\\x1f><z\\xf4\\xa8\\x88\\xd6U\\x9f[F2t\\xd0&*\\xba\\x8aw2#\\x19Z\\xe9\\x122\\x98\\x15\\xf7-#\\x19Zi\\x13\\xd2\\xba\\x8as\\xcb\\xed\\x16\\xd0\\xf3\\xe2\\xd0\\xc3\\xcf\\xd1}\\xf3\\xe6MLK*w2#\\x19\\xda\\xea\\xec\\xecloo\\xaf\\xa8\\xa8p]w\\xfd\\xfa\\xf51\\xcd\\xa8\\xec[n\\xb7\\x80\\xb6\\xd2\\xe9\\xf4B\\xeb&\\x93I\\r[Weny\\xbb\\x05t\\x96\\xd68\\xba\\xcav2#\\x19\"tj9\\x98\\x95\\xf5-#\\x19\"\\xa4\\xb5l]e\\xb9\\x1d\\x19\\x19\\x89\\xc5b\\xbc\\x95\\x06\\xfaK\\xa7\\xd3\\x17.\\\\\\xd0*\\xbajv2#\\x19\\xe2ttt\\x9c;w\\xae\\xb2\\xb2\\xf2\\xf6\\xed\\xdb\\xca\\x07\\xb3\\x9a\\xbee$C\\x9c\\xf6\\xf6\\xf6\\x0b\\x17.\\xfc\\xfd\\xf7\\xdf:\\\\\\xd7U\\x93[F2$j\\xd7&\\xba\\nv\\xf2\\xa7O\\x9f\\xd6\\xae][ZZ\\xca\\x83{\\x90\\xa8\\xa3\\xa3\\xe3\\xfc\\xf9\\xf3\\xeb\\xd6\\xad{\\xf0\\xe0\\x81\\xb2\\xc1<\\x1f\\xb9_\\x7f\\xfdU\\xcd\\x7f*\\x10\\xa8\\xca\\xca\\xca\\x99\\x99\\x99\\xe8\\x134??\\xaf\\xa0o\\x7f\\xf9\\xe5\\x17\\xcf\\xf3\"\\xfe\\xa5@\\xb0\\xde\\xbe}\\xbbn\\xdd\\xba]\\xbbv\\xa5R\\xa9\\x98\\x85\\xef\\xbb\\x00 \\xef\\xb9y\\x00+En\\x01y\\xc8- \\x0f\\xb9\\x05\\xe4!\\xb7\\x80<\\xe4\\x16\\x90\\x87\\xdc\\x02\\xf2\\x90[@\\x1er\\x0b\\xc8Cn\\x01y\\xc8- \\x0f\\xb9\\x05\\xe4!\\xb7\\x80<\\xe4\\x16\\x90\\x87\\xdc\\x02\\xf2\\x90[@\\x1er\\x0b\\xc8Cn\\x01y\\xc8- \\x0f\\xb9\\x05\\xe4!\\xb7\\x80<\\xe4\\x16\\x90\\x87\\xdc\\x02\\xf2\\x90[@\\x1er\\x0b\\xc8Cn\\x01y\\xc8- \\x0f\\xb9\\x05\\xe4!\\xb7\\x80<\\xe4\\x16\\x90\\x87\\xdc\\x02\\xf2\\x90[@\\x1er\\x0b\\xc8Cn\\x01y\\xc8- \\x0f\\xb9\\x05b\\xe2\\xfc\\x17Y\\xc3\\xa6\\xc0\\xba\\xc4T\\xd4\\x00\\x00\\x00\\x00IEND\\xaeB`\\x82'"
+        },
+        "max_width_frac": 1.0,
+        "inline": false,
+        "verify": {
+          "done": false,
+          "reason": "thiếu LibreOffice để render thử DrawingML"
+        },
+        "parent": null
+      }
+    ],
+    "injection": {
+      "media": {
+        "images_added": 2,
+        "markers_replaced": 1,
+        "markers_missing": 0,
+        "markers_text_fallback": 0,
+        "logical_images": 1
+      },
+      "layouts": {
+        "rebuilt": 0,
+        "failed": 0
+      },
+      "verbatim": {},
+      "blocks_by_status": {
+        "fallback": 1
+      }
+    }
+  },
+  "engine_report": {
+    "input": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\6b203efe6b75\\work\\src\\hinh_don_gian.l2w_engine.tex",
+    "input_type": "tex",
+    "output": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\6b203efe6b75\\out\\hinh_don_gian.docx",
+    "mode": 2,
+    "engine": "Native DrawingML + OMML + MathTables + Universal 2D PDF Decompiler Engine v2.4",
+    "rendered_figures": 0,
+    "drawingml_groups": 0,
+    "drawingml_shapes": 0,
+    "tkz_tab_tables": 0,
+    "choice_tables": 0,
+    "data_tables": 0,
+    "immini_layouts": 0,
+    "expanded_tex_includes": 0,
+    "warnings": [],
+    "word_tables": 0,
+    "equation_nodes": 0,
+    "drawing_references": 0,
+    "embedded_media_files": 1,
+    "input_table_environments": 0,
+    "input_includegraphics": 0,
+    "expected_total_image_commands": 0,
+    "ooxml_stats": {
+      "tables_processed": 0,
+      "variation_tables": 0,
+      "choice_tables": 0,
+      "immini_tables": 0,
+      "data_tables": 0,
+      "other_tables": 0,
+      "cells_formatted": 0,
+      "merged_cells_detected": 0,
+      "role_from_metadata": 0,
+      "role_from_heuristic": 0
+    },
+    "status": "automated_checks_passed",
+    "engine_counts_before_postprocess": {
+      "equation_nodes": 0,
+      "word_tables": 0,
+      "drawingml_groups": 0,
+      "drawingml_shapes": 0,
+      "embedded_media_files": 0
+    }
+  },
+  "table_events": [],
+  "math_stats": {
+    "unknown_commands": {},
+    "unverified_constructs": {},
+    "formulas": 0
+  },
+  "postprocess": {
+    "accent_fix": {
+      "da_sua": 0,
+      "ky_tu": {}
+    },
+    "xml_order_fixed": 0
+  },
+  "package": {
+    "ok": true,
+    "errors": [],
+    "warnings": []
+  },
+  "counts": {
+    "ok": true,
+    "paragraphs": 3,
+    "text_chars": 29,
+    "equation_nodes": 0,
+    "omml_paragraphs": 0,
+    "word_tables": 0,
+    "tables_by_role": {},
+    "table_role_source": {},
+    "empty_tables": 0,
+    "drawingml_groups": 0,
+    "drawingml_shapes": 0,
+    "logical_images": 1,
+    "svg_backed_images": 1,
+    "media_parts": 2,
+    "marker_leaks": {
+      "truth_marker": 0,
+      "image_marker": 0,
+      "layout_sentinel": 0,
+      "engine_block_token": 0,
+      "verbatim_marker": 0
+    },
+    "marker_leaks_total": 0,
+    "l2w_notices": [],
+    "tex_residue_count": 0,
+    "tex_residue_samples": []
+  },
+  "layers": [
+    {
+      "layer": 1,
+      "name": "A. Nội dung (chữ, thứ tự, dấu tiếng Việt, rò rỉ)",
+      "status": "PASS",
+      "summary": "Giữ 100.0% token nguồn (6/6); đủ nội dung chữ.",
+      "details": {
+        "source_tokens": 6,
+        "docx_tokens": 6,
+        "matched_tokens": 6,
+        "token_recall": 1.0,
+        "order_ratio": 1.0,
+        "duplicate_excess_ratio": 0.0,
+        "generated_label_tokens": 0,
+        "missing_sample": [],
+        "lost_diacritics_sample": [],
+        "lost_diacritics": 0,
+        "tex_residue": 0,
+        "tex_residue_sample": [],
+        "marker_leaks": 0,
+        "l2w_notices": [],
+        "metric": "token_recall = |token nguồn ∩ token Word| / |token nguồn| (đa tập, NFC, chữ thường); order_ratio = difflib ratio trên dãy token — tín hiệu thứ tự, không phải độ chính xác.",
+        "paragraphs": 3
+      },
+      "group": "A",
+      "required": true
+    },
+    {
+      "layer": 2,
+      "name": "B. Toán (OMML theo từng khối)",
+      "status": "PASS",
+      "summary": "Nguồn không có công thức.",
+      "details": {
+        "source_math_blocks": 0,
+        "omml_equations": 0,
+        "matched_native": 0,
+        "math_as_image": 0,
+        "unmatched": 0,
+        "unmatched_sample": [],
+        "fractions": 0,
+        "radicals": 0,
+        "nary_ops": 0,
+        "matrices": 0,
+        "accents": 0,
+        "metric": "Mỗi khối toán nguồn (ngoài hình) được ghép theo thứ tự với một m:oMath có cùng chữ ký ký tự (chữ/số/ký hiệu). Khớp chữ ký chưa chứng minh cấu trúc đúng; cấu trúc kiểm bằng fixture."
+      },
+      "group": "B",
+      "required": true
+    },
+    {
+      "layer": 3,
+      "name": "C. Hình (DrawingML / ảnh logic)",
+      "status": "PASS",
+      "summary": "Nguồn 1 hình; Word có 0 nhóm DrawingML + 1 ảnh hình.",
+      "details": {
+        "tikz": 1,
+        "bbt_in_tikz": 0,
+        "standalone_axis": 0,
+        "includegraphics": 0,
+        "other_picture_envs": 0,
+        "expected_figures": 1,
+        "drawingml_shape_groups": 0,
+        "drawingml_editable_shapes": 0,
+        "logical_images": 1,
+        "figure_images": 1,
+        "media_parts": 2,
+        "produced_figures": 1,
+        "per_block": [
+          {
+            "block_id": "tex-fig-0001",
+            "method": "vector_image",
+            "found": true,
+            "status": "fallback"
+          }
+        ],
+        "missing_blocks": [],
+        "note": "Ảnh SVG kèm PNG của cùng một hình được tính là MỘT hình. Nhóm DrawingML tồn tại chưa chứng minh hình đúng; đối chiếu nét vẽ cần kiểm tra hiển thị (nhóm E)."
+      },
+      "group": "C",
+      "required": true
+    },
+    {
+      "layer": 4,
+      "name": "D. Bảng & bố cục (theo vai trò)",
+      "status": "PASS",
+      "summary": "không có bảng.",
+      "details": {
+        "expected_by_role": {
+          "mcq": 0,
+          "true_false": 0,
+          "variation": 0,
+          "data": 0
+        },
+        "produced_by_role": {
+          "mcq": 0,
+          "true_false": 0,
+          "variation": 0,
+          "data": 0
+        },
+        "docx_tables_by_role": {},
+        "short_by_role": {},
+        "empty_tables": [],
+        "mcq_tables_missing_options": [],
+        "tables": [],
+        "note": "So theo từng vai trò; bảng biến thiên giữ bằng ảnh TeX (table_as_image) được tính là có biểu diễn nhưng không phải bảng native."
+      },
+      "group": "D",
+      "required": true
+    },
+    {
+      "layer": 5,
+      "name": "E. Hiển thị (render Word ↔ PDF nguồn)",
+      "status": "NOT_MEASURED",
+      "summary": "QA hiển thị bị tắt (qa_pdf=False) → nhóm E chưa thực hiện.",
+      "details": {
+        "enabled": false,
+        "measured": false,
+        "similarity_percent": null,
+        "reason": "QA hiển thị bị tắt (qa_pdf=False) → nhóm E chưa thực hiện."
+      },
+      "group": "E",
+      "required": true
+    }
+  ],
+  "blocks_summary": {
+    "total": 1,
+    "by_method": {
+      "vector_image": 1
+    },
+    "unresolved": 0,
+    "native": 0,
+    "as_image": 1
+  },
+  "quality": {
+    "quality_status": "review_required",
+    "conversion_completed": true,
+    "reasons": [
+      "chưa thực hiện: L5 E. Hiển thị (render Word ↔ PDF nguồn): QA hiển thị bị tắt (qa_pdf=False) → nhóm E chưa thực hiện."
+    ],
+    "not_performed": [
+      "L5 E. Hiển thị (render Word ↔ PDF nguồn): QA hiển thị bị tắt (qa_pdf=False) → nhóm E chưa thực hiện."
+    ],
+    "layer_status": {
+      "L1": "PASS",
+      "L2": "PASS",
+      "L3": "PASS",
+      "L4": "PASS",
+      "L5": "NOT_MEASURED"
+    },
+    "scope_note": "‘passed’ chỉ có nghĩa đạt các tiêu chí tự động đã nêu cho tệp này, không phải đúng 100%."
+  },
+  "input_preserved": true,
+  "output": {
+    "docx": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\6b203efe6b75\\out\\hinh_don_gian.docx",
+    "report": "E:\\gomchung\\latex2word_starter\\ket_qua_kiem_tra\\jobs\\6b203efe6b75\\out\\hinh_don_gian.report.json",
+    "qa_pdf": null
+  },
+  "environment": {
+    "python": "3.14.7",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "libraries": {
+      "python_docx": "1.2.0",
+      "lxml": "6.1.3",
+      "pillow": "12.3.0",
+      "numpy": "2.5.4",
+      "pdfplumber": "0.11.10",
+      "pypdfium2": null,
+      "pikepdf": "10.17.0",
+      "pytesseract": "0.3.13",
+      "fastapi": "0.143.5",
+      "streamlit": "1.66.0"
+    },
+    "tools": {
+      "xelatex": "MiKTeX-XeTeX 4.18 (MiKTeX 26.5)",
+      "pdflatex": "MiKTeX-pdfTeX 4.27 (MiKTeX 26.5)",
+      "lualatex": "This is LuaHBTeX, Version 1.25.7 (MiKTeX 26.5)",
+      "pdftocairo": "pdftocairo version 24.04.0",
+      "imagemagick": "Invalid drive specification.",
+      "pandoc": "pandoc 3.12.1",
+      "docx2pdf": "0.1.8"
+    },
+    "tesseract_languages": []
+  },
+  "capabilities": {
+    "derived": {
+      "tex_upload": {
+        "available": true,
+        "detail": "engine dựng Word từ .tex/.zip"
+      },
+      "paste_smart": {
+        "available": true,
+        "detail": "tiền xử lý thông minh (dán mã)"
+      },
+      "pdf_reader": {
+        "available": true,
+        "detail": "pdfplumber (chữ/đường nét) + pypdfium2 (render/crop) + pikepdf (cấu trúc)"
+      },
+      "pdf_vector_crop": {
+        "available": true,
+        "detail": "cắt vùng PDF thành SVG bằng pdftocairo"
+      },
+      "ocr": {
+        "available": false,
+        "detail": "thiếu tesseract → trang scan giữ ảnh"
+      },
+      "math_ocr": {
+        "available": false,
+        "detail": "chưa cấu hình bộ nhận dạng công thức từ ảnh; công thức không chắc → ảnh vùng"
+      },
+      "visual_qa": {
+        "available": true,
+        "detail": "render DOCX→PDF bằng LibreOffice/Word rồi so với nguồn"
+      },
+      "tex_reference_compile": {
+        "available": true,
+        "detail": "biên dịch PDF tham chiếu từ nguồn TeX (shell-escape tắt)"
+      }
+    },
+    "tools": {
+      "xelatex": {
+        "available": true,
+        "version": "MiKTeX-XeTeX 4.18 (MiKTeX 26.5)"
+      },
+      "pdflatex": {
+        "available": true,
+        "version": "MiKTeX-pdfTeX 4.27 (MiKTeX 26.5)"
+      },
+      "lualatex": {
+        "available": true,
+        "version": "This is LuaHBTeX, Version 1.25.7 (MiKTeX 26.5)"
+      },
+      "pdftocairo": {
+        "available": true,
+        "version": "pdftocairo version 24.04.0"
+      },
+      "soffice": {
+        "available": false,
+        "version": null
+      },
+      "tesseract": {
+        "available": false,
+        "version": null
+      },
+      "ghostscript": {
+        "available": false,
+        "version": null
+      },
+      "imagemagick": {
+        "available": true,
+        "version": "Invalid drive specification."
+      },
+      "pandoc": {
+        "available": true,
+        "version": "pandoc 3.12.1"
+      },
+      "docx2pdf": {
+        "available": true,
+        "version": "0.1.8"
+      }
+    },
+    "tesseract_languages": [],
+    "missing_modules": {}
+  },
+  "finished_at": "2026-10-24T00:28:36"
+}

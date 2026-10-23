@@ -1,0 +1,101 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amsthm,mathtools,tasks,tcolorbox,multicol,siunitx,fancyhdr,lastpage}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Trường THPT Lê Lợi}
+\rhead{Đề số 01}
+\cfoot{Trang \thepage/\pageref{LastPage}}
+\definecolor{xanh}{RGB}{0,102,204}
+\newcommand*{\mycmd}[2][Mặc định]{\textbf{#1}: #2}
+\NewDocumentCommand{\diemso}{s m O{điểm}}{\IfBooleanTF{#1}{(#2 #3)}{[#2 #3]}}
+\DeclarePairedDelimiter{\ceilx}{\lceil}{\rceil}
+\def\vect#1{\overrightarrow{#1}}
+\def\khoang#1;#2;{\left[#1;#2\right]}
+\let\epsi\varepsilon
+\theoremstyle{definition}
+\newtheorem{dn}{Định nghĩa}[section]
+\newtheorem*{nx}{Nhận xét}
+\begin{document}
+\tableofcontents
+\section{Các macro lạ}
+\mycmd{giá trị} và \mycmd[Tùy chọn]{khác}. Điểm: \diemso{2} hoặc \diemso*{3}[đ].
+Làm tròn $\ceilx{x}$, vectơ $\vect{MN}$, khoảng $\khoang a;b;$, $\epsi>0$.
+\tieudelaxa{Văn bản trong lệnh lạ} rồi \lenhkhongbiet\ tiếp tục \caidat{2cm}{nội dung giữ lại}.
+
+\begin{dn}\label{dn:1}
+Hàm số $f$ liên tục tại $x_0$ nếu $\lim\limits_{x\to x_0} f(x)=f(x_0)$.
+\end{dn}
+\begin{nx}
+Theo Định nghĩa~\ref{dn:1}, \textit{mọi đa thức} đều liên tục.
+\end{nx}
+\begin{proof}
+Hiển nhiên.
+\end{proof}
+
+\subsection{Toán học nâng cao}
+\begin{equation}\label{eq:main}
+\sum_{k=1}^{n} \binom{n}{k} = 2^n - 1, \quad \operatorname*{argmax}_{x\in X} g(x)
+\end{equation}
+\begin{gather*}
+A = \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}, \quad \det A = \begin{vmatrix} 1 & 2\\ 3 & 4\end{vmatrix} = -2
+\end{gather*}
+\[
+f(x)=\begin{cases} x^2 & \text{nếu } x\ge 0\\ -x & \text{nếu } x<0 \end{cases}, \qquad
+\underbrace{1+1+\cdots+1}_{n \text{ lần}} = n, \qquad \mathcal{F}, \mathfrak{g}, \mathbb{Z}_p
+\]
+Phương trình \eqref{eq:main} và $x \equiv 1 \pmod 3$, $a \nmid b$, $\vec{u}\perp\vec{v}$, $\widehat{ABC}=60^\circ$.
+
+\subsection{Danh sách và bố cục}
+\begin{tasks}(4)
+\task $x=1$ \task $x=2$ \task $x=3$ \task $x=4$
+\end{tasks}
+\begin{description}
+\item[Định lí Vi-ét] Tổng hai nghiệm $x_1+x_2=-\frac{b}{a}$.
+\item[Hệ quả] Tích hai nghiệm.
+\end{description}
+\begin{enumerate}
+\item Mức 1
+  \begin{enumerate}
+  \item Mức 2
+    \begin{enumerate}
+    \item Mức 3
+    \end{enumerate}
+  \end{enumerate}
+\item Mức 1 tiếp
+\end{enumerate}
+
+\begin{tcolorbox}[colback=yellow!10, colframe=xanh, title=Ghi nhớ]
+Công thức nghiệm: $x=\dfrac{-b\pm\sqrt{\Delta}}{2a}$.
+\end{tcolorbox}
+
+\begin{multicols}{2}
+Cột trái với nhiều chữ để thấy hai cột được chia ra trong Word, có đủ nội dung để kiểm tra.
+\columnbreak
+Cột phải cũng có nội dung.
+\end{multicols}
+
+\begin{flushright}
+\textit{Người ra đề}\\
+\textbf{Nguyễn Văn A}
+\end{flushright}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.5\textwidth]{hinh1.png}
+\caption{Đồ thị hàm số}\label{fig:1}
+\end{figure}
+Hình~\ref{fig:1} cho thấy\ldots{} Trích dẫn \cite{sgk}.
+
+\begin{tabularx}{\textwidth}{|X|c|}
+\hline
+\rowcolor{gray!20} Cột rộng & Hẹp \\ \hline
+Nội dung dài dài dài & \cellcolor{green!20} 1 \\ \hline
+\end{tabularx}
+
+\begin{thebibliography}{9}
+\bibitem{sgk} Bộ GD\&ĐT, \emph{Sách giáo khoa Toán 12}, NXB Giáo dục, 2024.
+\end{thebibliography}
+
+Ký tự đặc biệt: \% \$ \& \# \_ \{ \} \textbackslash{} \S\ \copyright{} 50\,\% --- dấu ``nháy'' và ~cách. Accent: \'e \`a \^o \"u \~n \c{c} \d{a} \h{a}.
+Mã \verb|\frac{a}{b}| giữ nguyên.
+\end{document}

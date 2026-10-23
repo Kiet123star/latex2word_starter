@@ -1,0 +1,16 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{tikz}
+\begin{document}
+Hình khó dựng native (cong, tô, nét đứt, 3D):
+
+\begin{tikzpicture}
+\shade[left color=blue!20,right color=red!30] (0,0) circle (1.2);
+\draw[dashed,thick,smooth] plot coordinates {(-2,0) (-1,1) (0,0.3) (1,1.4) (2,0)};
+\fill[opacity=0.4,green] (0,0) -- (1,2) -- (2,0) -- cycle;
+\draw[->] (0,0,0) -- (0,0,2) node[left] {$z$};
+\node at (2.4,1.2) {$M$};
+\end{tikzpicture}
+
+Đoạn sau hình khó.
+\end{document}

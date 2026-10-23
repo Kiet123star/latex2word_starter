@@ -1,0 +1,183 @@
+{
+ "schema": "l2w-pdf-manifest/1",
+ "coordinate_system": "pt; gốc trên-trái trang HIỂN THỊ (đã áp CropBox và /Rotate); y tăng xuống",
+ "source": {
+  "file": "vn_tounicode_shifted.pdf"
+ },
+ "document": {
+  "encrypted": false,
+  "pdf_version": "1.3",
+  "producer": "l2w-tests (reportlab)",
+  "creator": "l2w-tests",
+  "form_xobjects": 0
+ },
+ "page_count": 1,
+ "pages": [
+  {
+   "visible_chars": 274,
+   "hidden_chars": 0,
+   "image_cover": 0.0,
+   "vector_objects": 0,
+   "unmapped_chars": 0,
+   "legacy_vn_fonts": [],
+   "type": "text",
+   "page": 1,
+   "mediabox": [
+    0.0,
+    0.0,
+    595.2756,
+    841.8898
+   ],
+   "cropbox": [
+    0.0,
+    0.0,
+    595.2756,
+    841.8898
+   ],
+   "rotation": 0,
+   "width": 595.28,
+   "height": 841.89,
+   "columns": null,
+   "reference_text": "UsƱỞoh!Usvoh!iỎd!qiỖ!uiõoh!OhvzỆo!IvỈ\nđỂ!ljỄn!usb!nõo!Upâo!mỜq!nƱỞj!ibj\nIỎd!tjoi!ĒỎd!lỺ!ĒỂ!cáj!usƱỜd!lij!mán/\nQiƱƢoh!usíoi!cẮd!ibj!dô!ohijỈn!uiỲd!lij!cjỈu!uiỪd!liõoh!ãn/\nOhƱỞj!sb!ĒỂ;!uiẨz!Më!WĄo!UiƱỠoh-!uỖ!Upâo!—!Ujo/\nUiỞj!hjbo!mán!cáj!diîo!nƱƢj!qiûu-!liõoh!lỄ!uiỞj!hjbo!qiâu!ĒỂ/",
+   "reference_excluded_chars": 0,
+   "text_plausibility": {
+    "checked": true,
+    "long_token_frac": 1.0,
+    "punct_ratio": 0.226,
+    "vowelless_word_ratio": 0.021,
+    "words": 48,
+    "suspect": true
+   }
+  }
+ ],
+ "page_types": {
+  "1": "text"
+ },
+ "blocks": [
+  {
+   "block_id": "p1-b1",
+   "type": "paragraph",
+   "page": 1,
+   "bbox": [
+    60.0,
+    51.7,
+    383.72,
+    194.7
+   ],
+   "method": "text_native",
+   "lines": [
+    {
+     "runs": [
+      {
+       "text": "UsƱỞoh!Usvoh!iỎd!qiỖ!uiõoh!OhvzỆo!IvỈ",
+       "bold": false,
+       "italic": false,
+       "size": 13.0
+      }
+     ],
+     "math": []
+    },
+    {
+     "runs": [
+      {
+       "text": "đỂ!ljỄn!usb!nõo!Upâo!mỜq!nƱỞj!ibj",
+       "bold": false,
+       "italic": false,
+       "size": 13.0
+      }
+     ],
+     "math": []
+    },
+    {
+     "runs": [
+      {
+       "text": "IỎd!tjoi!ĒỎd!lỺ!ĒỂ!cáj!usƱỜd!lij!mán/",
+       "bold": false,
+       "italic": false,
+       "size": 13.0
+      }
+     ],
+     "math": []
+    },
+    {
+     "runs": [
+      {
+       "text": "QiƱƢoh!usíoi!cẮd!ibj!dô!ohijỈn!uiỲd!lij!cjỈu!uiỪd!liõoh!ãn/",
+       "bold": false,
+       "italic": false,
+       "size": 13.0
+      }
+     ],
+     "math": []
+    },
+    {
+     "runs": [
+      {
+       "text": "OhƱỞj!sb!ĒỂ;!uiẨz!Më!WĄo!UiƱỠoh-!uỖ!Upâo!—!Ujo/",
+       "bold": false,
+       "italic": false,
+       "size": 13.0
+      }
+     ],
+     "math": []
+    },
+    {
+     "runs": [
+      {
+       "text": "UiỞj!hjbo!mán!cáj!diîo!nƱƢj!qiûu-!liõoh!lỄ!uiỞj!hjbo!qiâu!ĒỂ/",
+       "bold": false,
+       "italic": false,
+       "size": 13.0
+      }
+     ],
+     "math": []
+    }
+   ],
+   "text": "UsƱỞoh!Usvoh!iỎd!qiỖ!uiõoh!OhvzỆo!IvỈ đỂ!ljỄn!usb!nõo!Upâo!mỜq!nƱỞj!ibj IỎd!tjoi!ĒỎd!lỺ!ĒỂ!cáj!usƱỜd!lij!mán/ QiƱƢoh!usíoi!cẮd!ibj!dô!ohijỈn!uiỲd!lij!cjỈu!uiỪd!liõoh!ãn/ OhƱỞj!sb!ĒỂ;!uiẨz!Më!WĄo!UiƱỠoh-!uỖ!Upâo!—!Ujo/ UiỞj!hjbo!mán!cáj!diîo!nƱƢj!qiûu-!liõoh!lỄ!uiỞj!hjbo!qiâu!ĒỂ/",
+   "inline_math": [],
+   "align": "left",
+   "size": 13.0,
+   "warnings": [],
+   "status": "ok",
+   "order": 1,
+   "parent": null,
+   "fallback_reason": null,
+   "confidence": null,
+   "source": {
+    "file": "vn_tounicode_shifted.pdf",
+    "page": 1,
+    "bbox_pt": [
+     60.0,
+     51.7,
+     383.72,
+     194.7
+    ],
+    "coords": "display_topleft_pt"
+   }
+  }
+ ],
+ "issues": [
+  {
+   "severity": "warning",
+   "code": "text_mapping_suspect",
+   "message": "Trang 1: chữ trích từ PDF không giống văn bản tự nhiên (heuristic: cụm dài 100%, ký hiệu 23%, từ không nguyên âm 2%) — có thể bảng ánh xạ ToUnicode của phông SAI; chữ trong Word có thể khác chữ hiển thị. Cần đối chiếu bằng mắt.",
+   "page": 1
+  }
+ ],
+ "summary": {
+  "blocks": 1,
+  "by_method": {
+   "text_native": 1
+  },
+  "by_type": {
+   "paragraph": 1
+  },
+  "page_types": {
+   "text": 1
+  },
+  "unresolved": 0,
+  "inline_math_omml": 0,
+  "inline_math_images": 0,
+  "confidence_note": "confidence là heuristic nội bộ (0–1), chưa hiệu chuẩn trên tập dữ liệu thật."
+ }
+}
